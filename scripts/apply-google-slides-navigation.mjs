@@ -1,6 +1,6 @@
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
-import { dirname, resolve } from 'node:path';
+import { resolve } from 'node:path';
 import { spawn } from 'node:child_process';
 
 const root = resolve(import.meta.dirname, '..');
@@ -21,6 +21,8 @@ if (!token.access_token) {
 const outputDir = resolve(root, 'dist/deck');
 const presentationPath = resolve(outputDir, 'live-presentation.json');
 const requestsPath = resolve(outputDir, 'navigation-requests.json');
+const manifestPath = resolve(outputDir, 'slide-manifest.json');
+const sourcePath = resolve(root, 'prototype/deck/content.json');
 await mkdir(outputDir, { recursive: true });
 
 const presentation = await googleJson(
@@ -32,7 +34,7 @@ await writeFile(presentationPath, `${JSON.stringify(presentation, null, 2)}\n`, 
 
 await runNode([
   resolve(root, 'scripts/build-google-slides-navigation.mjs'),
-  resolve(outputDir, 'slide-manifest.json'),
+  manifestPath,
   presentationPath,
   requestsPath
 ]);
@@ -63,7 +65,63 @@ await writeFile(
   'utf8'
 );
 
-console.log(`Applied ${navigation.requests.length} navigation requests to Google Slides ${presentationId}`);
+const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+const source = JSON.parse(await readFile(sourcePath, 'utf8'));
+const links = collectLinks(verification);
+
+const expectedInternalTargets = new Set(
+  manifest.toc.map((item) => navigation.pageObjectIdByKey[item.key])
+);
+for (const target of expectedInternalTargets) {
+  if (!target || !links.pageObjectIds.has(target)) {
+    throw new Error(`missing generated internal link target: ${target ?? '(unresolved)'}`);
+  }
+}
+
+const expectedExternalUrls = new Set();
+for (const slide of source.slides ?? []) {
+  for (const block of slide.blocks ?? []) {
+    if (block.type === 'link' && block.url) expectedExternalUrls.add(block.url);
+  }
+}
+for (const url of expectedExternalUrls) {
+  if (!links.urls.has(url)) {
+    throw new Error(`deck output lost external hyperlink: ${url}`);
+  }
+}
+
+const report = {
+  presentationId,
+  slideCount: verification.slides?.length ?? 0,
+  expectedInternalLinkTargets: [...expectedInternalTargets],
+  observedInternalLinkTargets: [...links.pageObjectIds],
+  expectedExternalUrls: [...expectedExternalUrls],
+  observedExternalUrls: [...links.urls]
+};
+await writeFile(
+  resolve(outputDir, 'navigation-verification.json'),
+  `${JSON.stringify(report, null, 2)}\n`,
+  'utf8'
+);
+
+console.log(
+  `Applied ${navigation.requests.length} navigation requests and verified ${expectedInternalTargets.size} internal + ${expectedExternalUrls.size} external links on Google Slides ${presentationId}`
+);
+
+function collectLinks(presentationResource) {
+  const pageObjectIds = new Set();
+  const urls = new Set();
+  for (const slide of presentationResource.slides ?? []) {
+    for (const element of slide.pageElements ?? []) {
+      for (const textElement of element.shape?.text?.textElements ?? []) {
+        const link = textElement.textRun?.style?.link;
+        if (link?.pageObjectId) pageObjectIds.add(link.pageObjectId);
+        if (link?.url) urls.add(link.url);
+      }
+    }
+  }
+  return { pageObjectIds, urls };
+}
 
 async function googleJson(url, init, accessToken) {
   const headers = new Headers(init.headers ?? {});
