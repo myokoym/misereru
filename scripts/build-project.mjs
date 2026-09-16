@@ -14,9 +14,14 @@ const sourcePath = resolve(root, config.source?.path ?? 'slides.md');
 const outputs = config.outputs ?? {};
 const pagesEnabled = featureEnabled(config.publish?.githubPages);
 const buildPlan = {
-  version: 3,
+  version: 4,
   source: config.source,
   renderer: 'marp',
+  navigation: {
+    toc: 'generated-after-title',
+    sourceIdentity: 'stable-key',
+    targetIdentity: 'generated-slide-number'
+  },
   outputs: {},
   publish: {
     githubPages: {
@@ -65,6 +70,7 @@ console.log(`Wrote ${planPath}`);
 async function createMarpInput(source) {
   const original = await readFile(source, 'utf8');
   const generatedPath = resolve(dirname(source), `.misereru-${basename(source)}.marp.md`);
+  const withToc = injectGeneratedToc(original);
   const frontmatter = [
     '---',
     'marp: true',
@@ -73,8 +79,62 @@ async function createMarpInput(source) {
     '---',
     ''
   ].join('\n');
-  await writeFile(generatedPath, `${frontmatter}${original}`, 'utf8');
+  await writeFile(generatedPath, `${frontmatter}${withToc}`, 'utf8');
   return generatedPath;
+}
+
+function injectGeneratedToc(markdown) {
+  const slides = markdown
+    .split(/^---\s*$/m)
+    .map((slide) => slide.trim())
+    .filter(Boolean);
+
+  if (slides.length < 2) return markdown;
+
+  const metadata = slides.map((slide, index) => readSlideMetadata(slide, index));
+  const keys = new Set();
+  for (const slide of metadata) {
+    if (slide.key === '__misereru_toc__') {
+      throw new Error('Slide key __misereru_toc__ is reserved for the generated table of contents');
+    }
+    if (keys.has(slide.key)) {
+      throw new Error(`Duplicate slide key: ${slide.key}`);
+    }
+    keys.add(slide.key);
+  }
+
+  const tocItems = metadata.slice(1).map((slide, originalIndex) => {
+    // Generated TOC becomes slide 2, so every original slide after the title shifts by +1.
+    const generatedSlideNumber = originalIndex + 3;
+    return `- [${escapeMarkdownLinkLabel(slide.title)}](#${generatedSlideNumber})`;
+  });
+
+  const tocSlide = [
+    '<!-- {"key":"__misereru_toc__"} -->',
+    '# 目次',
+    '',
+    ...tocItems,
+  ].join('\n');
+
+  return [slides[0], tocSlide, ...slides.slice(1)].join('\n\n---\n\n');
+}
+
+function readSlideMetadata(slide, index) {
+  const keyMatch = slide.match(/<!--\s*\{\s*"key"\s*:\s*"([^"]+)"[^}]*\}\s*-->/);
+  if (!keyMatch) {
+    throw new Error(`Slide ${index + 1} is missing a stable key comment such as <!-- {"key":"overview"} -->`);
+  }
+
+  const titleMatch = slide.match(/^#\s+(.+?)\s*$/m);
+  if (!titleMatch) {
+    throw new Error(`Slide ${index + 1} (${keyMatch[1]}) is missing an H1 title required for the generated TOC`);
+  }
+
+  return { key: keyMatch[1], title: titleMatch[1] };
+}
+
+function escapeMarkdownLinkLabel(value) {
+  return value.replace(/\\/g, '\\\\').replace(/\[/g, '\\[').replace(/\]/g, '\\]');
 }
 
 async function renderMarp(source, output, extraArgs) {
