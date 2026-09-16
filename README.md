@@ -19,21 +19,40 @@ slides.md を編集
 GitHub Actions
   ↓
 HTML を自動生成
+  ├─ GitHub Pages     設定時のみ公開
   ├─ PDF              設定時のみ
   ├─ Google Slides    設定時のみ
   └─ PPTX             初期版では未接続
 ```
 
-通常の編集対象は `slides.md` です。出力設定は `misereru.config.json` に置きます。
+通常の編集対象は `slides.md` です。出力・公開設定は `misereru.config.json` に置きます。
 
 - HTML は初期版の必須・既定 output。
+- GitHub Pages は `publish.githubPages.enabled: true` のときだけ default branch から deploy。
 - PDF は optional。
 - Google Slides は optional。実 `deck apply` 経路の検証完了後に template workflow へ接続する。
 - PPTX は候補として残すが初期版では未接続。
-- GitHub Pages は明示的に有効化するまで公開しない。
 - 未接続 target を `enabled:true` にした場合は黙ってスキップせず build error にする。
 
+GitHub Pages は各 presentation repository で初回だけ Settings > Pages から GitHub Actions publishing を有効化する想定です。標準 `GITHUB_TOKEN` だけでは未有効の Pages を自動有効化できないため、高権限PATを標準要求しません。
+
 詳細: [`docs/product/operation-model.md`](docs/product/operation-model.md)
+
+## Renderer の役割
+
+正本 `slides.md` は特定 renderer に固定しません。target ごとに renderer を分けます。
+
+```text
+                    ┌─ Marp ── HTML
+slides.md ─ adapter ┼─ Marp ── PDF
+                    └─ deck ── Google Slides
+```
+
+- **Marp**: HTML / PDF の renderer。
+- **k1LoW/deck**: Google Slides の native renderer 候補。
+- Marp と deck は直列ではなく、同じ正本 source から分岐する兄弟 renderer。
+- `slides.md` には `marp: true` 等の Marp 固有 front matter を要求せず、build 時に Marp 用一時入力へ注入する。
+- PPTX の renderer は未決定。
 
 ## 現在の前提
 
@@ -49,10 +68,10 @@ HTML を自動生成
 ## Template files
 
 ```text
-slides.md               # 通常編集するスライド source
+slides.md               # 通常編集する renderer-neutral な Markdown source
 misereru.config.json     # output / publish 設定
-themes/                  # 共通テーマ
-.github/workflows/       # 自動 build
+themes/                  # renderer 用テーマ
+.github/workflows/       # 自動 build / publish
 ```
 
 `slides.md` または設定・themeを変更して push すると、`.github/workflows/build.yml` が設定済み output を生成します。
