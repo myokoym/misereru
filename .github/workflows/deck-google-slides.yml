@@ -1,0 +1,71 @@
+name: Deck Google Slides apply
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deck-google-slides-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    env:
+      DECK_VERSION: v1.24.1
+      GOOGLE_SLIDES_PRESENTATION_ID: ${{ secrets.GOOGLE_SLIDES_PRESENTATION_ID }}
+      DECK_OAUTH_CREDENTIALS_JSON: ${{ secrets.DECK_OAUTH_CREDENTIALS_JSON }}
+      DECK_OAUTH_TOKEN_JSON: ${{ secrets.DECK_OAUTH_TOKEN_JSON }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Validate required secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$GOOGLE_SLIDES_PRESENTATION_ID" || { echo 'Missing GOOGLE_SLIDES_PRESENTATION_ID'; exit 1; }
+          test -n "$DECK_OAUTH_CREDENTIALS_JSON" || { echo 'Missing DECK_OAUTH_CREDENTIALS_JSON'; exit 1; }
+          test -n "$DECK_OAUTH_TOKEN_JSON" || { echo 'Missing DECK_OAUTH_TOKEN_JSON'; exit 1; }
+
+      - name: Install project dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Generate deck source
+        run: node scripts/generate-deck-prototype.mjs
+
+      - name: Install deck
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${DECK_VERSION#v}"
+          curl -fsSL "https://github.com/k1LoW/deck/releases/download/${DECK_VERSION}/deck_${version}-1_amd64.deb" -o /tmp/deck.deb
+          sudo dpkg -i /tmp/deck.deb
+          deck version
+
+      - name: Restore deck OAuth credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.local/share/deck" "$HOME/.local/state/deck"
+          printf '%s' "$DECK_OAUTH_CREDENTIALS_JSON" > "$HOME/.local/share/deck/credentials.json"
+          printf '%s' "$DECK_OAUTH_TOKEN_JSON" > "$HOME/.local/state/deck/token.json"
+          chmod 600 "$HOME/.local/share/deck/credentials.json" "$HOME/.local/state/deck/token.json"
+
+      - name: Apply Markdown with deck
+        shell: bash
+        run: |
+          set -euo pipefail
+          deck apply --presentation-id "$GOOGLE_SLIDES_PRESENTATION_ID" dist/deck/slides.md
+
+      - name: Apply and verify navigation
+        run: node scripts/apply-google-slides-navigation.mjs
+
+      - name: Upload verification artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: deck-google-slides-verification
+          path: dist/deck/
+          if-no-files-found: error
