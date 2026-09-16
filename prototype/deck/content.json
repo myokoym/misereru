@@ -1,0 +1,74 @@
+{
+  "presentation": {
+    "title": "misereru navigation prototype"
+  },
+  "slides": [
+    {
+      "key": "title",
+      "title": "misereru navigation prototype",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "project source から Google Slides へ生成する最小比較用サンプル"
+        }
+      ]
+    },
+    {
+      "key": "architecture",
+      "title": "Source / renderer / target を分離する",
+      "blocks": [
+        {
+          "type": "bullets",
+          "items": [
+            "source format は Markdown に固定しない",
+            "既存 renderer を adapter として利用できる",
+            "Google Slides と HTML を publish target として並立できる"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "external-links",
+      "title": "外部ハイパーリンク",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "生成後もスライド上から外部サイトへ移動できることを要件とする。"
+        },
+        {
+          "type": "link",
+          "label": "W3C 日本語組版処理の要件（JLREQ）",
+          "url": "https://www.w3.org/International/jlreq/?lang=ja"
+        }
+      ]
+    },
+    {
+      "key": "toc-navigation",
+      "title": "自動目次と内部リンク",
+      "blocks": [
+        {
+          "type": "bullets",
+          "items": [
+            "目次は build 時に自動生成する",
+            "各目次項目から対応スライドへ直接移動できる",
+            "ページ番号ではなく stable slide key を source 側の識別子として使う"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "next",
+      "title": "次の検証",
+      "blocks": [
+        {
+          "type": "bullets",
+          "items": [
+            "k1LoW/deck で native Google Slides を生成する",
+            "生成後に key と pageObjectId を解決する",
+            "misereru post-process で目次と内部リンクを付与する"
+          ]
+        }
+      ]
+    }
+  ]
+}
