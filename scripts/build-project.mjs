@@ -14,11 +14,12 @@ const sourcePath = resolve(root, config.source?.path ?? 'slides.md');
 const outputs = config.outputs ?? {};
 const pagesEnabled = featureEnabled(config.publish?.githubPages);
 const buildPlan = {
-  version: 4,
+  version: 5,
   source: config.source,
   renderer: 'marp',
   navigation: {
     toc: 'generated-after-title',
+    tocScope: 'section-slides-only',
     sourceIdentity: 'stable-key',
     targetIdentity: 'generated-slide-number'
   },
@@ -103,11 +104,18 @@ function injectGeneratedToc(markdown) {
     keys.add(slide.key);
   }
 
-  const tocItems = metadata.slice(1).map((slide, originalIndex) => {
+  const tocItems = metadata.flatMap((slide, originalIndex) => {
+    if (slide.type !== 'section') return [];
+    if (!slide.title) {
+      throw new Error(`Section slide ${originalIndex + 1} (${slide.key}) is missing an H1 title required for the generated TOC`);
+    }
+
     // Generated TOC becomes slide 2, so every original slide after the title shifts by +1.
-    const generatedSlideNumber = originalIndex + 3;
-    return `- [${escapeMarkdownLinkLabel(slide.title)}](#${generatedSlideNumber})`;
+    const generatedSlideNumber = originalIndex + 2;
+    return [`- [${escapeMarkdownLinkLabel(slide.title)}](#${generatedSlideNumber})`];
   });
+
+  if (tocItems.length === 0) return markdown;
 
   const tocSlide = [
     '<!-- {"key":"__misereru_toc__"} -->',
@@ -120,17 +128,28 @@ function injectGeneratedToc(markdown) {
 }
 
 function readSlideMetadata(slide, index) {
-  const keyMatch = slide.match(/<!--\s*\{\s*"key"\s*:\s*"([^"]+)"[^}]*\}\s*-->/);
-  if (!keyMatch) {
-    throw new Error(`Slide ${index + 1} is missing a stable key comment such as <!-- {"key":"overview"} -->`);
+  const metadataMatch = slide.match(/<!--\s*(\{[^\n]*\})\s*-->/);
+  if (!metadataMatch) {
+    throw new Error(`Slide ${index + 1} is missing metadata such as <!-- {"key":"overview"} -->`);
+  }
+
+  let metadata;
+  try {
+    metadata = JSON.parse(metadataMatch[1]);
+  } catch {
+    throw new Error(`Slide ${index + 1} has invalid JSON metadata`);
+  }
+
+  if (typeof metadata.key !== 'string' || metadata.key.length === 0) {
+    throw new Error(`Slide ${index + 1} is missing a stable key`);
   }
 
   const titleMatch = slide.match(/^#\s+(.+?)\s*$/m);
-  if (!titleMatch) {
-    throw new Error(`Slide ${index + 1} (${keyMatch[1]}) is missing an H1 title required for the generated TOC`);
-  }
-
-  return { key: keyMatch[1], title: titleMatch[1] };
+  return {
+    key: metadata.key,
+    type: metadata.type ?? 'content',
+    title: titleMatch?.[1] ?? null,
+  };
 }
 
 function escapeMarkdownLinkLabel(value) {
