@@ -5,6 +5,7 @@
 source format を Markdown に固定せず、project template・renderer wrapper・複数 publish target を含めて構成を比較するための調査メモです。
 
 安定要件は [`../product/requirements.md`](../product/requirements.md) を参照してください。
+外部リンク・自動目次・内部スライドリンクの詳細は [`navigation-links.md`](navigation-links.md) を参照してください。
 
 ## 前提
 
@@ -16,6 +17,8 @@ source format を Markdown に固定せず、project template・renderer wrapper
 - 規定位置のファイル更新を GitHub Actions が検知して render / publish する運用を想定する。
 - publish target は設定可能にし、Google Slides / Google Drive / GitHub Pages / artifact 等を候補とする。
 - スマートフォンから成果物を確認しやすいことを重視する。
+- 外部ハイパーリンクを保持し、リンク対応 target では実際に遷移できることを必須要件とする。
+- 目次は build 時に自動生成し、各項目から対象スライドへ遷移できることを必須要件とする。
 
 ## GitHub template repository
 
@@ -47,11 +50,14 @@ Google Slides API は presentation の作成と `presentations.batchUpdate` に�
 
 native shape / text / image / table 等を直接管理できるため、Google Slides 側で編集可能な成果物を作る場合の自由度は最も高いです。
 
+さらに native link で外部 URL と presentation 内の特定 slide へのリンクを保持できるため、今回追加した navigation 要件との相性も高いです。
+
 一方で layout・文字組み・差分更新・既存要素との対応をこちらで実装する範囲が増えます。
 
 参考:
 
 - Google Slides API: <https://developers.google.com/workspace/slides/api/reference/rest>
+- `Link`: <https://developers.google.com/workspace/slides/api/reference/rest/v1/presentations.pages/other#Link>
 - batchUpdate 日本語: <https://developers.google.com/workspace/slides/api/reference/rest/v1/presentations/batchUpdate?hl=ja>
 
 ### B. PPTX を生成し、Google Drive で Google Slides へ変換
@@ -64,9 +70,9 @@ Google Drive API は Microsoft PowerPoint / OpenDocument Presentation から Goo
 
 既存 renderer が PPTX を安定生成できる場合には、Google Slides への publish adapter を薄くできます。
 
-ただし renderer 側が PPTX を画像的に生成する場合、Google Slides 化しても文字・図形が native 編集可能になるとは限りません。
+ただし renderer 側が PPTX を画像的に生成する場合、Google Slides 化しても文字・図形が native 編集可能になるとは限りません。リンク情報についても renderer ごとに保持可否を検証する必要があります。
 
-Marp の通常 PPTX はこの点で「閲覧用 target」としては使えても、「Google Slides 上で編集可能な target」としては強くありません。
+Marp の通常 PPTX は見た目の再現を優先してスライドを画像的に生成するため、「閲覧用 target」としては使えても、「Google Slides 上で native 要素・native navigation を活用する target」としては第一候補にしません。
 
 ### C. `k1LoW/deck` を利用
 
@@ -83,23 +89,31 @@ GitHub: <https://github.com/k1LoW/deck>
 - `breaks` は既定 `false` で、source 上の soft line break を強制改行にしない。
 - layout 指定と、CEL による default layout 選択がある。
 - Google Shared Drives にも対応する。
-- Google Slides API / Drive API の OAuth 設定が必要。
+- Markdown の外部リンクを Google Slides native URL link として反映できる。
+- per-page `key` により source 側で安定した slide identity を持てる。
+- `freeze` で管理用ページを deck の内容更新から保護できる。
+- Google Slides API / Drive API の OAuth または service account 設定が必要。
 
 今回の要件との相性は高いです。
 
-ただし source が Markdown であるため、製品 source format を別形式にする場合は、
+一方、`deck` 本体には Google Slides `pageObjectId` を使った内部スライドリンク生成は確認できませんでした。そのため Google Slides target では、`deck` を native content renderer として使い、misereru が managed TOC page を post-process する案を検証します。
 
 ```text
 misereru source
   ↓ source adapter
-Markdown for deck
+
+deck-compatible source
+  ├─ normal slides: key / content / external links
+  └─ managed TOC slide: reserved key + freeze:true
   ↓
 k1LoW/deck
   ↓
 Google Slides
+  ↓ misereru post-process
+TOC content + pageObjectId links
 ```
 
-のように中間生成物として利用する案があります。
+製品 source format を別形式にする場合も、Markdown は `deck` adapter の中間形式としてのみ利用できます。
 
 また画像挿入時に一時的に Google Drive へ画像を upload して公開 URL を利用する実装上の制約が README に記載されているため、private-only 運用との整合は別途確認が必要です。
 
@@ -112,6 +126,7 @@ Google Slides を主成果物にする場合でも、次の用途があります
 - PR / branch ごとの軽量 preview
 - Google API credential が未設定の repository でも確認可能な既定 target
 - renderer の layout regression 確認
+- 外部 URL link と anchor を使った自動目次を比較的単純に実装できる
 
 したがって Google Slides と HTML Pages は排他的に考えず、target adapter として並立可能です。
 
@@ -128,20 +143,25 @@ project source
         ↓
 source adapter
         ↓
+slide descriptors
+  - stable key
+  - title
+  - toc include / exclude
+        ↓
 renderer adapter
   ├─ Marp
   ├─ k1LoW/deck
   └─ future renderer
         ↓
-publish adapter
-  ├─ Google Slides
-  ├─ GitHub Pages / HTML
+publish / navigation adapter
+  ├─ Google Slides + pageObjectId links
+  ├─ GitHub Pages / HTML + anchor links
   ├─ PDF
   ├─ PPTX
   └─ Actions artifact
 ```
 
-ただし、最初から共通 AST / 独自 renderer を実装することは避けます。
+ただし、最初から大きな共通 AST / 独自 renderer を実装することは避けます。目次生成に必要な `key / title / toc / order` 程度の小さい共通 descriptor は持てます。
 
 既存 renderer の wrapper だけで成立する間は、source adapter と target adapter を薄く保ちます。
 
@@ -161,6 +181,11 @@ theme/
 
 ```yaml
 renderer: marp
+navigation:
+  externalLinks: true
+  toc:
+    enabled: true
+    position: after-title
 
 targets:
   html:
@@ -182,6 +207,7 @@ source format を Markdown 以外にする場合でも、`renderer` adapter が�
 - GitHub だけで完結しやすい。
 - Google credential が不要。
 - branch / PR preview と相性がよい。
+- hyperlink / TOC navigation をそのまま Web の link / anchor として実装しやすい。
 
 ### Google Slides default
 
@@ -190,6 +216,7 @@ source format を Markdown 以外にする場合でも、`renderer` adapter が�
 - スマートフォンでの閲覧・共有が容易。
 - 最終 presentation としてそのまま使える。
 - Google Slides native 出力方式なら手修正も可能。
+- 外部 URL / presentation 内部 slide link を native に保持できる。
 
 現時点では決定しません。
 
@@ -204,17 +231,19 @@ source format を Markdown 以外にする場合でも、`renderer` adapter が�
 - Chromium / Marp での日本語組版品質の実測
 - HTML / PDF / PPTX renderer の比較基準
 - source adapter の一例として Markdown を使う
+- 各出力形式で hyperlink 情報が保持されるかを比較する基準
 
 **Markdown を製品の唯一の正本形式と決める検証ではありません。**
 
-また 2026-09-16 の初期成果物については、スマートフォンから確認しやすくするため、tuned PNG 14枚を native Google Slides presentation の各ページへ全面配置した確認用 deck を作成しました。
+また 2026-09-16 の初期成果物については、スマートフォンから確認しやすくするため、tuned PNG 14枚を native Google Slides presentation の各ページへ全面配置した確認用 deck を作成しました。その deck には追加検証として native TOC slide と外部 URL link も入れています。
 
-これは publish UX の確認用であり、Google Slides native text renderer の実装検証ではありません。
+これは publish UX / navigation の確認用であり、Google Slides native text renderer 全体の実装検証ではありません。
 
 ## 次の比較
 
-1. Marp HTML を GitHub Pages preview として publish する最小構成。
-2. `k1LoW/deck` を GitHub Actions から Google Slides へ apply できるか確認する。
-3. 同じ実用サンプルを Marp / deck で出し、日本語組版・編集可能性・設定量を比較する。
-4. Google Slides direct API は、`deck` で不足する具体例が出た場合に実装範囲を見積もる。
-5. source format は上記 renderer 比較と切り離し、ChatGPT編集性・Git差分・画像/レイアウト表現力で別途比較する。
+1. managed TOC を含む `deck` adapter の中間生成物と post-process request を CI で安定生成する。
+2. `k1LoW/deck` を GitHub Actions から Google Slides へ apply できる認証経路を接続する。
+3. 同じ実用サンプルを Marp / deck で出し、日本語組版・編集可能性・link保持・設定量を比較する。
+4. Marp HTML を GitHub Pages preview として publish し、stable key ベースの自動目次を実装する。
+5. Google Slides direct API は、`deck` で不足する具体例が出た場合に実装範囲を見積もる。
+6. source format は上記 renderer 比較と切り離し、ChatGPT編集性・Git差分・画像/レイアウト表現力で別途比較する。
