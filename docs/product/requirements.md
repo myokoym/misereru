@@ -8,52 +8,102 @@
 
 - 既存ツール調査: [`../research/slide-tools.md`](../research/slide-tools.md)
 - 日本語組版調査: [`../research/japanese-typesetting.md`](../research/japanese-typesetting.md)
+- source / output 構成調査: [`../research/source-output-architecture.md`](../research/source-output-architecture.md)
 - 命名調査: [`../research/naming.md`](../research/naming.md)
 - 意思決定記録: [`../adr/`](../adr/)
 
 ## 目的
 
-Markdown を唯一の正本として、スライドを生成・レンダリングするツールを想定します。
+Git で管理しやすいテキスト中心の入力から、スライド / presentation を再生成・公開できる仕組みを想定します。
 
-単なる Markdown ビューワーではありません。
+**Markdown は有力候補ですが必須ではありません。**
+
+単一 Markdown、複数 Markdown、YAML / JSON / TOML 等の構造化データ、独自の軽量フォーマット、複数ファイルからなるプロジェクトテンプレートのいずれも候補に含めます。複数入力形式を扱う構成も許容します。
+
+価値の中心は特定の記法ではなく、次の流れを簡単かつ再現可能にすることです。
 
 ```text
-Markdown
-  ↓ 解釈
-情報構造・見出し・本文・画像・図を認識
+text / project source
+  ↓ 解釈・変換
+情報構造・見出し・本文・画像・図・設定を認識
   ↓
-スライド単位へ構成
+slide / presentation
   ↓
 日本語として自然に組版・改行
   ↓
-スライドとして描画 / render
+publish / render
+  ├─ Google Slides
+  ├─ HTML / GitHub Pages
+  ├─ PDF
+  └─ PPTX 等
 ```
 
-「見るだけ」なら Markdown や HTML のテキスト表示で足りるため、価値の中心は **テキストを視覚的なスライド面として成立させること** にあります。
+## Source / project model
 
-意味上の二本柱は次の通りです。
+- 正本は **ChatGPT と GitHub から安全に編集できるテキスト中心の構成**にする。
+- Markdown 固有機能を製品要件にはしない。
+- 1ファイル完結を必須にしない。
+- コンテンツ、設定、テーマ、画像等を分けたプロジェクト構成も許容する。
+- GitHub の template repository から新規スライドプロジェクトを生成する方式も候補とする。
+- 既存ツールで要件を満たせる場合、独自フォーマットや独自レンダラーを先に作らず、そのツールの wrapper / adapter として成立させてよい。
+- 複数の source format / renderer を扱う場合も、利用者が通常触る既定経路は簡単に保つ。
 
-1. **Slide / presentation** — テキストをスライドにする。
-2. **Rendering** — テキストをレイアウトし、見える形へ描画する。
+想定例であり、確定仕様ではありません。
+
+```text
+presentation-project/
+├─ presentation.yml      # 共通設定・出力先
+├─ slides.md             # 例: Markdown source
+├─ assets/
+└─ theme/
+```
+
+別案として `slides/` 配下に1ページ1ファイルを置く構成や、YAML / JSON からスライドを構成する方式も検討対象です。
 
 ## 編集・管理
 
-- 編集は Markdown のみで完結させたい。
-- タイトル、テーマ、ページサイズ、ページ番号、出力設定などのメタ情報もテキスト管理する。
-- PowerPoint や Google Slides 上での手編集を前提にしない。
-- 生成物と正本を分離する。
-
-```text
-Markdown = source
-HTML / PDF / PPTX = build artifact
-```
-
+- PowerPoint や Google Slides 上での手編集を正本管理の必須工程にしない。
+- Google Slides 等を成果物・デザインテンプレート・確認画面として利用することは許容する。
+- タイトル、テーマ、ページサイズ、ページ番号、出力設定等は可能な限りテキスト側で管理可能にする。
 - **日常的な編集・生成に PC、ローカル CLI、ローカル Node.js 環境を必須にしない。**
 - スマートフォン + ChatGPT + GitHub を基本の操作経路として成立させたい。
 - ビルドや重い生成処理は GitHub Actions 等のリモート環境へ置ける構成を優先する。
-- ChatGPT から扱う主要な編集対象は Markdown とし、複雑なローカル開発環境の操作を前提にしない。
 - Git 管理しやすいことを重視する。
-- 生成物は再生成可能な artifact として扱う。
+- 生成物は正本と分離し、原則として再生成可能にする。
+
+## Build / publish
+
+規定位置の source / config / assets が更新された場合に、GitHub Actions 等で自動的に build / publish できる構成を想定します。
+
+```text
+source update
+  ↓ push / merge
+GitHub Actions
+  ↓
+build
+  ↓
+publish target
+```
+
+出力先は設定可能にする方向です。
+
+候補:
+
+- Google Slides / Google Drive
+- GitHub Pages 上の HTML
+- Actions artifact
+- PDF
+- PPTX
+
+単一出力に固定せず、必要なら複数 target を同時に有効化できる構成を許容します。
+
+ただし初期版は、設定なしでも動く簡単な既定 target を1つ持たせてよいです。何を既定にするかは未決定です。
+
+Google Slides を target にする場合は、次の方式を比較します。
+
+1. Google Slides API へ直接 native 要素を生成・更新する。
+2. PPTX 等を生成し、Google Drive API で Google Slides へ変換する。
+3. `k1LoW/deck` 等、Google Slides を直接 target にする既存ツールを利用する。
 
 ## 日本語組版
 
@@ -77,17 +127,19 @@ HTML / PDF / PPTX = build artifact
 
 ## 未決事項
 
-- Marp をそのまま採用するか。
-- Marp fork / wrapper 程度にするか。
-- レンダラーを自作するか。
+- 正本となる source format を何にするか。
+- 単一ファイル型と project template 型のどちらを既定にするか。
+- 複数 source format を最初から対応するか。
+- 共通の中間 presentation model / AST を持つか、renderer wrapper を直接使うか。
+- Marp を renderer の一つとして採用するか。
+- `k1LoW/deck` 等を Google Slides renderer として採用するか。
 - Vivliostyle を内部レンダリングに利用するか。
-- HTML / PDF / PPTX のどこまでを初期対応するか。
+- Google Slides / HTML Pages / PDF / PPTX のどれを既定 target にするか。
+- Google Slides 出力を native 要素中心にするか、見た目優先の画像 / PPTX 変換にするか。
+- Google API 認証を repository secret / GitHub OIDC / その他のどの方式で扱うか。
 - Mermaid を標準対応するか。
-- 外部 CSS を許すか、Markdown 1 ファイル完結を強制するか。
-- 共通テーマをどこまで分離するか。
-- Markdown を完全に Marp 互換にするか、独自 front matter / directive を持つか。
-- Marp の上位互換を目指すか、別設計にするか。
-- AI はレンダリング時には使わず、Markdown 編集側の ChatGPT に限定するか。
+- 共通テーマをどこまで source から分離するか。
+- AI をレンダリング工程へ入れるか、source 編集側の ChatGPT に限定するか。
 
 ## 仮称
 
