@@ -1,56 +1,97 @@
 # misereru
 
-Markdown を正本として、スライドを生成・レンダリングするツールの企画・調査リポジトリです。
+Markdownを正本として、GitHub Actions上でスライドHTMLを生成するためのテンプレートです。通常運用はスマートフォン上のChatGPT / GitHubだけでも完結でき、ローカルPCやNode.js CLIを必須にしません。
 
 > **名称 `misereru` は仮決定です。**
-> 命名調査は [`docs/research/naming.md`](docs/research/naming.md) に隔離しています。
+> 開発・調査資料は `develop` branch 側で管理します。
 
-## 現在の前提
+## 使い方
 
-- 編集対象は Markdown を中心とし、スライド側を直接編集しない。
-- タイトル、テーマ、ページ設定、出力設定などのメタ情報もテキストで管理する。
-- スマートフォン単体でも、ChatGPT と GitHub を介して編集・管理できる構成を重視する。
-- 日本語の禁則処理、自然な改行、句読点・括弧・英数字混在時の折返し品質を重要要件とする。
-- PDF / HTML 等の生成物は再生成可能な artifact として扱う。
-- 既存ツールを採用する可能性と、自作する可能性の両方を残す。
-
-## Documentation
-
-文書構成・ライフサイクル・将来の `how-to / reference / tutorials / explanation` 追加ルールは [`docs/README.md`](docs/README.md) を正本とします。
+このrepositoryをGitHub Template Repositoryとして使い、原則 **1資料 = 1 repository** で管理します。
 
 ```text
-docs/
-├─ README.md
-├─ product/
-│  └─ requirements.md
-├─ research/
-│  ├─ README.md
-│  ├─ slide-tools.md
-│  ├─ japanese-typesetting.md
-│  └─ naming.md
-└─ adr/
-   ├─ README.md
-   └─ 0001-use-madr-for-decisions.md
+misereru (Template Repository)
+  ↓ Use this template
+presentation repository
+  ↓
+slides.md を編集
+  ↓ commit / push
+GitHub Actions
+  ↓
+Marp
+  ├─ HTML             常時生成
+  ├─ PDF              設定時のみ
+  └─ GitHub Pages     設定時のみ公開
 ```
 
-### Product
+通常編集するのは [`slides.md`](slides.md) です。出力や公開方法を変える場合だけ [`misereru.config.json`](misereru.config.json) を編集します。
 
-現在有効な要件・前提:
+## `slides.md` はサンプル兼テンプレート
 
-- [`docs/product/requirements.md`](docs/product/requirements.md)
+`slides.md` 自体に、資料作成で使う代表的なページを一通り入れています。
 
-### Research
+- 表紙
+- セクション見出し
+- 通常本文
+- 長めの本文
+- 箇条書き
+- 番号付き手順
+- 表
+- 引用
+- コードブロック
+- 外部リンク
+- 強調表現
+- 複数要素を含むページ
+- まとめ
 
-未確定の調査・比較・検証:
+`type: "section"` のページから目次を自動生成します。新しい資料では、`slides.md` の文章を書き換え、不要なページを削除して使います。別の「最小テンプレート」と「サンプルデッキ」は持たず、この1ファイルを基準にします。
 
-- [`docs/research/slide-tools.md`](docs/research/slide-tools.md)
-- [`docs/research/japanese-typesetting.md`](docs/research/japanese-typesetting.md)
-- [`docs/research/naming.md`](docs/research/naming.md)
+## 既定の出力
 
-### ADR
+- HTML: 有効。`dist/site/index.html` を生成
+- PDF: 無効。必要な資料だけ有効化
+- GitHub Pages: 無効。明示的に有効化した場合だけ公開
+- Google Slides / PPTX: 初期production targetには含めない
 
-採用した重要判断と理由:
+GitHub Pagesを使う場合は、各資料repositoryで初回だけ Settings > Pages から GitHub Actions publishing を有効化する想定です。公開を自動化するためだけの高権限PATは標準要求しません。
 
-- [`docs/adr/`](docs/adr/)
+## Template files
 
-調査メモと決定事項を混在させず、調査から判断が確定した時点で必要な背景だけを ADR に残します。
+新しい資料repositoryで必要な実行ファイルは、テンプレート側にすべて含めます。外部のmisereru repositoryを実行時に参照しません。
+
+```text
+slides.md                   # サンプル兼 Markdown source
+misereru.config.json        # output / publish 設定
+package.json                # Marp依存とbuild command
+marp.config.mjs             # Marp設定
+themes/                     # 日本語向けMarp theme
+scripts/build-project.mjs   # 目次生成とbuild処理
+.github/workflows/build.yml # GitHub Actions build / publish
+```
+
+`slides.md`、設定、theme、build処理を変更してpushすると、GitHub Actionsが設定済みoutputを生成します。
+
+## Repository branch model
+
+このrepository自身は、配布物と開発資料をbranchで分けます。
+
+```text
+main      = Template Repositoryとして配布する自己完結セット
+develop   = 開発・統合用。docs / research / prototype等を含む
+```
+
+Template Repositoryから通常作成した資料repositoryにはdefault branchである `main` の内容を使う想定です。開発資料を利用者の資料repositoryへ持ち込まないため、`main` には配布に必要なものだけを置きます。
+
+## 開発・設計資料
+
+開発者向け資料は `develop` branch を参照します。Template Repositoryから作成した別repositoryでもリンクが切れないよう、ここでは元repositoryへのリンクを使います。
+
+- [運用モデル](https://github.com/myokoym/misereru/blob/develop/docs/product/operation-model.md)
+- [要件](https://github.com/myokoym/misereru/blob/develop/docs/product/requirements.md)
+- [スライドツール調査](https://github.com/myokoym/misereru/blob/develop/docs/research/slide-tools.md)
+- [日本語組版調査](https://github.com/myokoym/misereru/blob/develop/docs/research/japanese-typesetting.md)
+- [source / output architecture](https://github.com/myokoym/misereru/blob/develop/docs/research/source-output-architecture.md)
+- [Marp prototype](https://github.com/myokoym/misereru/blob/develop/docs/research/marp-prototype.md)
+- [命名調査](https://github.com/myokoym/misereru/blob/develop/docs/research/naming.md)
+
+正本 `slides.md` はMarp固有front matterを持たせません。build時に一時的なMarp入力を生成し、初期production buildではMarpだけをrendererとして使用します。
