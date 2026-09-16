@@ -22,6 +22,8 @@
     }
   },
   "publish": {
-    "githubPages": false
+    "githubPages": {
+      "enabled": false
+    }
   }
 }
