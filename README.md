@@ -1,102 +1,97 @@
 # misereru
 
-Git で管理しやすいテキスト / project source から、スライドを生成・レンダリング・公開するツールの企画・調査リポジトリです。
+Markdownを正本として、GitHub Actions上でスライドHTMLを生成するためのテンプレートです。通常運用はスマートフォン上のChatGPT / GitHubだけでも完結でき、ローカルPCやNode.js CLIを必須にしません。
 
 > **名称 `misereru` は仮決定です。**
-> 命名調査は [`docs/research/naming.md`](docs/research/naming.md) に隔離しています。
+> 開発・調査資料は `develop` branch 側で管理します。
 
-## 初期運用
+## 使い方
 
-初期版では、この repository 自体を GitHub Template Repository として使い、原則 **1資料 = 1 repository** で管理します。
+このrepositoryをGitHub Template Repositoryとして使い、原則 **1資料 = 1 repository** で管理します。
 
 ```text
-misereru template repository
+misereru (Template Repository)
   ↓ Use this template
 presentation repository
   ↓
 slides.md を編集
-  ↓ push / merge
+  ↓ commit / push
 GitHub Actions
   ↓
 Marp
   ├─ HTML             常時生成
-  │   └─ GitHub Pages 設定時のみ公開
-  └─ PDF              設定時のみ
+  ├─ PDF              設定時のみ
+  └─ GitHub Pages     設定時のみ公開
 ```
 
-通常の編集対象は `slides.md` です。出力・公開設定は `misereru.config.json` に置きます。
+通常編集するのは [`slides.md`](slides.md) です。出力や公開方法を変える場合だけ [`misereru.config.json`](misereru.config.json) を編集します。
 
-- HTML は初期版の必須・既定 output。
-- GitHub Pages は `publish.githubPages.enabled: true` のときだけ default branch から deploy。
-- PDF は optional。
-- Google Slides / PPTX は初期production targetには含めず、research / prototypeで検証を続ける。
-- production buildはMarp 1系統だけを利用し、デザインを二重メンテしない。
+## `slides.md` はサンプル兼テンプレート
 
-GitHub Pages は各 presentation repository で初回だけ Settings > Pages から GitHub Actions publishing を有効化する想定です。標準 `GITHUB_TOKEN` だけでは未有効の Pages を自動有効化できないため、高権限PATを標準要求しません。
+`slides.md` 自体に、資料作成で使う代表的なページを一通り入れています。
 
-詳細: [`docs/product/operation-model.md`](docs/product/operation-model.md)
+- 表紙
+- セクション見出し
+- 通常本文
+- 長めの本文
+- 箇条書き
+- 番号付き手順
+- 表
+- 引用
+- コードブロック
+- 外部リンク
+- 強調表現
+- 複数要素を含むページ
+- まとめ
 
-## Renderer の役割
+`type: "section"` のページから目次を自動生成します。新しい資料では、`slides.md` の文章を書き換え、不要なページを削除して使います。別の「最小テンプレート」と「サンプルデッキ」は持たず、この1ファイルを基準にします。
 
-正本 `slides.md` はMarp固有front matterを持たせません。初期production buildではmisereruが一時的なMarp入力を生成し、Marpだけを呼び出します。
+## 既定の出力
 
-```text
-slides.md
-  ↓ misereru adapter
-一時Marp入力
-  ↓ Marp
-  ├─ HTML
-  └─ PDF
-```
+- HTML: 有効。`dist/site/index.html` を生成
+- PDF: 無効。必要な資料だけ有効化
+- GitHub Pages: 無効。明示的に有効化した場合だけ公開
+- Google Slides / PPTX: 初期production targetには含めない
 
-`k1LoW/deck` はMarkdownからGoogle Slidesを生成するツールで、HTML rendererではありません。Marpとdeckを同時にproduction利用すると、Marp CSS/theme とGoogle Slides base presentation/layoutの2系統を維持する必要があります。内容は共有できても同一デザインを保証できないため、初期版では採用しません。
-
-Google Slidesを将来production targetへ入れる場合は、共通レイアウトモデルを持つか、別デザイン系の成果物として明示的に許容するかを先に決めます。
-
-## 現在の前提
-
-- 初期 template の正本 source は Markdown (`slides.md`) とする。
-- 将来の source adapter 拡張まで Markdown 専用へ固定するものではない。
-- 既存ツールで十分なら wrapper / adapter として利用し、独自 renderer を先に作らない。
-- タイトル、テーマ、ページ設定、出力設定等は可能な限りテキストで管理する。
-- スマートフォン単体でも、ChatGPT と GitHub を介して編集・管理できる構成を重視する。
-- 規定位置の source / config 更新を GitHub Actions で build / publish する。
-- 日本語の禁則処理、自然な改行、句読点・括弧・英数字混在時の折返し品質を重要要件とする。
-- 生成物は再生成可能な artifact / publish target として正本から分離する。
+GitHub Pagesを使う場合は、各資料repositoryで初回だけ Settings > Pages から GitHub Actions publishing を有効化する想定です。公開を自動化するためだけの高権限PATは標準要求しません。
 
 ## Template files
 
+新しい資料repositoryで必要な実行ファイルは、テンプレート側にすべて含めます。外部のmisereru repositoryを実行時に参照しません。
+
 ```text
-slides.md               # 通常編集する Markdown source
-misereru.config.json     # output / publish 設定
-themes/                  # Marp theme
-.github/workflows/       # 自動 build / publish
+slides.md                   # サンプル兼 Markdown source
+misereru.config.json        # output / publish 設定
+package.json                # Marp依存とbuild command
+marp.config.mjs             # Marp設定
+themes/                     # 日本語向けMarp theme
+scripts/build-project.mjs   # 目次生成とbuild処理
+.github/workflows/build.yml # GitHub Actions build / publish
 ```
 
-`slides.md` または設定・themeを変更して push すると、`.github/workflows/build.yml` が設定済み output を生成します。
+`slides.md`、設定、theme、build処理を変更してpushすると、GitHub Actionsが設定済みoutputを生成します。
 
-## Documentation
+## Repository branch model
 
-文書構成・ライフサイクル・将来の `how-to / reference / tutorials / explanation` 追加ルールは [`docs/README.md`](docs/README.md) を正本とします。
+このrepository自身は、配布物と開発資料をbranchで分けます。
 
-### Product
+```text
+main      = Template Repositoryとして配布する自己完結セット
+develop   = 開発・統合用。docs / research / prototype等を含む
+```
 
-- [`docs/product/requirements.md`](docs/product/requirements.md)
-- [`docs/product/operation-model.md`](docs/product/operation-model.md)
+Template Repositoryから通常作成した資料repositoryにはdefault branchである `main` の内容を使う想定です。開発資料を利用者の資料repositoryへ持ち込まないため、`main` には配布に必要なものだけを置きます。
 
-### Research
+## 開発・設計資料
 
-未確定の調査・比較・検証:
+開発者向け資料は `develop` branch を参照します。Template Repositoryから作成した別repositoryでもリンクが切れないよう、ここでは元repositoryへのリンクを使います。
 
-- [`docs/research/slide-tools.md`](docs/research/slide-tools.md)
-- [`docs/research/japanese-typesetting.md`](docs/research/japanese-typesetting.md)
-- [`docs/research/source-output-architecture.md`](docs/research/source-output-architecture.md)
-- [`docs/research/marp-prototype.md`](docs/research/marp-prototype.md)
-- [`docs/research/naming.md`](docs/research/naming.md)
+- [運用モデル](https://github.com/myokoym/misereru/blob/develop/docs/product/operation-model.md)
+- [要件](https://github.com/myokoym/misereru/blob/develop/docs/product/requirements.md)
+- [スライドツール調査](https://github.com/myokoym/misereru/blob/develop/docs/research/slide-tools.md)
+- [日本語組版調査](https://github.com/myokoym/misereru/blob/develop/docs/research/japanese-typesetting.md)
+- [source / output architecture](https://github.com/myokoym/misereru/blob/develop/docs/research/source-output-architecture.md)
+- [Marp prototype](https://github.com/myokoym/misereru/blob/develop/docs/research/marp-prototype.md)
+- [命名調査](https://github.com/myokoym/misereru/blob/develop/docs/research/naming.md)
 
-### ADR
-
-- [`docs/adr/0001-use-madr-for-decisions.md`](docs/adr/0001-use-madr-for-decisions.md)
-- [`docs/adr/0002-use-template-repository-with-html-default.md`](docs/adr/0002-use-template-repository-with-html-default.md)
-
-調査メモと決定事項を混在させず、調査から判断が確定した時点で必要な背景だけを ADR に残します。
+正本 `slides.md` はMarp固有front matterを持たせません。build時に一時的なMarp入力を生成し、初期production buildではMarpだけをrendererとして使用します。
