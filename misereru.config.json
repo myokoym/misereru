@@ -15,8 +15,7 @@
   },
   "publish": {
     "githubPages": {
-      "enabled": true,
-      "branch": "prototype/marp-japanese-typesetting"
+      "enabled": false
     }
   }
 }
