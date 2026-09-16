@@ -9,21 +9,38 @@ const outputPath = resolve(root, process.argv[4] ?? 'dist/deck/navigation-reques
 const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
 const presentation = JSON.parse(await readFile(presentationPath, 'utf8'));
 
-const tocSlideId = 'misereruTocSlide';
+const pages = presentation.slides ?? [];
 const tocTextId = 'misereruTocText';
-const originalSlides = (presentation.slides ?? []).filter((slide) => slide.objectId !== tocSlideId);
+const tocKey = manifest.navigation?.tocSlideKey;
 
-if (originalSlides.length !== manifest.slides.length) {
+if (!tocKey) {
+  throw new Error('manifest.navigation.tocSlideKey is required');
+}
+
+if (pages.length !== manifest.slides.length) {
   throw new Error(
-    `slide count mismatch: manifest=${manifest.slides.length}, presentation=${originalSlides.length}`
+    `slide count mismatch: manifest=${manifest.slides.length}, presentation=${pages.length}`
   );
 }
 
 const pageObjectIdByKey = new Map();
 for (let index = 0; index < manifest.slides.length; index += 1) {
   const descriptor = manifest.slides[index];
-  const page = originalSlides[index];
+  const page = pages[index];
+  if (!page?.objectId) {
+    throw new Error(`presentation slide ${index + 1} is missing objectId`);
+  }
   pageObjectIdByKey.set(descriptor.key, page.objectId);
+}
+
+const tocIndex = manifest.slides.findIndex((slide) => slide.key === tocKey);
+if (tocIndex < 0) {
+  throw new Error(`TOC slide descriptor not found for key: ${tocKey}`);
+}
+
+const tocPage = pages[tocIndex];
+if (!tocPage?.objectId) {
+  throw new Error(`TOC presentation page not found at index ${tocIndex}`);
 }
 
 const tocItems = manifest.toc.map((item) => {
@@ -37,23 +54,17 @@ const text = textLines.join('\n');
 const ranges = utf16LineRanges(text);
 
 const requests = [];
-if ((presentation.slides ?? []).some((slide) => slide.objectId === tocSlideId)) {
-  requests.push({ deleteObject: { objectId: tocSlideId } });
+if ((tocPage.pageElements ?? []).some((element) => element.objectId === tocTextId)) {
+  requests.push({ deleteObject: { objectId: tocTextId } });
 }
 
 requests.push(
-  {
-    createSlide: {
-      objectId: tocSlideId,
-      insertionIndex: 1
-    }
-  },
   {
     createShape: {
       objectId: tocTextId,
       shapeType: 'TEXT_BOX',
       elementProperties: {
-        pageObjectId: tocSlideId,
+        pageObjectId: tocPage.objectId,
         size: {
           width: { magnitude: 7600000, unit: 'EMU' },
           height: { magnitude: 3900000, unit: 'EMU' }
@@ -123,7 +134,9 @@ for (let index = 0; index < tocItems.length; index += 1) {
 
 const output = {
   version: 1,
-  strategy: 'manifest-order-to-pageObjectId',
+  strategy: 'managed-toc-slide+manifest-order-to-pageObjectId',
+  tocSlideKey: tocKey,
+  tocSlideObjectId: tocPage.objectId,
   pageObjectIdByKey: Object.fromEntries(pageObjectIdByKey),
   requests
 };
