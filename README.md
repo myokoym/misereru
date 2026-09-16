@@ -18,11 +18,10 @@ slides.md を編集
   ↓ push / merge
 GitHub Actions
   ↓
-HTML を自動生成
-  ├─ GitHub Pages     設定時のみ公開
-  ├─ PDF              設定時のみ
-  ├─ Google Slides    設定時のみ
-  └─ PPTX             初期版では未接続
+Marp
+  ├─ HTML             常時生成
+  │   └─ GitHub Pages 設定時のみ公開
+  └─ PDF              設定時のみ
 ```
 
 通常の編集対象は `slides.md` です。出力・公開設定は `misereru.config.json` に置きます。
@@ -30,9 +29,8 @@ HTML を自動生成
 - HTML は初期版の必須・既定 output。
 - GitHub Pages は `publish.githubPages.enabled: true` のときだけ default branch から deploy。
 - PDF は optional。
-- Google Slides は optional。実 `deck apply` 経路の検証完了後に template workflow へ接続する。
-- PPTX は候補として残すが初期版では未接続。
-- 未接続 target を `enabled:true` にした場合は黙ってスキップせず build error にする。
+- Google Slides / PPTX は初期production targetには含めず、research / prototypeで検証を続ける。
+- production buildはMarp 1系統だけを利用し、デザインを二重メンテしない。
 
 GitHub Pages は各 presentation repository で初回だけ Settings > Pages から GitHub Actions publishing を有効化する想定です。標準 `GITHUB_TOKEN` だけでは未有効の Pages を自動有効化できないため、高権限PATを標準要求しません。
 
@@ -40,19 +38,20 @@ GitHub Pages は各 presentation repository で初回だけ Settings > Pages か
 
 ## Renderer の役割
 
-正本 `slides.md` は特定 renderer に固定しません。target ごとに renderer を分けます。
+正本 `slides.md` はMarp固有front matterを持たせません。初期production buildではmisereruが一時的なMarp入力を生成し、Marpだけを呼び出します。
 
 ```text
-                    ┌─ Marp ── HTML
-slides.md ─ adapter ┼─ Marp ── PDF
-                    └─ deck ── Google Slides
+slides.md
+  ↓ misereru adapter
+一時Marp入力
+  ↓ Marp
+  ├─ HTML
+  └─ PDF
 ```
 
-- **Marp**: HTML / PDF の renderer。
-- **k1LoW/deck**: Google Slides の native renderer 候補。
-- Marp と deck は直列ではなく、同じ正本 source から分岐する兄弟 renderer。
-- `slides.md` には `marp: true` 等の Marp 固有 front matter を要求せず、build 時に Marp 用一時入力へ注入する。
-- PPTX の renderer は未決定。
+`k1LoW/deck` はMarkdownからGoogle Slidesを生成するツールで、HTML rendererではありません。Marpとdeckを同時にproduction利用すると、Marp CSS/theme とGoogle Slides base presentation/layoutの2系統を維持する必要があります。内容は共有できても同一デザインを保証できないため、初期版では採用しません。
+
+Google Slidesを将来production targetへ入れる場合は、共通レイアウトモデルを持つか、別デザイン系の成果物として明示的に許容するかを先に決めます。
 
 ## 現在の前提
 
@@ -68,9 +67,9 @@ slides.md ─ adapter ┼─ Marp ── PDF
 ## Template files
 
 ```text
-slides.md               # 通常編集する renderer-neutral な Markdown source
+slides.md               # 通常編集する Markdown source
 misereru.config.json     # output / publish 設定
-themes/                  # renderer 用テーマ
+themes/                  # Marp theme
 .github/workflows/       # 自動 build / publish
 ```
 
