@@ -1,11 +1,12 @@
 # Product requirements
 
-最終更新: 2026-09-16
+最終更新: 2026-09-17
 
 この文書には、調査の途中経過ではなく、現時点で比較的安定しているプロダクト要件だけを置きます。
 
 関連文書:
 
+- 初期運用モデル: [`operation-model.md`](operation-model.md)
 - 既存ツール調査: [`../research/slide-tools.md`](../research/slide-tools.md)
 - 日本語組版調査: [`../research/japanese-typesetting.md`](../research/japanese-typesetting.md)
 - source / output 構成調査: [`../research/source-output-architecture.md`](../research/source-output-architecture.md)
@@ -15,10 +16,6 @@
 ## 目的
 
 Git で管理しやすいテキスト中心の入力から、スライド / presentation を再生成・公開できる仕組みを想定します。
-
-**Markdown は有力候補ですが必須ではありません。**
-
-単一 Markdown、複数 Markdown、YAML / JSON / TOML 等の構造化データ、独自の軽量フォーマット、複数ファイルからなるプロジェクトテンプレートのいずれも候補に含めます。複数入力形式を扱う構成も許容します。
 
 価値の中心は特定の記法ではなく、次の流れを簡単かつ再現可能にすることです。
 
@@ -32,33 +29,64 @@ slide / presentation
 日本語として自然に組版・改行
   ↓
 publish / render
+  ├─ HTML
   ├─ Google Slides
-  ├─ HTML / GitHub Pages
   ├─ PDF
   └─ PPTX 等
 ```
 
+## 初期運用経路
+
+初期版では misereru repository を GitHub Template Repository として利用し、原則 **1資料 = 1 repository** とします。
+
+```text
+misereru template repository
+  ↓
+presentation repository
+  ├─ slides.md
+  ├─ misereru.config.json
+  ├─ assets/
+  ├─ themes/
+  └─ GitHub Actions
+```
+
+初期 template の正本 source は Markdown (`slides.md`) とします。
+
+通常操作:
+
+```text
+slides.md を編集
+  ↓ push / merge
+GitHub Actions
+  ↓
+HTML を自動生成
+  ├─ PDF              設定時のみ
+  ├─ Google Slides    設定時のみ
+  └─ PPTX             初期版では未接続
+```
+
+この初期運用判断は、misereru 全体を将来にわたり Markdown 専用へ固定するものではありません。必要になれば source adapter を追加できる構成を維持します。
+
 ## Source / project model
 
 - 正本は **ChatGPT と GitHub から安全に編集できるテキスト中心の構成**にする。
-- Markdown 固有機能を製品要件にはしない。
-- 1ファイル完結を必須にしない。
-- コンテンツ、設定、テーマ、画像等を分けたプロジェクト構成も許容する。
-- GitHub の template repository から新規スライドプロジェクトを生成する方式も候補とする。
+- 初期 template では `slides.md` を正本 source とする。
+- 1ファイル完結を永続的な製品制約にはしない。
+- コンテンツ、設定、テーマ、画像等を分けたプロジェクト構成を許容する。
+- 初期運用では GitHub Template Repository から新規スライドプロジェクトを生成する。
 - 既存ツールで要件を満たせる場合、独自フォーマットや独自レンダラーを先に作らず、そのツールの wrapper / adapter として成立させてよい。
-- 複数の source format / renderer を扱う場合も、利用者が通常触る既定経路は簡単に保つ。
+- 複数の source format / renderer を将来扱う場合も、利用者が通常触る既定経路は簡単に保つ。
 
-想定例であり、確定仕様ではありません。
+初期 template の構成:
 
 ```text
 presentation-project/
-├─ presentation.yml      # 共通設定・出力先
-├─ slides.md             # 例: Markdown source
+├─ slides.md
+├─ misereru.config.json
 ├─ assets/
-└─ theme/
+├─ themes/
+└─ .github/workflows/
 ```
-
-別案として `slides/` 配下に1ページ1ファイルを置く構成や、YAML / JSON からスライドを構成する方式も検討対象です。
 
 ## 編集・管理
 
@@ -66,14 +94,14 @@ presentation-project/
 - Google Slides 等を成果物・デザインテンプレート・確認画面として利用することは許容する。
 - タイトル、テーマ、ページサイズ、ページ番号、出力設定等は可能な限りテキスト側で管理可能にする。
 - **日常的な編集・生成に PC、ローカル CLI、ローカル Node.js 環境を必須にしない。**
-- スマートフォン + ChatGPT + GitHub を基本の操作経路として成立させたい。
-- ビルドや重い生成処理は GitHub Actions 等のリモート環境へ置ける構成を優先する。
+- スマートフォン + ChatGPT + GitHub を基本の操作経路として成立させる。
+- ビルドや重い生成処理は GitHub Actions 等のリモート環境へ置く。
 - Git 管理しやすいことを重視する。
 - 生成物は正本と分離し、原則として再生成可能にする。
 
 ## Build / publish
 
-規定位置の source / config / assets が更新された場合に、GitHub Actions 等で自動的に build / publish できる構成を想定します。
+規定位置の source / config / assets が更新された場合に、GitHub Actions で自動 build できる構成とします。
 
 ```text
 source update
@@ -82,28 +110,45 @@ GitHub Actions
   ↓
 build
   ↓
-publish target
+configured outputs
 ```
 
-出力先は設定可能にする方向です。
+初期 output 方針:
 
-候補:
+- **HTML: 必須・既定。設定なしでも生成できる。**
+- PDF: optional。設定した場合のみ生成。
+- Google Slides: optional。認証・template・renderer経路の条件が揃った場合のみ生成。
+- PPTX: 候補として残すが初期版では未接続。
+- GitHub Pages: explicit opt-in。明示的に有効化するまで公開しない。
+- Actions artifact: 初期確認経路として利用可能。
 
-- Google Slides / Google Drive
-- GitHub Pages 上の HTML
-- Actions artifact
-- PDF
-- PPTX
+複数 target を同時に有効化できる構成を許容します。
 
-単一出力に固定せず、必要なら複数 target を同時に有効化できる構成を許容します。
+未接続 target を `enabled:true` にした場合は、成功扱いで黙ってスキップしません。設定と実際の生成結果が食い違う場合は build error とします。
 
-ただし初期版は、設定なしでも動く簡単な既定 target を1つ持たせてよいです。何を既定にするかは未決定です。
+### Google Slides target
 
-Google Slides を target にする場合は、次の方式を比較します。
+Google Slides を target にする場合は native Google Slides を優先し、次の経路を検証しています。
 
-1. Google Slides API へ直接 native 要素を生成・更新する。
-2. PPTX 等を生成し、Google Drive API で Google Slides へ変換する。
-3. `k1LoW/deck` 等、Google Slides を直接 target にする既存ツールを利用する。
+```text
+slides source
+  ↓ adapter
+k1LoW/deck compatible source
+  ↓ deck apply
+native Google Slides
+  ↓ misereru post-process
+TOC / internal links
+  ↓ readback
+link / structure verification
+```
+
+Google Slidesのデザインは `deck` やGoogle Slidesの素の既定値へ品質を落としてフォールバックさせません。
+
+- project固有template指定があればそれを使う。
+- 指定がなければ `misereru-default` template を使う方向とする。
+- templateが解決できない場合はエラーにする。
+- Google Slidesが無効または未設定の場合は、HTML等の他targetは正常に生成する。
+- Google Slidesを明示的に有効化したのに認証等が不足する場合はエラーにする。
 
 ## Navigation / links
 
@@ -130,7 +175,7 @@ Google Slides では外部 URL と presentation 内の特定スライドへの�
 
 日本語の品質は重要要件です。単に文字が枠内に収まるだけでは不足です。
 
-少なくとも以下を扱いたいです。
+少なくとも以下を扱います。
 
 - 行頭禁則
 - 行末禁則
@@ -142,27 +187,34 @@ Google Slides では外部 URL と presentation 内の特定スライドへの�
 - 行長・行分割の自然さ
 - overflow 時の扱い
 
+また、通常本文ページについて次の可読性を検証対象に含めます。
+
+- 過剰な余白を避ける。
+- スマートフォン表示でも本文が小さすぎないこと。
+- 日本語資料として適切なフォントを利用すること。
+- 行間が狭すぎないこと。
+- 見出しページだけでなく、本文・箇条書き・複数段落・リンクを含む通常ページを評価すること。
+
 参考:
 
 - W3C JLREQ: <https://www.w3.org/International/jlreq/?lang=ja>
 
 ## 未決事項
 
-- 正本となる source format を何にするか。
-- 単一ファイル型と project template 型のどちらを既定にするか。
-- 複数 source format を最初から対応するか。
+- Markdown 以外の source adapter をいつ追加するか。
+- 1ページ1ファイル等の複数Markdown構成を追加するか。
 - 共通の中間 presentation model / AST を持つか、renderer wrapper を直接使うか。
-- Marp を renderer の一つとして採用するか。
-- `k1LoW/deck` 等を Google Slides renderer として採用するか。
+- Marp を HTML / PDF renderer として正式採用するか。
+- `k1LoW/deck` を Google Slides renderer として正式採用するか。
 - Vivliostyle を内部レンダリングに利用するか。
-- Google Slides / HTML Pages / PDF / PPTX のどれを既定 target にするか。
-- Google Slides 出力を native 要素中心にするか、見た目優先の画像 / PPTX 変換にするか。
-- Google API 認証を repository secret / GitHub OIDC / その他のどの方式で扱うか。
-- 目次生成時の slide identity を source format ごとにどう持つか。
+- Google Slides認証を個人My Drive向けOAuth、Shared Drive + Workload Identity Federation等のどの方式で標準化するか。
+- `misereru-default` Google Slides template の具体的なデザイン。
+- Google Slidesで stable key と pageObjectId を追加・削除・並べ替え後も確実に対応させる方法。
 - 目次を表紙直後に固定するか、設定可能にするか。
 - Mermaid を標準対応するか。
 - 共通テーマをどこまで source から分離するか。
 - AI をレンダリング工程へ入れるか、source 編集側の ChatGPT に限定するか。
+- template repository更新を既存の各資料repositoryへどう反映するか。
 
 ## 仮称
 
