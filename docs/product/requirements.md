@@ -48,8 +48,10 @@ Markdown = source
 HTML / PDF / PPTX = build artifact
 ```
 
-- スマートフォン側へ Node.js 等のローカル開発環境を要求しない。
-- ChatGPT + GitHub を基本編集 UI として成立させたい。
+- **日常的な編集・生成に PC、ローカル CLI、ローカル Node.js 環境を必須にしない。**
+- スマートフォン + ChatGPT + GitHub を基本の操作経路として成立させたい。
+- ビルドや重い生成処理は GitHub Actions 等のリモート環境へ置ける構成を優先する。
+- ChatGPT から扱う主要な編集対象は Markdown とし、複雑なローカル開発環境の操作を前提にしない。
 - Git 管理しやすいことを重視する。
 - 生成物は再生成可能な artifact として扱う。
 
