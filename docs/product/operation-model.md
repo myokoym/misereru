@@ -27,6 +27,7 @@ slides.md を編集
 GitHub Actions
   ↓
 HTML を必ず生成
+  ├─ GitHub Pages     設定時のみ公開
   ├─ PDF              設定時のみ
   ├─ Google Slides    設定時のみ（実経路検証後に有効化）
   └─ PPTX             初期版では未接続
@@ -40,8 +41,43 @@ HTML を必ず生成
 - ページ区切り: `---`
 - 外部リンク: 通常の Markdown link
 - stable slide identity が必要なページは page config comment の `key` を利用可能
+- 正本 `slides.md` には `marp: true` 等の renderer 固有 front matter を要求しない
 
 これは初期運用経路の決定です。misereru 全体を永久に Markdown 専用へ固定するものではありません。
+
+## Renderer / target の分離
+
+正本 source と renderer を分離します。Marp と `k1LoW/deck` は直列につながず、target ごとに使い分けます。
+
+```text
+                    ┌─ Marp ── HTML
+slides.md ─ adapter ┼─ Marp ── PDF
+                    └─ deck ── Google Slides
+```
+
+### Marp
+
+初期版では HTML / PDF の renderer として使います。
+
+- HTML: Marp
+- PDF: Marp
+- Marp 固有 front matter / theme 指定は build 時に一時入力へ注入する
+- 利用者が編集する `slides.md` 自体を Marp 専用 source にしない
+
+### k1LoW/deck
+
+Google Slides の native renderer 候補です。
+
+- Google Slides: `deck apply` を利用する方向
+- Google Slides の native text / link / layout を維持する
+- 自動目次の内部 `pageObjectId` link は misereru post-process で補う
+- 実 `deck apply` + design template + readback verification が通るまでは初期 template workflow の有効 target にしない
+
+Marp の生成物を deck に入力したり、deck の生成物を HTML へ変換したりしません。
+
+### PPTX
+
+renderer はまだ決めません。Marp の PPTX をそのまま正式採用することも現時点では決めません。
 
 ## 出力
 
@@ -51,15 +87,38 @@ HTML を必ず生成
 
 - 設定なしでも生成できる既定 target とする。
 - `slides.md` / config / theme の変更で GitHub Actions が自動 build する。
-- 生成物はまず Actions artifact として扱う。
+- 公開用HTMLは `dist/site/` に分離する。
+- 生成物は Actions artifact として常に取得可能にする。
 - GitHub Pages 公開は明示的に有効化するまで行わない。
+
+### GitHub Pages
+
+HTMLの生成とは別の publish target です。
+
+`misereru.config.json` の `publish.githubPages.enabled` を `true` にすると、default branch の build で次を行います。
+
+```text
+HTML build
+  ↓
+actions/upload-pages-artifact
+  ↓
+actions/configure-pages
+  ↓
+actions/deploy-pages
+  ↓
+GitHub Pages
+```
+
+feature branch からは Pages へ deploy しません。
+
+GitHub の制約上、各 presentation repository で Pages 自体が未有効の場合、標準の `GITHUB_TOKEN` だけでは `configure-pages` が自動有効化できません。初回だけ repository の Settings > Pages で GitHub Actions publishing を有効にする運用を基本とします。自動有効化のためだけに高権限PATを標準要求しません。
 
 ### PDF
 
 初期版で任意 output として扱います。
 
 - `misereru.config.json` で有効化した場合だけ生成する。
-- HTML と同じ source から再生成する。
+- HTML と同じ正本 source から Marp adapter を通して再生成する。
 
 ### Google Slides
 
@@ -77,15 +136,15 @@ HTML を必ず生成
 
 ## 設定とフォールバック
 
-`misereru.config.json` が project ごとの output 設定を持ちます。
+`misereru.config.json` が project ごとの output / publish 設定を持ちます。
 
 初期方針:
 
 - HTML: 必須・常時生成
-- PDF: optional
-- Google Slides: optional
+- GitHub Pages: optional publish
+- PDF: optional output
+- Google Slides: optional output
 - PPTX: optional / 未接続
-- GitHub Pages: explicit opt-in
 
 未接続 target を `enabled:true` にした場合は成功扱いでスキップしません。設定と実際の生成結果が食い違わないことを優先します。
 
@@ -98,7 +157,7 @@ HTML を必ず生成
 2. slides.md を ChatGPT / GitHub で編集する
 3. commit / push
 4. Actions が HTML 等を生成する
-5. 必要な target だけ config で追加する
+5. 公開・追加 output が必要なら config で有効化する
 ```
 
 ローカル PC、PowerPoint、Node.js CLI を日常操作の必須工程にしません。
