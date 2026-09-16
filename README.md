@@ -1,18 +1,21 @@
 # misereru
 
-Markdown を正本として、スライドを生成・レンダリングするツールの企画・調査リポジトリです。
+Git で管理しやすいテキスト / project source から、スライドを生成・レンダリング・公開するツールの企画・調査リポジトリです。
 
 > **名称 `misereru` は仮決定です。**
 > 命名調査は [`docs/research/naming.md`](docs/research/naming.md) に隔離しています。
 
 ## 現在の前提
 
-- 編集対象は Markdown を中心とし、スライド側を直接編集しない。
-- タイトル、テーマ、ページ設定、出力設定などのメタ情報もテキストで管理する。
+- Markdown は有力な source format だが必須ではない。
+- 単一ファイル、複数ファイル、構造化データ、独自軽量フォーマット、project template のいずれも候補とする。
+- 既存ツールで十分なら wrapper / adapter として利用し、独自 renderer を先に作らない。
+- タイトル、テーマ、ページ設定、出力設定等は可能な限りテキストで管理する。
 - スマートフォン単体でも、ChatGPT と GitHub を介して編集・管理できる構成を重視する。
+- 規定位置の source / config 更新を GitHub Actions で build / publish する運用を想定する。
+- 出力先は Google Slides / Google Drive、HTML / GitHub Pages、PDF、PPTX、Actions artifact 等を設定で選べる構成を検討する。
 - 日本語の禁則処理、自然な改行、句読点・括弧・英数字混在時の折返し品質を重要要件とする。
-- PDF / HTML 等の生成物は再生成可能な artifact として扱う。
-- 既存ツールを採用する可能性と、自作する可能性の両方を残す。
+- 生成物は再生成可能な artifact / publish target として正本から分離する。
 
 ## Documentation
 
@@ -27,6 +30,8 @@ docs/
 │  ├─ README.md
 │  ├─ slide-tools.md
 │  ├─ japanese-typesetting.md
+│  ├─ source-output-architecture.md
+│  ├─ marp-prototype.md
 │  └─ naming.md
 └─ adr/
    ├─ README.md
@@ -45,6 +50,8 @@ docs/
 
 - [`docs/research/slide-tools.md`](docs/research/slide-tools.md)
 - [`docs/research/japanese-typesetting.md`](docs/research/japanese-typesetting.md)
+- [`docs/research/source-output-architecture.md`](docs/research/source-output-architecture.md)
+- [`docs/research/marp-prototype.md`](docs/research/marp-prototype.md)
 - [`docs/research/naming.md`](docs/research/naming.md)
 
 ### ADR
