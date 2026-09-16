@@ -1,0 +1,10 @@
+{
+  "presentationId": "mock-presentation",
+  "slides": [
+    { "objectId": "slideTitle" },
+    { "objectId": "slideArchitecture" },
+    { "objectId": "slideExternalLinks" },
+    { "objectId": "slideTocNavigation" },
+    { "objectId": "slideNext" }
+  ]
+}
