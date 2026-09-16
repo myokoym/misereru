@@ -6,19 +6,20 @@ const sourcePath = resolve(root, 'prototype/deck/content.json');
 const outputDir = resolve(root, 'dist/deck');
 
 const source = JSON.parse(await readFile(sourcePath, 'utf8'));
-const slides = source.slides ?? [];
+const sourceSlides = source.slides ?? [];
+const tocKey = '__misereru_toc__';
 
-if (slides.length === 0) {
+if (sourceSlides.length === 0) {
   throw new Error('prototype/deck/content.json must contain at least one slide');
 }
 
-const seenKeys = new Set();
-for (const [index, slide] of slides.entries()) {
+const seenKeys = new Set([tocKey]);
+for (const [index, slide] of sourceSlides.entries()) {
   if (!slide.key || typeof slide.key !== 'string') {
     throw new Error(`slide ${index + 1} is missing a stable key`);
   }
   if (seenKeys.has(slide.key)) {
-    throw new Error(`duplicate slide key: ${slide.key}`);
+    throw new Error(`duplicate or reserved slide key: ${slide.key}`);
   }
   seenKeys.add(slide.key);
 
@@ -27,6 +28,17 @@ for (const [index, slide] of slides.entries()) {
   }
 }
 
+const tocSlide = {
+  key: tocKey,
+  title: '目次',
+  toc: false,
+  generated: 'toc',
+  freeze: true,
+  blocks: []
+};
+
+const renderedSlides = [sourceSlides[0], tocSlide, ...sourceSlides.slice(1)];
+
 const markdown = [];
 markdown.push('---');
 markdown.push(`title: ${yamlString(source.presentation?.title ?? 'misereru deck prototype')}`);
@@ -34,13 +46,15 @@ markdown.push('breaks: false');
 markdown.push('---');
 markdown.push('');
 
-for (const [index, slide] of slides.entries()) {
+for (const [index, slide] of renderedSlides.entries()) {
   if (index > 0) {
     markdown.push('---');
     markdown.push('');
   }
 
-  markdown.push(`<!-- ${JSON.stringify({ key: slide.key })} -->`);
+  const pageConfig = { key: slide.key };
+  if (slide.freeze) pageConfig.freeze = true;
+  markdown.push(`<!-- ${JSON.stringify(pageConfig)} -->`);
   markdown.push(`# ${slide.title}`);
   markdown.push('');
 
@@ -68,16 +82,18 @@ for (const [index, slide] of slides.entries()) {
 const manifest = {
   version: 1,
   presentationTitle: source.presentation?.title ?? 'misereru deck prototype',
-  slides: slides.map((slide, index) => ({
+  slides: renderedSlides.map((slide, index) => ({
     index,
     key: slide.key,
     title: slide.title,
-    toc: slide.toc !== false
+    toc: slide.toc !== false,
+    generated: slide.generated ?? null
   })),
-  toc: slides
+  toc: sourceSlides
     .filter((slide) => slide.toc !== false)
     .map((slide) => ({ key: slide.key, label: slide.tocLabel ?? slide.title })),
   navigation: {
+    tocSlideKey: tocKey,
     internalLinkTarget: 'google-slides-pageObjectId',
     sourceIdentity: 'key'
   }
@@ -87,7 +103,9 @@ await mkdir(outputDir, { recursive: true });
 await writeFile(resolve(outputDir, 'slides.md'), `${markdown.join('\n').trimEnd()}\n`, 'utf8');
 await writeFile(resolve(outputDir, 'slide-manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
 
-console.log(`Generated ${slides.length} deck slides and manifest at ${outputDir}`);
+console.log(
+  `Generated ${renderedSlides.length} deck slides (${sourceSlides.length} source + managed TOC) and manifest at ${outputDir}`
+);
 
 function yamlString(value) {
   return JSON.stringify(String(value));
