@@ -26,10 +26,17 @@ for (const [index, slide] of sourceSlides.entries()) {
   if (!slide.title || typeof slide.title !== 'string') {
     throw new Error(`slide ${slide.key} is missing title`);
   }
+
+  const layout = resolveLayout(slide);
+  if (!['title', 'title-and-body'].includes(layout)) {
+    throw new Error(`unsupported deck layout on ${slide.key}: ${layout}`);
+  }
 }
 
 const tocSlide = {
   key: tocKey,
+  role: 'body',
+  layout: 'title-and-body',
   title: '目次',
   toc: false,
   generated: 'toc',
@@ -52,7 +59,10 @@ for (const [index, slide] of renderedSlides.entries()) {
     markdown.push('');
   }
 
-  const pageConfig = { key: slide.key };
+  const pageConfig = {
+    key: slide.key,
+    layout: resolveLayout(slide)
+  };
   if (slide.freeze) pageConfig.freeze = true;
   markdown.push(`<!-- ${JSON.stringify(pageConfig)} -->`);
   markdown.push(`# ${slide.title}`);
@@ -80,11 +90,13 @@ for (const [index, slide] of renderedSlides.entries()) {
 }
 
 const manifest = {
-  version: 1,
+  version: 2,
   presentationTitle: source.presentation?.title ?? 'misereru deck prototype',
   slides: renderedSlides.map((slide, index) => ({
     index,
     key: slide.key,
+    role: slide.role ?? 'body',
+    layout: resolveLayout(slide),
     title: slide.title,
     toc: slide.toc !== false,
     generated: slide.generated ?? null
@@ -106,6 +118,11 @@ await writeFile(resolve(outputDir, 'slide-manifest.json'), `${JSON.stringify(man
 console.log(
   `Generated ${renderedSlides.length} deck slides (${sourceSlides.length} source + managed TOC) and manifest at ${outputDir}`
 );
+
+function resolveLayout(slide) {
+  if (slide.layout) return slide.layout;
+  return slide.role === 'title' ? 'title' : 'title-and-body';
+}
 
 function yamlString(value) {
   return JSON.stringify(String(value));
