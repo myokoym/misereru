@@ -16,8 +16,11 @@ Markdown を正本として、スライドを生成・レンダリングする�
 
 ## Documentation
 
+文書構成・ライフサイクル・将来の `how-to / reference / tutorials / explanation` 追加ルールは [`docs/README.md`](docs/README.md) を正本とします。
+
 ```text
 docs/
+├─ README.md
 ├─ product/
 │  └─ requirements.md
 ├─ research/
