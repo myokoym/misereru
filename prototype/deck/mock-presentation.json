@@ -2,6 +2,7 @@
   "presentationId": "mock-presentation",
   "slides": [
     { "objectId": "slideTitle" },
+    { "objectId": "slideToc", "pageElements": [] },
     { "objectId": "slideArchitecture" },
     { "objectId": "slideExternalLinks" },
     { "objectId": "slideTocNavigation" },
