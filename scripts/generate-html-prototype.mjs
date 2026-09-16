@@ -16,6 +16,7 @@ for (const slide of slides) {
 }
 
 const tocSlides = slides.filter((slide) => slide.toc !== false);
+const tocHostKey = slides[0].key;
 const sections = [];
 
 for (const [index, slide] of slides.entries()) {
@@ -52,7 +53,9 @@ for (const [index, slide] of slides.entries()) {
     }
   }
 
-  if (index > 0) sections.push('<p class="back"><a href="#slide-title">目次へ戻る</a></p>');
+  if (index > 0) {
+    sections.push(`<p class="back"><a href="#slide-${escapeAttr(tocHostKey)}">目次へ戻る</a></p>`);
+  }
   sections.push('</section>');
 }
 
