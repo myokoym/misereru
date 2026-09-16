@@ -7,7 +7,7 @@
   },
   "scripts": {
     "build:marp-prototype": "node scripts/build-prototype.mjs",
-    "build:deck-source": "node scripts/generate-deck-prototype.mjs",
+    "build:deck-source": "node scripts/generate-deck-prototype.mjs && node scripts/build-google-slides-navigation.mjs",
     "build:prototype": "npm run build:marp-prototype && npm run build:deck-source"
   },
   "devDependencies": {
