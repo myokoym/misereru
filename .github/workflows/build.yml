@@ -1,0 +1,45 @@
+name: Build slide project
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'slides.md'
+      - 'misereru.config.json'
+      - 'themes/**'
+      - 'marp.config.mjs'
+      - 'scripts/build-project.mjs'
+      - 'package.json'
+      - '.github/workflows/build.yml'
+
+concurrency:
+  group: build-slide-project-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Install Japanese fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-noto-cjk
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Build configured outputs
+        run: npm run build:project
+
+      - name: Upload generated outputs
+        uses: actions/upload-artifact@v7
+        with:
+          name: misereru-output
+          path: dist/
+          if-no-files-found: error
