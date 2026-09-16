@@ -1,22 +1,51 @@
 {
   "presentation": {
-    "title": "misereru navigation prototype"
+    "title": "misereru deck prototype"
   },
   "slides": [
     {
       "key": "title",
-      "title": "misereru navigation prototype",
+      "role": "title",
+      "layout": "title",
+      "title": "misereru deck prototype",
       "blocks": [
         {
           "type": "paragraph",
-          "text": "project source から Google Slides へ生成する最小比較用サンプル"
+          "text": "source から native Google Slides を生成し、本文・リンク・目次・日本語表示を確認する検証用資料"
+        }
+      ]
+    },
+    {
+      "key": "overview",
+      "role": "body",
+      "layout": "title-and-body",
+      "title": "この検証で確認すること",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "見出しだけではなく、通常の本文ページとして読めることを前提に評価する。"
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "本文が十分な大きさで読める",
+            "余白が過剰でなく、情報量とのバランスが取れている",
+            "行間と段落間隔が窮屈でない",
+            "リンクと目次が Android の Google スライドでも機能する"
+          ]
         }
       ]
     },
     {
       "key": "architecture",
+      "role": "body",
+      "layout": "title-and-body",
       "title": "Source / renderer / target を分離する",
       "blocks": [
+        {
+          "type": "paragraph",
+          "text": "misereru は source format を特定の記法へ固定せず、renderer adapter と publish target を分離する。"
+        },
         {
           "type": "bullets",
           "items": [
@@ -29,11 +58,13 @@
     },
     {
       "key": "external-links",
+      "role": "body",
+      "layout": "title-and-body",
       "title": "外部ハイパーリンク",
       "blocks": [
         {
           "type": "paragraph",
-          "text": "生成後もスライド上から外部サイトへ移動できることを要件とする。"
+          "text": "生成後もスライド上から外部サイトへ移動できることを要件とする。URLの文字列表示だけではなく、native hyperlink として保持される必要がある。"
         },
         {
           "type": "link",
@@ -44,28 +75,73 @@
     },
     {
       "key": "toc-navigation",
+      "role": "body",
+      "layout": "title-and-body",
       "title": "自動目次と内部リンク",
       "blocks": [
+        {
+          "type": "paragraph",
+          "text": "目次はスライド構造から自動生成し、各項目から対応スライドへ直接移動できるようにする。"
+        },
         {
           "type": "bullets",
           "items": [
             "目次は build 時に自動生成する",
             "各目次項目から対応スライドへ直接移動できる",
-            "ページ番号ではなく stable slide key を source 側の識別子として使う"
+            "ページ番号ではなく stable slide key を source 側の識別子として使う",
+            "追加・削除・並べ替え後も再生成で追随する"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "japanese-body",
+      "role": "body",
+      "layout": "title-and-body",
+      "title": "通常本文ページの日本語表示",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "日本語のプレゼンテーションでは、文字サイズだけでなく行間、段落間隔、禁則処理、和欧混植、URLや英数字の折り返しまで含めて読みやすさを確認する必要がある。"
+        },
+        {
+          "type": "paragraph",
+          "text": "このページは章見出しではなく、複数行の本文を実際に読ませる標準ページとして使う。スマートフォン表示でも本文が小さくなりすぎないことを確認対象にする。"
+        }
+      ]
+    },
+    {
+      "key": "quality-gate",
+      "role": "body",
+      "layout": "title-and-body",
+      "title": "見た目品質の評価条件",
+      "blocks": [
+        {
+          "type": "bullets",
+          "items": [
+            "通常本文ページを主な評価対象にする",
+            "余白が広すぎないこと",
+            "本文文字がスマートフォンで無理なく読めること",
+            "日本語フォントが資料用途として自然であること",
+            "行間が詰まりすぎないこと",
+            "リンク機能と可読性を同じ実出力で確認する"
           ]
         }
       ]
     },
     {
       "key": "next",
+      "role": "body",
+      "layout": "title-and-body",
       "title": "次の検証",
       "blocks": [
         {
           "type": "bullets",
           "items": [
-            "k1LoW/deck で native Google Slides を生成する",
-            "生成後に key と pageObjectId を解決する",
-            "misereru post-process で目次と内部リンクを付与する"
+            "k1LoW/deck の実 apply で native Google Slides を生成する",
+            "生成された通常本文ページの見た目を確認する",
+            "生成後に pageObjectId を取得して目次内部リンクを post-process する",
+            "Android Google スライドで外部・内部リンクを確認する"
           ]
         }
       ]
