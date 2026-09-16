@@ -26,12 +26,13 @@ slides.md を編集
   ↓ push / merge
 GitHub Actions
   ↓
-HTML を必ず生成
-  ├─ GitHub Pages     設定時のみ公開
-  ├─ PDF              設定時のみ
-  ├─ Google Slides    設定時のみ（実経路検証後に有効化）
-  └─ PPTX             初期版では未接続
+Marp
+  ├─ HTML             常時生成
+  │   └─ GitHub Pages 設定時のみ公開
+  └─ PDF              設定時のみ
 ```
+
+Google Slides / PPTX は初期テンプレートの production target には含めません。renderer とデザインの一貫性を維持できる方式が検証できるまで research / prototype 扱いとします。
 
 ## 初期 source
 
@@ -45,39 +46,48 @@ HTML を必ず生成
 
 これは初期運用経路の決定です。misereru 全体を永久に Markdown 専用へ固定するものではありません。
 
-## Renderer / target の分離
+## Renderer 方針
 
-正本 source と renderer を分離します。Marp と `k1LoW/deck` は直列につながず、target ごとに使い分けます。
+### 初期 production renderer: Marp
+
+初期版は renderer を1系統に限定します。
 
 ```text
-                    ┌─ Marp ── HTML
-slides.md ─ adapter ┼─ Marp ── PDF
-                    └─ deck ── Google Slides
+slides.md
+  ↓ misereru adapter
+Marp用の一時入力
+  ↓ Marp
+  ├─ HTML
+  └─ PDF
 ```
 
-### Marp
+Marp 固有 front matter / theme 指定は build 時に一時入力へ注入し、利用者が編集する `slides.md` 自体には持ち込みません。
 
-初期版では HTML / PDF の renderer として使います。
-
-- HTML: Marp
-- PDF: Marp
-- Marp 固有 front matter / theme 指定は build 時に一時入力へ注入する
-- 利用者が編集する `slides.md` 自体を Marp 専用 source にしない
+ここでいう「build 時に注入」は、正本MarkdownをMarpとdeckの両方に混在させる意味ではありません。初期production buildはMarpだけを呼び出します。
 
 ### k1LoW/deck
 
-Google Slides の native renderer 候補です。
+`deck` は Markdown から Google Slides を生成・更新するツールです。HTMLファイルを出力するrendererではありません。
 
-- Google Slides: `deck apply` を利用する方向
-- Google Slides の native text / link / layout を維持する
-- 自動目次の内部 `pageObjectId` link は misereru post-process で補う
-- 実 `deck apply` + design template + readback verification が通るまでは初期 template workflow の有効 target にしない
+そのため Marp と deck を同時にproduction targetへ入れると、次の2系統のデザイン実装を維持する必要があります。
 
-Marp の生成物を deck に入力したり、deck の生成物を HTML へ変換したりしません。
+```text
+Marp theme / CSS
+Google Slides base presentation / layout
+```
+
+内容sourceを共有できても、見た目を同一の成果物として保証できません。初期版ではこの二重メンテナンスを採用しません。
+
+`deck` を使ったGoogle Slides生成は research / prototype で継続し、次のどちらかが成立した場合に改めてproduction targetへ昇格させます。
+
+- 同一のデザイン定義を複数rendererへ安定して適用できる共通レイアウトモデルを持つ。
+- Google Slidesを別デザイン系の成果物として明示的に許容する仕様を採用する。
+
+どちらも現時点では未決定です。
 
 ### PPTX
 
-renderer はまだ決めません。Marp の PPTX をそのまま正式採用することも現時点では決めません。
+初期版では未対応です。MarpのPPTXを正式採用するとも決めません。
 
 ## 出力
 
@@ -118,21 +128,7 @@ GitHub の制約上、各 presentation repository で Pages 自体が未有効�
 初期版で任意 output として扱います。
 
 - `misereru.config.json` で有効化した場合だけ生成する。
-- HTML と同じ正本 source から Marp adapter を通して再生成する。
-
-### Google Slides
-
-任意 output として設計しますが、初期テンプレートの自動 target へ昇格するのは `source -> deck apply -> real Google Slides -> navigation post-process -> readback verification` が通ってからとします。
-
-- 認証なしの場合は Google Slides を生成しない。
-- `enabled:false` は正常な無効状態。
-- `enabled:true` なのに認証・template・実装条件が不足する場合は、別形式へ黙ってフォールバックせず build error にする。
-- デザイン template が未指定の場合は、将来の `misereru-default` を利用する。
-- Google Slides / deck の素のレイアウトへ品質を落としてフォールバックしない。
-
-### PPTX
-
-候補として残しますが、初期版では未接続です。
+- HTML と同じ Marp renderer / theme を使う。
 
 ## 設定とフォールバック
 
@@ -143,10 +139,10 @@ GitHub の制約上、各 presentation repository で Pages 自体が未有効�
 - HTML: 必須・常時生成
 - GitHub Pages: optional publish
 - PDF: optional output
-- Google Slides: optional output
-- PPTX: optional / 未接続
+- Google Slides: production未対応
+- PPTX: production未対応
 
-未接続 target を `enabled:true` にした場合は成功扱いでスキップしません。設定と実際の生成結果が食い違わないことを優先します。
+初期production設定では `outputs` に `html` / `pdf` 以外を指定した場合、build error にします。未検証rendererへ黙って分岐しません。
 
 ## 日常運用
 
@@ -156,8 +152,8 @@ GitHub の制約上、各 presentation repository で Pages 自体が未有効�
 1. template repository から新しい資料 repository を作る
 2. slides.md を ChatGPT / GitHub で編集する
 3. commit / push
-4. Actions が HTML 等を生成する
-5. 公開・追加 output が必要なら config で有効化する
+4. Actions が HTML を生成する
+5. 必要なら PDF / Pages を config で有効化する
 ```
 
 ローカル PC、PowerPoint、Node.js CLI を日常操作の必須工程にしません。
