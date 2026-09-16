@@ -3,6 +3,15 @@
     "type": "marp-markdown",
     "path": "prototype/japanese-typesetting.md"
   },
+  "navigation": {
+    "externalLinks": true,
+    "toc": {
+      "enabled": true,
+      "position": "after-title",
+      "source": "slide-titles",
+      "linkTarget": "stable-slide-id"
+    }
+  },
   "profiles": {
     "baseline": {
       "renderer": "marp",
