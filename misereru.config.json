@@ -1,0 +1,27 @@
+{
+  "source": {
+    "format": "markdown",
+    "path": "slides.md"
+  },
+  "outputs": {
+    "html": {
+      "enabled": true,
+      "path": "dist/index.html"
+    },
+    "pdf": {
+      "enabled": false,
+      "path": "dist/slides.pdf"
+    },
+    "googleSlides": {
+      "enabled": false,
+      "presentationId": null,
+      "template": "misereru-default"
+    },
+    "pptx": {
+      "enabled": false
+    }
+  },
+  "publish": {
+    "githubPages": false
+  }
+}
