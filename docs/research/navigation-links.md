@@ -189,6 +189,23 @@ dist/deck/navigation-requests.json
 
 現CIでは Google 認証を必要としない mock presentation を使い、post-process request の生成まで検証します。実運用では `deck apply` 後に Slides API から現在の object ID 一覧を取得して同じ処理へ渡します。
 
+### CI 実測
+
+GitHub Actions run `35097281469` で上記一式の生成に成功しました。
+
+生成物を展開して確認した結果:
+
+- `slides.md` は source 5枚に加えて、2枚目へ `__misereru_toc__` / `freeze:true` の管理TOCを自動挿入している。
+- 外部リンク `W3C JLREQ` は通常の Markdown link として deck input に保持されている。
+- `slide-manifest.json` は6ページ（source 5 + managed TOC）を持ち、TOC自体は `toc:false`。
+- source 5ページだけが自動目次項目になっている。
+- mock Google Slides の6ページと manifest を対応させ、`key → pageObjectId` map を生成できた。
+- `navigation-requests.json` は9 request。
+- post-process request に `createSlide` は含まれず、既存 managed TOC page `slideToc` を利用している。
+- 5つのTOC項目すべてに、それぞれの `pageObjectId` link が生成されている。
+
+したがって **Google認証より手前の adapter / managed TOC / internal-link request generation はCI上で成立**しました。
+
 ## 自動生成のタイミング
 
 目次の内容は source に手書きして正本化するより、build 時に生成する方を優先します。
@@ -229,8 +246,7 @@ dist/deck/navigation-requests.json
 
 ## 次の検証
 
-1. CI で managed TOC を含む deck-compatible source / manifest / navigation request の生成が通ることを確認する。
-2. Google Cloud 認証方式を選び、`deck apply` を GitHub Actions から実行する。
-3. 実 `deck` 出力後の Slides object ID と manifest の対応を検証する。
-4. HTML target でも同じ stable key から anchor TOC を生成する。
-5. スライド追加・削除・並べ替え後に目次リンクが自動追随する回帰テストを追加する。
+1. Google Cloud 認証方式を選び、`deck apply` を GitHub Actions から実行する。
+2. 実 `deck` 出力後の Slides object ID と manifest の対応を検証する。
+3. HTML target でも同じ stable key から anchor TOC を生成する。
+4. スライド追加・削除・並べ替え後に目次リンクが自動追随する回帰テストを追加する。
