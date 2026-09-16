@@ -19,12 +19,32 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      pages_enabled: ${{ steps.publish.outputs.pages_enabled }}
+      pages_path: ${{ steps.publish.outputs.pages_path }}
     steps:
       - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v7
         with:
           node-version: 22
+
+      - name: Resolve publish settings
+        id: publish
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const config = JSON.parse(fs.readFileSync('misereru.config.json', 'utf8'));
+          const pages = config.publish?.githubPages;
+          const pagesEnabled = pages === true || pages?.enabled === true;
+          const htmlPath = config.outputs?.html?.path ?? 'dist/site/index.html';
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `pages_enabled=${pagesEnabled}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `pages_path=${path.dirname(htmlPath)}\n`);
+          NODE
 
       - name: Install Japanese fonts
         run: |
@@ -43,3 +63,27 @@ jobs:
           name: misereru-output
           path: dist/
           if-no-files-found: error
+
+      - name: Upload GitHub Pages artifact
+        if: steps.publish.outputs.pages_enabled == 'true' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: ${{ steps.publish.outputs.pages_path }}
+
+  deploy-pages:
+    needs: build
+    if: needs.build.outputs.pages_enabled == 'true' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v6
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
