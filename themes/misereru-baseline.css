@@ -5,6 +5,12 @@ section {
   font-family: 'Noto Sans CJK JP', 'Noto Sans JP', sans-serif;
 }
 
+section.strict-test p {
+  max-width: 12em;
+  font-size: 40px;
+  line-height: 1.45;
+}
+
 code,
 pre {
   font-family: 'Noto Sans Mono CJK JP', 'Noto Sans Mono', monospace;
