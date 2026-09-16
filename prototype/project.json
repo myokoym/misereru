@@ -1,0 +1,23 @@
+{
+  "source": {
+    "type": "marp-markdown",
+    "path": "prototype/japanese-typesetting.md"
+  },
+  "profiles": {
+    "baseline": {
+      "renderer": "marp",
+      "config": "marp.baseline.config.mjs",
+      "outputs": ["html", "pdf", "pptx", "png"]
+    },
+    "tuned": {
+      "renderer": "marp",
+      "config": "marp.config.mjs",
+      "outputs": ["html", "pdf", "pptx", "png"]
+    }
+  },
+  "publish": {
+    "actionsArtifact": true,
+    "githubPages": false,
+    "googleSlides": false
+  }
+}
