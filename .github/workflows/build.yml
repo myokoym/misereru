@@ -25,6 +25,7 @@ jobs:
       pages_enabled: ${{ steps.publish.outputs.pages_enabled }}
       pages_path: ${{ steps.publish.outputs.pages_path }}
       pages_branch: ${{ steps.publish.outputs.pages_branch }}
+      pages_environment: ${{ steps.publish.outputs.pages_environment }}
     steps:
       - uses: actions/checkout@v7
 
@@ -43,10 +44,12 @@ jobs:
           const pages = config.publish?.githubPages;
           const pagesEnabled = pages === true || pages?.enabled === true;
           const pagesBranch = typeof pages === 'object' && pages?.branch ? pages.branch : '';
+          const pagesEnvironment = pagesBranch ? 'github-pages-preview' : 'github-pages';
           const htmlPath = config.outputs?.html?.path ?? 'dist/site/index.html';
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `pages_enabled=${pagesEnabled}\n`);
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `pages_path=${path.dirname(htmlPath)}\n`);
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `pages_branch=${pagesBranch}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `pages_environment=${pagesEnvironment}\n`);
           NODE
 
       - name: Install Japanese fonts
@@ -81,7 +84,7 @@ jobs:
       pages: write
       id-token: write
     environment:
-      name: github-pages
+      name: ${{ needs.build.outputs.pages_environment }}
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Configure GitHub Pages
