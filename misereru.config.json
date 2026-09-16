@@ -6,7 +6,7 @@
   "outputs": {
     "html": {
       "enabled": true,
-      "path": "dist/index.html"
+      "path": "dist/site/index.html"
     },
     "pdf": {
       "enabled": false,
