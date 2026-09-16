@@ -5,10 +5,10 @@ Markdownから生成したHTMLの実表示を、複数のページパターン�
 
 ---
 
-<!-- {"key":"section","type":"section"} -->
-# 1. 標準ページ
+<!-- {"key":"section-text","type":"section"} -->
+# 1. 本文とリスト
 
-本文・箇条書き・長文・表・引用・コード・リンクを同じMarp経路で確認します。
+通常本文・長文・箇条書き・番号付き手順を確認します。
 
 ---
 
@@ -53,6 +53,13 @@ misereruでは、資料の正本をMarkdownとしてGitで管理し、GitHub Act
 
 ---
 
+<!-- {"key":"section-structured","type":"section"} -->
+# 2. 表・引用・コード
+
+構造化された情報や引用、コードブロックの表示を確認します。
+
+---
+
 <!-- {"key":"table"} -->
 # 比較表
 
@@ -93,6 +100,13 @@ misereruでは、資料の正本をMarkdownとしてGitで管理し、GitHub Act
 
 ---
 
+<!-- {"key":"section-links","type":"section"} -->
+# 3. リンクと強調
+
+外部リンクと一般的なMarkdown強調表現を確認します。
+
+---
+
 <!-- {"key":"links"} -->
 # 外部リンク
 
@@ -110,6 +124,13 @@ misereruでは、資料の正本をMarkdownとしてGitで管理し、GitHub Act
 **重要な結論**を太字で示し、`設定名` やファイル名をインラインコードで示します。
 
 *補足的な語句*も含め、一般的なMarkdown表現が資料として自然に見えるかを確認します。
+
+---
+
+<!-- {"key":"section-composite","type":"section"} -->
+# 4. 複合ページとまとめ
+
+複数要素を含むページと、最後の確認項目を確認します。
 
 ---
 
