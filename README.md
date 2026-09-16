@@ -3,7 +3,7 @@
 Markdownを正本として、GitHub Actions上でスライドHTMLを生成するためのテンプレートです。通常運用はスマートフォン上のChatGPT / GitHubだけでも完結でき、ローカルPCやNode.js CLIを必須にしません。
 
 > **名称 `misereru` は仮決定です。**
-> 開発・調査資料は `develop` branch 側で管理します。
+> 開発・調査資料は [`develop` branch](https://github.com/myokoym/misereru/tree/develop) 側で管理します。
 
 ## 使い方
 
@@ -75,16 +75,14 @@ scripts/build-project.mjs   # 目次生成とbuild処理
 
 このrepository自身は、配布物と開発資料をbranchで分けます。
 
-```text
-main      = Template Repositoryとして配布する自己完結セット
-develop   = 開発・統合用。docs / research / prototype等を含む
-```
+- [`main`](https://github.com/myokoym/misereru/tree/main): Template Repositoryとして配布する自己完結セット
+- [`develop`](https://github.com/myokoym/misereru/tree/develop): 開発・統合用。docs / research / prototype等を含む
 
 Template Repositoryから通常作成した資料repositoryにはdefault branchである `main` の内容を使う想定です。開発資料を利用者の資料repositoryへ持ち込まないため、`main` には配布に必要なものだけを置きます。
 
 ## 開発・設計資料
 
-開発者向け資料は `develop` branch を参照します。Template Repositoryから作成した別repositoryでもリンクが切れないよう、ここでは元repositoryへのリンクを使います。
+開発者向け資料は [`develop` branch](https://github.com/myokoym/misereru/tree/develop) を参照します。Template Repositoryから作成した別repositoryでもリンクが切れないよう、ここでは元repositoryへのリンクを使います。
 
 - [運用モデル](https://github.com/myokoym/misereru/blob/develop/docs/product/operation-model.md)
 - [要件](https://github.com/myokoym/misereru/blob/develop/docs/product/requirements.md)
