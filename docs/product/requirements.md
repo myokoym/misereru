@@ -29,10 +29,6 @@ slide / presentation
 日本語として自然に組版・改行
   ↓
 publish / render
-  ├─ HTML
-  ├─ Google Slides
-  ├─ PDF
-  └─ PPTX 等
 ```
 
 ## 初期運用経路
@@ -59,11 +55,13 @@ slides.md を編集
   ↓ push / merge
 GitHub Actions
   ↓
-HTML を自動生成
-  ├─ PDF              設定時のみ
-  ├─ Google Slides    設定時のみ
-  └─ PPTX             初期版では未接続
+Marp
+  ├─ HTML             常時生成
+  │   └─ GitHub Pages 設定時のみ公開
+  └─ PDF              設定時のみ
 ```
+
+Google Slides / PPTX は初期production targetには含めません。renderer とデザインの一貫性を維持できる方式が検証できるまで research / prototype 扱いとします。
 
 この初期運用判断は、misereru 全体を将来にわたり Markdown 専用へ固定するものではありません。必要になれば source adapter を追加できる構成を維持します。
 
@@ -71,6 +69,7 @@ HTML を自動生成
 
 - 正本は **ChatGPT と GitHub から安全に編集できるテキスト中心の構成**にする。
 - 初期 template では `slides.md` を正本 source とする。
+- 正本 `slides.md` には renderer 固有 front matter を必須にしない。
 - 1ファイル完結を永続的な製品制約にはしない。
 - コンテンツ、設定、テーマ、画像等を分けたプロジェクト構成を許容する。
 - 初期運用では GitHub Template Repository から新規スライドプロジェクトを生成する。
@@ -91,7 +90,6 @@ presentation-project/
 ## 編集・管理
 
 - PowerPoint や Google Slides 上での手編集を正本管理の必須工程にしない。
-- Google Slides 等を成果物・デザインテンプレート・確認画面として利用することは許容する。
 - タイトル、テーマ、ページサイズ、ページ番号、出力設定等は可能な限りテキスト側で管理可能にする。
 - **日常的な編集・生成に PC、ローカル CLI、ローカル Node.js 環境を必須にしない。**
 - スマートフォン + ChatGPT + GitHub を基本の操作経路として成立させる。
@@ -103,52 +101,38 @@ presentation-project/
 
 規定位置の source / config / assets が更新された場合に、GitHub Actions で自動 build できる構成とします。
 
-```text
-source update
-  ↓ push / merge
-GitHub Actions
-  ↓
-build
-  ↓
-configured outputs
-```
-
 初期 output 方針:
 
-- **HTML: 必須・既定。設定なしでも生成できる。**
-- PDF: optional。設定した場合のみ生成。
-- Google Slides: optional。認証・template・renderer経路の条件が揃った場合のみ生成。
-- PPTX: 候補として残すが初期版では未接続。
-- GitHub Pages: explicit opt-in。明示的に有効化するまで公開しない。
-- Actions artifact: 初期確認経路として利用可能。
+- **HTML: 必須・既定。Marpで常時生成。**
+- PDF: optional。同じMarp renderer / themeで生成。
+- GitHub Pages: explicit opt-in。HTML生成とは分離し、明示的に有効化するまで公開しない。
+- Actions artifact: HTML等の生成物を常に取得可能にする。
+- Google Slides: production未対応。
+- PPTX: production未対応。
 
-複数 target を同時に有効化できる構成を許容します。
+初期production設定で未対応outputを指定した場合は build error にします。未検証rendererへ黙って分岐しません。
 
-未接続 target を `enabled:true` にした場合は、成功扱いで黙ってスキップしません。設定と実際の生成結果が食い違う場合は build error とします。
+## Renderer consistency
 
-### Google Slides target
-
-Google Slides を target にする場合は native Google Slides を優先し、次の経路を検証しています。
+初期production buildでは renderer を Marp 1系統に限定します。
 
 ```text
-slides source
-  ↓ adapter
-k1LoW/deck compatible source
-  ↓ deck apply
-native Google Slides
-  ↓ misereru post-process
-TOC / internal links
-  ↓ readback
-link / structure verification
+slides.md
+  ↓ misereru adapter
+一時Marp入力
+  ↓ Marp
+  ├─ HTML
+  └─ PDF
 ```
 
-Google Slidesのデザインは `deck` やGoogle Slidesの素の既定値へ品質を落としてフォールバックさせません。
+Marp固有front matter / theme指定はbuild時に一時入力へ付加し、正本sourceには混在させません。
 
-- project固有template指定があればそれを使う。
-- 指定がなければ `misereru-default` template を使う方向とする。
-- templateが解決できない場合はエラーにする。
-- Google Slidesが無効または未設定の場合は、HTML等の他targetは正常に生成する。
-- Google Slidesを明示的に有効化したのに認証等が不足する場合はエラーにする。
+`k1LoW/deck` は Markdown から Google Slides を生成・更新するツールであり、HTML rendererではありません。Marpとdeckをproductionで併用すると、Marp theme/CSS と Google Slides base presentation/layout の二重メンテナンスが必要になります。内容sourceを共有できても見た目の同一性は保証できないため、初期版ではこの構成を採用しません。
+
+Google Slidesを将来production targetへ追加する場合は、次のどちらかを先に決定します。
+
+- 共通レイアウトモデルを導入し、複数rendererへ一貫したデザインを適用する。
+- Google Slidesを別デザイン系の成果物として明示的に許容する。
 
 ## Navigation / links
 
@@ -157,9 +141,8 @@ Google Slidesのデザインは `deck` やGoogle Slidesの素の既定値へ品�
 ### ハイパーリンク
 
 - source から外部 URL へのリンクを表現できること。
-- Google Slides / HTML 等、リンクを扱える target では、生成後もリンクを実際にクリックして外部サイトへ移動できること。
+- HTML等、リンクを扱えるtargetでは生成後もリンクが機能すること。
 - renderer / publish adapter の都合でリンク情報を失わないこと。
-- PNG 等、形式自体がリンクを保持できない target は例外とするが、同じ project からリンク保持可能な target を生成できること。
 
 ### 目次
 
@@ -168,8 +151,6 @@ Google Slidesのデザインは `deck` やGoogle Slidesの素の既定値へ品�
 - スライドの追加・削除・並べ替え後も、再生成時に目次と内部リンクが追随すること。
 - 内部リンクをページ番号の文字列だけに依存させず、可能な限り安定した slide identity / key を利用すること。
 - 目次へ載せるタイトル・除外指定・目次自体の配置位置などは、source または project config から制御できる方向とする。
-
-Google Slides では外部 URL と presentation 内の特定スライドへのリンクを native link として保持することを優先します。HTML では通常の URL / anchor navigation として同等の操作を提供します。
 
 ## 日本語組版
 
@@ -204,20 +185,15 @@ Google Slides では外部 URL と presentation 内の特定スライドへの�
 - Markdown 以外の source adapter をいつ追加するか。
 - 1ページ1ファイル等の複数Markdown構成を追加するか。
 - 共通の中間 presentation model / AST を持つか、renderer wrapper を直接使うか。
-- Marp を HTML / PDF renderer として正式採用するか。
-- `k1LoW/deck` を Google Slides renderer として正式採用するか。
+- Marp を初期版以降も正式rendererとして継続するか。
+- Google Slidesを同一デザインtargetとして扱うか、別デザインtargetとして扱うか。
+- Google Slides対応時に `k1LoW/deck` を採用するか。
 - Vivliostyle を内部レンダリングに利用するか。
-- Google Slides認証を個人My Drive向けOAuth、Shared Drive + Workload Identity Federation等のどの方式で標準化するか。
-- `misereru-default` Google Slides template の具体的なデザイン。
-- Google Slidesで stable key と pageObjectId を追加・削除・並べ替え後も確実に対応させる方法。
 - 目次を表紙直後に固定するか、設定可能にするか。
 - Mermaid を標準対応するか。
-- 共通テーマをどこまで source から分離するか。
 - AI をレンダリング工程へ入れるか、source 編集側の ChatGPT に限定するか。
 - template repository更新を既存の各資料repositoryへどう反映するか。
 
 ## 仮称
 
 現在の仮称は **misereru** です。正式名称は未確定です。
-
-名称の調査経緯は [`../research/naming.md`](../research/naming.md) に隔離し、名称決定後は通常の技術検討から切り離します。
