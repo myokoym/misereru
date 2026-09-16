@@ -11,14 +11,6 @@
     "pdf": {
       "enabled": false,
       "path": "dist/slides.pdf"
-    },
-    "googleSlides": {
-      "enabled": false,
-      "presentationId": null,
-      "template": "misereru-default"
-    },
-    "pptx": {
-      "enabled": false
     }
   },
   "publish": {
