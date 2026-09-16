@@ -55,27 +55,44 @@ GitHub: <https://github.com/k1LoW/deck>
 - 一方、コード検索では `pageObjectId` / `slideIndex` / `relativeLink` を使った内部スライドリンク処理は確認できなかった。
 - v1.24.0 から per-page configuration に `key` が追加され、外部ツールがスライドを安定して参照するための opaque identifier として利用できる。
 - `key` は page number / heading / body fragment のように並び替えや文言変更で壊れやすい識別子を避ける目的で導入されている。
+- page configuration の `freeze:true` により、そのページを `deck` の更新対象から除外できる。
 
-したがって `deck` を renderer として採用する場合、次の分担が自然です。
+したがって `deck` を renderer として採用する場合、次の分担にします。
 
 ```text
-source
-  ↓
+misereru source
+  ↓ source adapter
+
 deck-compatible source
-  - page key
-  - title
-  - external links
+  - source slide: key / title / external links
+  - managed TOC slide: reserved key + freeze:true
   ↓
 k1LoW/deck
   ↓
 Google Slides
   ↓ misereru post-process
-TOC generation
+managed TOC slide の内容を更新
   + key → Google Slides pageObjectId 解決
   + internal link(pageObjectId) 付与
 ```
 
-`deck` を fork して内部リンク構文を追加するより、まずは post-process adapter で要件を満たせるか確認します。
+### TOC を後からページ追加しない理由
+
+`deck apply` は source のページ順と Google Slides のページ順を対応させて更新します。
+
+misereru が `deck apply` の後に毎回「余分な目次ページ」を挿入すると、次回の `deck apply` で source と presentation のページ位置がずれる可能性があります。
+
+そのため、**目次ページ自体は source adapter が最初から deck-compatible source に含めます。**
+
+- reserved key: `__misereru_toc__`
+- `freeze:true`
+- 表紙直後へ配置
+- `deck` はページ自体を保持するが内容を変更しない
+- misereru post-process が同じページ内の管理テキストボックスだけを再生成する
+
+これなら source / Google Slides のページ数と順序を一致させたまま、目次を build 時に完全自動生成できます。
+
+`deck` を fork して内部リンク構文を追加するより、まずはこの薄い post-process adapter で要件を満たせるか検証します。
 
 参考:
 
@@ -145,31 +162,36 @@ prototype/deck/content.json
 
 dist/deck/slides.md
   - deck-compatible Markdown
-  - stable page key
-  - external Markdown link
+  - source slide の stable page key
+  - 外部 Markdown link
+  - 表紙直後に managed TOC slide
+  - TOC slide は reserved key + freeze:true
 
 dist/deck/slide-manifest.json
   - key
   - title
   - toc include / exclude
   - resolved order
+  - managed TOC slide key
 ```
 
 さらに `scripts/build-google-slides-navigation.mjs` が、manifest と Google Slides の slide object ID 一覧から次を生成します。
 
 ```text
 dist/deck/navigation-requests.json
-  - TOC slide create request
-  - TOC text create request
+  - managed TOC page の pageObjectId
   - key → pageObjectId mapping
-  - each TOC item → Link.pageObjectId requests
+  - TOC text box の再生成 request
+  - each TOC item → Link.pageObjectId request
 ```
+
+**TOC page 自体の create/delete は post-process では行いません。** 既存の managed TOC page 上に、misereru が所有する `misereruTocText` だけを作り直します。
 
 現CIでは Google 認証を必要としない mock presentation を使い、post-process request の生成まで検証します。実運用では `deck apply` 後に Slides API から現在の object ID 一覧を取得して同じ処理へ渡します。
 
 ## 自動生成のタイミング
 
-目次は source に手書きして正本化するより、build 時に生成する方を優先します。
+目次の内容は source に手書きして正本化するより、build 時に生成する方を優先します。
 
 理由:
 
@@ -200,14 +222,14 @@ dist/deck/navigation-requests.json
 
 - 外部リンクは renderer / target の native link を利用する。
 - Google Slides の目次内部リンクは `pageObjectId` を第一候補にする。
-- 目次自体は misereru 側で build / post-process 時に自動生成する方向で進める。
-- `k1LoW/deck` の `key` は stable slide identity の有力な既存実装として利用候補にする。
+- 目次ページは renderer source に managed page として含め、目次内容は misereru が build / post-process 時に自動生成する。
+- `k1LoW/deck` の `key` と `freeze` を wrapper 側で活用する。
 - `deck` 本体の fork はまだ行わない。
 - source format を Markdown に固定しない。
 
 ## 次の検証
 
-1. CI で deck-compatible source / manifest / navigation request の生成が通ることを確認する。
+1. CI で managed TOC を含む deck-compatible source / manifest / navigation request の生成が通ることを確認する。
 2. Google Cloud 認証方式を選び、`deck apply` を GitHub Actions から実行する。
 3. 実 `deck` 出力後の Slides object ID と manifest の対応を検証する。
 4. HTML target でも同じ stable key から anchor TOC を生成する。
