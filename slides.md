@@ -1,9 +1,3 @@
----
-marp: true
-theme: misereru-ja
-paginate: true
----
-
 <!-- {"key":"title"} -->
 # タイトル
 
