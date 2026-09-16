@@ -3,7 +3,7 @@
 Markdown を正本として、スライドを生成・レンダリングするツールの企画・調査リポジトリです。
 
 > **名称 `misereru` は仮決定です。**
-> 命名調査では自然な日本語名を優先して検討し、`rendaru` なども次善候補として残しています。名称検討の経緯は [`docs/research.md`](docs/research.md) に記録します。
+> 命名調査は [`docs/research/naming.md`](docs/research/naming.md) に隔離しています。
 
 ## 現在の前提
 
@@ -14,8 +14,40 @@ Markdown を正本として、スライドを生成・レンダリングする�
 - PDF / HTML 等の生成物は再生成可能な artifact として扱う。
 - 既存ツールを採用する可能性と、自作する可能性の両方を残す。
 
-## 調査メモ
+## Documentation
 
-これまでの比較、技術選定、組版要件、命名検討、候補の落選理由は以下に集約しています。
+```text
+docs/
+├─ product/
+│  └─ requirements.md
+├─ research/
+│  ├─ README.md
+│  ├─ slide-tools.md
+│  ├─ japanese-typesetting.md
+│  └─ naming.md
+└─ adr/
+   ├─ README.md
+   └─ 0001-use-madr-for-decisions.md
+```
 
-- [`docs/research.md`](docs/research.md)
+### Product
+
+現在有効な要件・前提:
+
+- [`docs/product/requirements.md`](docs/product/requirements.md)
+
+### Research
+
+未確定の調査・比較・検証:
+
+- [`docs/research/slide-tools.md`](docs/research/slide-tools.md)
+- [`docs/research/japanese-typesetting.md`](docs/research/japanese-typesetting.md)
+- [`docs/research/naming.md`](docs/research/naming.md)
+
+### ADR
+
+採用した重要判断と理由:
+
+- [`docs/adr/`](docs/adr/)
+
+調査メモと決定事項を混在させず、調査から判断が確定した時点で必要な背景だけを ADR に残します。
