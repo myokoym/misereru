@@ -105,6 +105,27 @@ Google Slides を target にする場合は、次の方式を比較します。
 2. PPTX 等を生成し、Google Drive API で Google Slides へ変換する。
 3. `k1LoW/deck` 等、Google Slides を直接 target にする既存ツールを利用する。
 
+## Navigation / links
+
+スライドを単なる静止画ではなく、閲覧中に移動・参照できる成果物として扱います。
+
+### ハイパーリンク
+
+- source から外部 URL へのリンクを表現できること。
+- Google Slides / HTML 等、リンクを扱える target では、生成後もリンクを実際にクリックして外部サイトへ移動できること。
+- renderer / publish adapter の都合でリンク情報を失わないこと。
+- PNG 等、形式自体がリンクを保持できない target は例外とするが、同じ project からリンク保持可能な target を生成できること。
+
+### 目次
+
+- スライド構造から **目次を自動生成**できること。
+- 目次項目から対応する各スライドへ直接移動できること。
+- スライドの追加・削除・並べ替え後も、再生成時に目次と内部リンクが追随すること。
+- 内部リンクをページ番号の文字列だけに依存させず、可能な限り安定した slide identity / key を利用すること。
+- 目次へ載せるタイトル・除外指定・目次自体の配置位置などは、source または project config から制御できる方向とする。
+
+Google Slides では外部 URL と presentation 内の特定スライドへのリンクを native link として保持することを優先します。HTML では通常の URL / anchor navigation として同等の操作を提供します。
+
 ## 日本語組版
 
 日本語の品質は重要要件です。単に文字が枠内に収まるだけでは不足です。
@@ -137,6 +158,8 @@ Google Slides を target にする場合は、次の方式を比較します。
 - Google Slides / HTML Pages / PDF / PPTX のどれを既定 target にするか。
 - Google Slides 出力を native 要素中心にするか、見た目優先の画像 / PPTX 変換にするか。
 - Google API 認証を repository secret / GitHub OIDC / その他のどの方式で扱うか。
+- 目次生成時の slide identity を source format ごとにどう持つか。
+- 目次を表紙直後に固定するか、設定可能にするか。
 - Mermaid を標準対応するか。
 - 共通テーマをどこまで source から分離するか。
 - AI をレンダリング工程へ入れるか、source 編集側の ChatGPT に限定するか。
