@@ -6,7 +6,9 @@
     "node": ">=22"
   },
   "scripts": {
-    "build:prototype": "node scripts/build-prototype.mjs"
+    "build:marp-prototype": "node scripts/build-prototype.mjs",
+    "build:deck-source": "node scripts/generate-deck-prototype.mjs",
+    "build:prototype": "npm run build:marp-prototype && npm run build:deck-source"
   },
   "devDependencies": {
     "@marp-team/marp-cli": "4.5.1"
