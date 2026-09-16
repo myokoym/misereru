@@ -14,8 +14,9 @@ const sourcePath = resolve(root, config.source?.path ?? 'slides.md');
 const outputs = config.outputs ?? {};
 const pagesEnabled = featureEnabled(config.publish?.githubPages);
 const buildPlan = {
-  version: 2,
+  version: 3,
   source: config.source,
+  renderer: 'marp',
   outputs: {},
   publish: {
     githubPages: {
@@ -29,48 +30,31 @@ if (outputs.html?.enabled !== true) {
   throw new Error('HTML is the required default output for the initial template workflow');
 }
 
+const unsupportedOutputs = Object.keys(outputs).filter((name) => !['html', 'pdf'].includes(name));
+if (unsupportedOutputs.length > 0) {
+  throw new Error(
+    `Unsupported outputs in the initial template workflow: ${unsupportedOutputs.join(', ')}. ` +
+    'Only html and pdf are exposed until a same-design renderer strategy is validated.'
+  );
+}
+
 const marpSourcePath = await createMarpInput(sourcePath);
 try {
-  await renderMarp(marpSourcePath, resolve(root, outputs.html.path ?? 'dist/index.html'), []);
+  await renderMarp(marpSourcePath, resolve(root, outputs.html.path ?? 'dist/site/index.html'), []);
   buildPlan.outputs.html = {
     status: 'generated',
-    path: outputs.html.path ?? 'dist/index.html',
-    renderer: 'marp'
+    path: outputs.html.path ?? 'dist/site/index.html'
   };
 
   if (outputs.pdf?.enabled === true) {
     const pdfPath = outputs.pdf.path ?? 'dist/slides.pdf';
     await renderMarp(marpSourcePath, resolve(root, pdfPath), ['--pdf']);
-    buildPlan.outputs.pdf = { status: 'generated', path: pdfPath, renderer: 'marp' };
+    buildPlan.outputs.pdf = { status: 'generated', path: pdfPath };
   } else {
-    buildPlan.outputs.pdf = { status: 'disabled', renderer: 'marp' };
+    buildPlan.outputs.pdf = { status: 'disabled' };
   }
 } finally {
   await rm(marpSourcePath, { force: true });
-}
-
-const googleSlidesEnabled = outputs.googleSlides?.enabled === true;
-buildPlan.outputs.googleSlides = {
-  status: googleSlidesEnabled ? 'configured-not-wired' : 'disabled',
-  renderer: 'deck'
-};
-if (googleSlidesEnabled) {
-  throw new Error(
-    'googleSlides is enabled in misereru.config.json but the template build workflow is not wired to deck apply yet. ' +
-    'Keep it disabled until the validated deck + Google authentication path is connected.'
-  );
-}
-
-const pptxEnabled = outputs.pptx?.enabled === true;
-buildPlan.outputs.pptx = {
-  status: pptxEnabled ? 'configured-not-wired' : 'disabled',
-  renderer: 'undecided'
-};
-if (pptxEnabled) {
-  throw new Error(
-    'pptx is enabled in misereru.config.json but its renderer path is not selected yet. ' +
-    'Keep it disabled until an end-to-end path is validated.'
-  );
 }
 
 const planPath = resolve(root, 'dist/build-plan.json');
