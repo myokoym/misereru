@@ -26,6 +26,7 @@
   },
   "publish": {
     "actionsArtifact": true,
+    "htmlPreview": true,
     "githubPages": false,
     "googleSlides": false
   }
