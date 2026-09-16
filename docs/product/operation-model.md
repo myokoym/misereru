@@ -14,16 +14,20 @@ misereru template repository
 presentation repository
   ├─ slides.md
   ├─ misereru.config.json
-  ├─ assets/
+  ├─ package.json
+  ├─ marp.config.mjs
   ├─ themes/
-  └─ GitHub Actions
+  ├─ scripts/
+  └─ .github/workflows/
 ```
 
-通常の編集では `slides.md` を更新します。必要な場合だけ `misereru.config.json` や assets / theme を変更します。
+新しい資料repositoryには、buildに必要なファイルをテンプレートからすべてコピーします。外部のmisereru repositoryを実行時依存として参照しません。
+
+通常の編集では `slides.md` を更新します。必要な場合だけ `misereru.config.json` や theme を変更します。
 
 ```text
 slides.md を編集
-  ↓ push / merge
+  ↓ commit / push
 GitHub Actions
   ↓
 Marp
@@ -32,7 +36,42 @@ Marp
   └─ PDF              設定時のみ
 ```
 
-Google Slides / PPTX は初期テンプレートの production target には含めません。renderer とデザインの一貫性を維持できる方式が検証できるまで research / prototype 扱いとします。
+ローカルPC、PowerPoint、Node.js CLIを日常操作の必須工程にしません。スマートフォン上のChatGPT / GitHubからの編集を通常経路として成立させます。
+
+## Template Repository と開発branch
+
+misereru repository自体は、配布物と開発資料をbranchで分けます。
+
+```text
+main      = Template Repositoryとして配布する自己完結セット
+develop   = 開発・統合用。docs / research / prototype等を含む
+```
+
+`main` には資料repositoryが単独でbuildできるために必要なファイルをすべて置きます。`develop` には設計資料、調査、検証コード等を追加できます。
+
+Template Repositoryから通常作成する資料repositoryではdefault branchである `main` の内容を使う想定です。開発資料を利用者側へコピーしないため、配布対象と開発専用資料を同じbranchへ混在させません。
+
+## `slides.md` はサンプル兼テンプレート
+
+初期版では、空に近い最小テンプレートと別サンプルデッキを二重管理しません。rootの `slides.md` を、そのまま書き換えて使えるサンプル兼テンプレートとします。
+
+代表的なページ型を `slides.md` に含めます。
+
+- 表紙
+- セクション見出し
+- 通常本文
+- 長めの本文
+- 箇条書き
+- 番号付き手順
+- 表
+- 引用
+- コードブロック
+- 外部リンク
+- 強調表現
+- 複数要素を含むページ
+- まとめ
+
+利用者は不要なページを削除し、内容を書き換えて使います。`type: "section"` を付けたセクション見出しから、build時に目次を自動生成します。
 
 ## 初期 source
 
@@ -41,16 +80,17 @@ Google Slides / PPTX は初期テンプレートの production target には含�
 - 既定ファイル: `slides.md`
 - ページ区切り: `---`
 - 外部リンク: 通常の Markdown link
-- stable slide identity が必要なページは page config comment の `key` を利用可能
-- 正本 `slides.md` には `marp: true` 等の renderer 固有 front matter を要求しない
+- 各slideはmetadata commentのstable `key` を持つ
+- 目次へ載せるセクション見出しは `type: "section"` を付ける
+- 正本 `slides.md` には `marp: true` 等のrenderer固有front matterを要求しない
 
-これは初期運用経路の決定です。misereru 全体を永久に Markdown 専用へ固定するものではありません。
+これは初期運用経路の決定です。misereru全体を永久にMarkdown専用へ固定するものではありません。
 
 ## Renderer 方針
 
 ### 初期 production renderer: Marp
 
-初期版は renderer を1系統に限定します。
+初期版はrendererを1系統に限定します。
 
 ```text
 slides.md
@@ -61,29 +101,15 @@ Marp用の一時入力
   └─ PDF
 ```
 
-Marp 固有 front matter / theme 指定は build 時に一時入力へ注入し、利用者が編集する `slides.md` 自体には持ち込みません。
-
-ここでいう「build 時に注入」は、正本MarkdownをMarpとdeckの両方に混在させる意味ではありません。初期production buildはMarpだけを呼び出します。
+Marp固有front matter / theme指定はbuild時に一時入力へ注入し、利用者が編集する `slides.md` 自体には持ち込みません。初期production buildはMarpだけを呼び出します。
 
 ### k1LoW/deck
 
-`deck` は Markdown から Google Slides を生成・更新するツールです。HTMLファイルを出力するrendererではありません。
+`deck` はMarkdownからGoogle Slidesを生成・更新するツールで、HTML rendererではありません。
 
-そのため Marp と deck を同時にproduction targetへ入れると、次の2系統のデザイン実装を維持する必要があります。
+Marpとdeckを同時にproduction targetへ入れると、Marp CSS/themeとGoogle Slides base presentation/layoutの2系統を維持する必要があります。内容sourceを共有できても同一デザインを保証できないため、初期版では採用しません。
 
-```text
-Marp theme / CSS
-Google Slides base presentation / layout
-```
-
-内容sourceを共有できても、見た目を同一の成果物として保証できません。初期版ではこの二重メンテナンスを採用しません。
-
-`deck` を使ったGoogle Slides生成は research / prototype で継続し、次のどちらかが成立した場合に改めてproduction targetへ昇格させます。
-
-- 同一のデザイン定義を複数rendererへ安定して適用できる共通レイアウトモデルを持つ。
-- Google Slidesを別デザイン系の成果物として明示的に許容する仕様を採用する。
-
-どちらも現時点では未決定です。
+Google Slides生成はresearch / prototypeで継続し、共通レイアウトモデルを持てるか、別デザイン系成果物として明示的に許容する仕様を採用した場合に再検討します。
 
 ### PPTX
 
@@ -93,19 +119,19 @@ Google Slides base presentation / layout
 
 ### HTML
 
-初期版の必須 output です。
+初期版の必須outputです。
 
-- 設定なしでも生成できる既定 target とする。
-- `slides.md` / config / theme の変更で GitHub Actions が自動 build する。
+- 常時生成する。
+- `slides.md` / config / theme / build処理の変更でGitHub Actionsが自動buildする。
 - 公開用HTMLは `dist/site/` に分離する。
-- 生成物は Actions artifact として常に取得可能にする。
-- GitHub Pages 公開は明示的に有効化するまで行わない。
+- 生成物はActions artifactとして取得可能にする。
+- GitHub Pages公開は明示的に有効化するまで行わない。
 
 ### GitHub Pages
 
-HTMLの生成とは別の publish target です。
+HTML生成とは別のpublish targetです。
 
-`misereru.config.json` の `publish.githubPages.enabled` を `true` にすると、default branch の build で次を行います。
+`misereru.config.json` の `publish.githubPages.enabled` を `true` にすると、default branchのbuildでPages deployを行います。
 
 ```text
 HTML build
@@ -119,30 +145,30 @@ actions/deploy-pages
 GitHub Pages
 ```
 
-feature branch からは Pages へ deploy しません。
+テンプレート既定値は `false` とします。
 
-GitHub の制約上、各 presentation repository で Pages 自体が未有効の場合、標準の `GITHUB_TOKEN` だけでは `configure-pages` が自動有効化できません。初回だけ repository の Settings > Pages で GitHub Actions publishing を有効にする運用を基本とします。自動有効化のためだけに高権限PATを標準要求しません。
+GitHubの制約上、各presentation repositoryでPages自体が未有効の場合、標準の `GITHUB_TOKEN` だけでは `configure-pages` が自動有効化できません。初回だけrepositoryの Settings > Pages でGitHub Actions publishingを有効にする運用を基本とし、自動有効化のためだけに高権限PATを標準要求しません。
 
 ### PDF
 
-初期版で任意 output として扱います。
+初期版で任意outputとして扱います。
 
 - `misereru.config.json` で有効化した場合だけ生成する。
-- HTML と同じ Marp renderer / theme を使う。
+- HTMLと同じMarp renderer / themeを使う。
 
 ## 設定とフォールバック
 
-`misereru.config.json` が project ごとの output / publish 設定を持ちます。
+`misereru.config.json` がprojectごとのoutput / publish設定を持ちます。
 
 初期方針:
 
 - HTML: 必須・常時生成
-- GitHub Pages: optional publish
-- PDF: optional output
+- GitHub Pages: optional publish、既定OFF
+- PDF: optional output、既定OFF
 - Google Slides: production未対応
 - PPTX: production未対応
 
-初期production設定では `outputs` に `html` / `pdf` 以外を指定した場合、build error にします。未検証rendererへ黙って分岐しません。
+初期production設定では `outputs` に `html` / `pdf` 以外を指定した場合、build errorにします。未検証rendererへ黙って分岐しません。
 
 ## 日常運用
 
@@ -150,10 +176,9 @@ GitHub の制約上、各 presentation repository で Pages 自体が未有効�
 
 ```text
 1. template repository から新しい資料 repository を作る
-2. slides.md を ChatGPT / GitHub で編集する
-3. commit / push
-4. Actions が HTML を生成する
-5. 必要なら PDF / Pages を config で有効化する
+2. rootの slides.md をサンプルとして内容を書き換える
+3. 不要なページを削除する
+4. commit / pushする
+5. Actions が HTML を生成する
+6. 必要なら PDF / Pages を config で有効化する
 ```
-
-ローカル PC、PowerPoint、Node.js CLI を日常操作の必須工程にしません。
