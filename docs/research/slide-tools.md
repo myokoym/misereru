@@ -103,6 +103,48 @@ Quarto はスライド専用ではなく文書パブリッシングシステム�
 
 PPTX export も基本的に各スライドのキャプチャに近いため、ネイティブ PowerPoint 編集用途には向きませんが、今回は主要問題ではありません。
 
+## reveal.js
+
+- 公式: <https://revealjs.com/>
+- Markdown: <https://revealjs.com/markdown/>
+- PDF export: <https://revealjs.com/pdf-export/>
+
+### 長所
+
+- OSS の HTML プレゼンテーションフレームワーク。
+- Markdown plugin があり、外部 Markdown ファイルを読み込んでスライド化できる。
+- Web 表現、JavaScript API、プラグイン、アニメーション等の自由度が高い。
+- Chromium の印刷機能を利用した PDF export がある。
+
+### 今回の評価
+
+Markdown は利用できますが、reveal.js 自体は HTML / JavaScript を中心とするプレゼンテーションフレームワークです。
+
+標準的な構成では reveal.js の初期化、plugin、HTML/CSS/JS 等も管理対象になりやすく、「ChatGPT が主に Markdown だけを編集する」という今回の状態空間より広くなります。
+
+また主要な標準出力は Web / PDF であり、PPTX を中心とするツールではありません。
+
+Webプレゼンの高度な表現が主目的になった場合は再評価できますが、現状では Marp より優先度を下げます。
+
+## Deckset
+
+- 公式: <https://www.deckset.com/>
+- Markdown presentations: <https://www.deckset.com/markdown-presentations/>
+
+### 長所
+
+- Markdown を正本にし、テーマとレイアウトをアプリ側で適用する思想が今回と近い。
+- コード、数式、Mermaid、メディア、presenter notes 等に対応する。
+- Markdown は通常のテキストファイルとして残り、Git管理しやすい。
+
+### 今回の評価
+
+Deckset は Mac / iPhone / iPad のネイティブアプリを中心とする製品で、GitHub Actions 等のリモートビルドを中心にする構成ではありません。
+
+export は PDF が中心で、native PowerPoint export はありません。
+
+「Markdownだけを編集する」という思想の参考にはなりますが、プラットフォーム依存と出力経路の点で今回の基盤候補にはしません。
+
 ## slidown
 
 GitHub: <https://github.com/Songmu/slidown/>
@@ -133,39 +175,76 @@ Google Slides = design
 
 Google Slides を最終成果物として手編集する場合には有力ですが、今回の「Markdown のみ編集」とは少し違います。
 
-## Presenton / AI スライド生成系
+## Presenton
 
-Presenton: <https://github.com/presenton/presenton>
+- GitHub: <https://github.com/presenton/presenton>
 
-これは単純な Markdown renderer ではなく、長文 Markdown 等を AI が読み、内容を圧縮・再構成してプレゼンへする方向です。
+### 特徴
 
-今回の想定は原則として、
+- OSS / self-host 可能な AI presentation generator。
+- prompt、文書、Markdown 等からプレゼンを生成できる。
+- editable PPTX / PDF / PNG 等を出力できる。
+- API とテンプレートを持つ。
+
+### 今回の評価
+
+単純な Markdown renderer ではなく、AI が内容をテンプレートへマッピングしてプレゼンを生成するカテゴリです。
+
+`slides_markdown` を直接与えて AI outline generation を飛ばす経路もありますが、公式README上でも **決定論的な Markdown-to-slide renderer ではなく、LLM がレイアウト選択・フィールドへの割当・場合によっては文章の言い換えを行う** とされています。
+
+今回の中心思想である、
 
 ```text
 Markdown に書かれた内容・構造
-→ 決定論的にスライドへ render
+→ 意図しない内容変更を挟まず
+→ 再現可能に slide として render
 ```
 
-であり、AI が毎回内容を勝手に編集することとは別カテゴリです。
+とは別カテゴリです。
+
+AIによる構成・編集自体を製品機能にする場合には参考になりますが、レンダリング基盤の第一候補にはしません。
+
+## Presentations.ai
+
+- 公式: <https://www.presentations.ai/>
+- Markdown to PPT: <https://www.presentations.ai/tools>
+- FAQ: <https://www.presentations.ai/faq>
+
+### 特徴
+
+- ブラウザ上の AI presentation SaaS。
+- Markdown を入力してプレゼンへ変換する機能を持つ。
+- 対応プランでは native / editable PPTX を出力できる。
+
+### 今回の評価
+
+Markdown を正本として決定論的にレンダリングする基盤というより、AI が完成プレゼンを生成する SaaS です。
+
+今回の「内容・構造は Markdown 側で管理し、renderer は原則それを忠実に表示する」という責務分離とは異なります。
+
+また PowerPoint export はプラン依存です。
+
+したがって既存サービス比較としては残しますが、レンダリング基盤候補からは外します。
 
 ## Vivliostyle
 
 - 公式: <https://vivliostyle.org/>
 - Theme: <https://docs.vivliostyle.org/en/themes/usage/>
 - CLI config: <https://docs.vivliostyle.org/ja/cli/config/>
+- Getting started: <https://docs.vivliostyle.org/ja/cli/getting-started/>
 
 ### 長所
 
 - 日本語を含む CSS 組版を強く意識した実装。
 - `text-spacing` や `hanging-punctuation` 等、日本語組版に重要な機能を積極的に実装してきた。
-- Markdown → PDF / WebPub 等に対応。
+- Markdown を入力として PDF / WebPub / EPUB を生成できる。
 - slide theme も存在する。
 
 ### 今回の評価
 
 日本語組版品質だけを見るなら非常に重要な比較対象です。
 
-一方、Marp のようなスライド用途のシンプルさや PPTX 生成は弱いです。
+一方、Marp のようなスライド用途のシンプルさは弱く、Vivliostyle CLI の標準出力形式は PDF / WebPub / EPUB で、PPTX は含まれません。
 
 現時点では、
 
@@ -191,6 +270,8 @@ HTML / PDF / PPTX
 ```
 
 ただし最終決定ではありません。日本語組版比較を行ってから判断します。
+
+Quarto / Pandoc は、将来スライド以外の文書形式まで同一ソースから生成する要求が強くなった場合の再評価候補です。
 
 ## 自作を視野に入れる理由
 
