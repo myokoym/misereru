@@ -6,10 +6,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "prebuild:prototype": "node -e \"const fs=require('node:fs'); fs.rmSync('dist',{recursive:true,force:true}); fs.mkdirSync('dist',{recursive:true});\"",
-    "build:baseline": "marp -c marp.baseline.config.mjs prototype/japanese-typesetting.md -o dist/baseline.html && marp -c marp.baseline.config.mjs prototype/japanese-typesetting.md --pdf -o dist/baseline.pdf && marp -c marp.baseline.config.mjs prototype/japanese-typesetting.md --pptx -o dist/baseline.pptx && marp -c marp.baseline.config.mjs prototype/japanese-typesetting.md --images png -o dist/baseline.png",
-    "build:tuned": "marp -c marp.config.mjs prototype/japanese-typesetting.md -o dist/tuned.html && marp -c marp.config.mjs prototype/japanese-typesetting.md --pdf -o dist/tuned.pdf && marp -c marp.config.mjs prototype/japanese-typesetting.md --pptx -o dist/tuned.pptx && marp -c marp.config.mjs prototype/japanese-typesetting.md --images png -o dist/tuned.png",
-    "build:prototype": "npm run build:baseline && npm run build:tuned"
+    "build:prototype": "node scripts/build-prototype.mjs"
   },
   "devDependencies": {
     "@marp-team/marp-cli": "4.5.1"
