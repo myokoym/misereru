@@ -5,6 +5,12 @@ Markdownを正本として、GitHub Actions上でスライドHTMLを生成する
 > **名称 `misereru` は仮決定です。**
 > 開発・調査資料は [`develop` branch](https://github.com/myokoym/misereru/tree/develop) 側で管理します。
 
+## 動作サンプル
+
+misereruで生成し、GitHub Pagesへ公開したスライドを実際に確認できます。
+
+- [公開サンプルを見る](https://myokoym.github.io/misereru-slide-chatgpt-mobile-dev/)
+
 ## 使い方
 
 このrepositoryをGitHub Template Repositoryとして使い、原則 **1資料 = 1 repository** で管理します。
