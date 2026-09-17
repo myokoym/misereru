@@ -2,13 +2,15 @@
 
 最終更新: 2026-09-18
 
-`slides.md` と対になる口頭説明用sourceを持ち、AIへ両方を渡したときに発表動画へ変換しやすくするための調査です。
+`slides.md` と対になる口頭説明用sourceを必要に応じて持ち、AIへ両方を渡したときに発表動画へ変換しやすくするための調査です。
 
 この文書では、単なるspeaker notesではなく、次を同時に満たすsource contractを検討します。
 
-- 人間が読める自然な発表原稿である。
+- `slides.md` だけで資料を作る運用を妨げない。
+- 原稿は必要なslideだけ部分的に持てる。
+- 原稿を持つ場合は、人間が読める自然な発表原稿である。
 - slideと原稿をstable keyで一意に対応付けられる。
-- AIが「何を読み、いつ次へ進むか」を推測しなくてよい。
+- video-readyとして完全な原稿を用意した場合、AIが「何を読み、いつ次へ進むか」を推測しなくてよい。
 - 必要な場合だけ発音・間・画面上のcueを追加できる。
 - slidesと原稿を相互レビューし、構成矛盾・欠落・順序不整合を検出できる。
 - 特定のTTS / video rendererへ正本sourceを固定しない。
@@ -45,7 +47,7 @@ misereruへの示唆:
 
 - 原稿全体だけでなく、slide内進行と結び付くcueが有用な場合がある。
 - ただしすべての文章を細かいcueへ分解するとauthoring costが高い。
-- 初期仕様ではslide単位のnarrationを必須、slide内cueをoptional extensionとする方がよい。
+- 初期仕様では原稿を持つentryにslide単位のnarrationを置き、slide内cueはoptional extensionとする方がよい。
 
 ### reveal.js
 
@@ -82,7 +84,7 @@ misereruへの示唆:
 3. visual cue（highlight / pointer / reveal等）
 4. transition
 
-初期sourceで1を必須、2はnarrationから自動導出、3をoptional、4をproject / renderer既定に寄せるとauthoring負荷を抑えられる。
+video-ready sourceでは1を必須、2はnarrationから自動導出、3をoptional、4をproject / renderer既定に寄せるとauthoring負荷を抑えられる。
 
 ### SSML
 
@@ -132,12 +134,14 @@ WebVTTはtime-aligned text cueを表現でき、caption / subtitleやtime-aligne
 
 ## 採用方針
 
-初期仕様は`slides.md`と`presentation-script.md`を別sourceとして持つ。
+初期仕様では `slides.md` を必須sourceとし、`presentation-script.md` は任意sourceとする。
 
 ```text
 slides.md
-presentation-script.md
+presentation-script.md   # optional
 ```
+
+原稿を使わない資料では `presentation-script.md` を持たなくてよい。原稿を使う場合も、必要なslideだけentryを持つpartial scriptを正当な状態として扱う。
 
 両者はslide番号ではなく、既存のstable `key`で対応付ける。
 
@@ -155,20 +159,25 @@ presentation-script.md
 ここでは通常の本文ページを例にします。...
 ```
 
+原稿を持たないslideには空entryを置かず、entry自体を省略する。これにより「意図的に原稿を持たない」と「entryを作ったのにNarrationが空」を区別する。
+
 ### 初期のvideo semantics
 
-AI / future rendererが追加判断しなくてよいよう、未指定時の動作を固定する。
+**video-readyとして全slide分の原稿が揃っている場合**、AI / future rendererが追加判断しなくてよいよう未指定時の動作を固定する。
 
-1. 対応slideを表示してからnarrationを開始する。
-2. 読み上げるのは`### Narration`本文だけとし、slide本文を追加で読み上げない。
-3. narration中はslideを維持する。
-4. cueがなければzoom / highlight / pointer / fragment reveal等を勝手に追加しない。
-5. narration音声の終了後、短いtail holdを置いて次slideへ進む。
-6. slide durationは原則として生成済み音声の実長から導出する。手書きの秒数を正本にしない。
-7. transitionはvideo renderer側の既定値を使い、原稿sourceへ通常は書かない。
-8. 字幕はnarrationと生成音声timingからWebVTT等へ派生生成する。
+1. presentationの順序は `slides.md` とbuild後の最終slide sequenceを正とする。
+2. 対応するstable keyのnarrationを開始する。
+3. 読み上げるのは`### Narration`本文だけとし、slide本文を追加で読み上げない。
+4. narration中はslideを維持する。
+5. cueがなければzoom / highlight / pointer / fragment reveal等を勝手に追加しない。
+6. narration音声の終了後、短いtail holdを置いて次slideへ進む。
+7. slide durationは原則として生成済み音声の実長から導出する。手書きの秒数を正本にしない。
+8. transitionはvideo renderer側の既定値を使い、原稿sourceへ通常は書かない。
+9. 字幕はnarrationと生成音声timingからWebVTT等へ派生生成する。
 
-これにより、初期版では細かいcueがなくても「静止slide + narration + deterministic advance」で発表動画を生成できる。
+これにより、細かいcueがなくても「静止slide + narration + deterministic advance」で発表動画を生成できる。
+
+partial scriptは人間の発表補助や途中作成として利用できるが、それだけでvideo-readyとは扱わない。
 
 ### Optional extensions
 
@@ -183,22 +192,47 @@ AI / future rendererが追加判断しなくてよいよう、未指定時の動
 
 ## 相互チェック
 
-`slides.md`と`presentation-script.md`は片方向の従属物として扱わず、両方からレビューする。
+`slides.md`と`presentation-script.md`を使う場合は、片方向の従属物として扱わず両方からレビューする。ただし原稿ファイルそのものは任意である。
 
-### deterministic check
+### 通常buildのdeterministic check
 
-機械的に判定できるもの:
+`presentation-script.md` がない場合:
+
+- 検査をスキップする。
+- warningを出さない。
+- slides-onlyを正常な資料状態として扱う。
+
+存在する場合、書かれているentryだけを機械検査する。
 
 - slide keyが重複していない。
 - scriptの`slide`参照が重複していない。
-- source slideに対応するscript entryがある。
-- scriptにorphan entryがない。
-- slide順とscript順が一致している。
-- generated slideを含める場合も既知のstable keyで対応する。
+- scriptが存在しないslide keyを参照していない。
+- 各script entryに空でない`### Narration`がある。
+- format versionが明示されている場合、対応可能なversionである。
+
+通常buildでは次を要求しない。
+
+- source slideすべてへのscript coverage
+- generated TOCへのscript entry
+- script entryの物理的な記載順とslide順の一致
+
+stable keyで対応するため、presentation sequenceはslide source側を正とし、scriptのファイル順を別のsequence sourceにしない。
+
+### video-ready check
+
+動画生成へそのまま投入できる完全な組として扱う場合だけ、通常検査に加えてbuild後の最終presentationの全slideへscript entryがあることを要求する。
+
+初期templateでは:
+
+```bash
+npm run build:video-ready
+```
+
+自動生成される `__misereru_toc__` が最終presentationに存在する場合もcoverage対象とする。
 
 ### semantic AI review
 
-AIで確認するもの:
+`presentation-script.md`が存在する場合、entryのあるslideについてAIで確認する。
 
 - slideの主張とnarrationの主張が矛盾していない。
 - narrationで重要な前提を補っているだけなのか、slideから重要論点が欠落しているのかを区別する。
@@ -215,7 +249,7 @@ AIで確認するもの:
 
 misereruはbuild時に`__misereru_toc__` slideを生成する場合がある。
 
-video-ready contractでは最終presentationのslide sequenceと一致させるため、generated TOCにもscript entryを持てるようにする。
+通常のpartial scriptではTOC原稿を持たなくてもよい。video-ready contractで最終presentationの全slideを読み上げ対象にする場合だけ、generated TOCにもscript entryを持たせる。
 
 ```md
 <!-- {"slide":"__misereru_toc__","generated":true} -->
@@ -228,13 +262,19 @@ video-ready contractでは最終presentationのslide sequenceと一致させる�
 
 TOCが生成されない資料では、このentryも持たない。
 
-## 実装方針
+## 実装状況
 
-1. templateに`presentation-script.md`のサンプルを追加する。
-2. `misereru-presentation-script` Skillを追加し、原稿生成と相互レビューのcontractを持たせる。
-3. build時、`presentation-script.md`が存在する場合だけstable key / completeness / orderをdeterministic validationする。
-4. semantic consistencyはAgent Skill側で扱い、buildの必須AI依存にはしない。
-5. Marp presenter notes / SSML / WebVTT / future video rendererはadapter / derived outputとして扱い、正本formatへ混ぜない。
+2026-09-18時点で次を実装済み。
+
+1. templateに`presentation-script.md`の完全なサンプルを追加した。
+2. `misereru-presentation-script` Skillを追加し、原稿生成と相互レビューのcontractを持たせた。
+3. `presentation-script.md`を任意とし、通常buildではファイルがなければsilent skipする。
+4. 通常buildで、存在するscript entryのstable key参照・重複・Narration等をdeterministic validationする。
+5. partial scriptのcoverage不足やentry順を通常buildのerror / warningにしない。
+6. `npm run build:video-ready` を追加し、動画化時だけ全slide coverageを要求する。
+7. `presentation-script.md`だけを変更した場合もGitHub Actionsが走るようworkflow pathへ追加した。
+8. semantic consistencyはAgent Skill側で扱い、buildの必須AI依存にはしない。
+9. Marp presenter notes / SSML / WebVTT / future video rendererはadapter / derived outputとして扱い、正本formatへ混ぜない。
 
 ## 未決事項
 
