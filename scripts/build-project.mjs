@@ -13,7 +13,7 @@ if (config.source?.format !== 'markdown') {
 }
 
 const sourcePath = resolve(root, config.source?.path ?? 'slides.md');
-const scriptPath = resolve(root, 'presentation-script.md');
+const scriptPath = resolve(dirname(sourcePath), 'presentation-script.md');
 const outputs = config.outputs ?? {};
 const pagesEnabled = featureEnabled(config.publish?.githubPages);
 const sourceMarkdown = await readFile(sourcePath, 'utf8');
