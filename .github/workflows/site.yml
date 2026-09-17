@@ -8,6 +8,7 @@ on:
     paths:
       - 'site/**'
       - 'themes/**'
+      - 'mermaid.config.json'
       - 'marp.config.mjs'
       - 'scripts/build-project.mjs'
       - 'scripts/render-mermaid.mjs'
