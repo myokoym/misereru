@@ -78,7 +78,7 @@
 
 ```mermaid
 flowchart LR
-  A[slides.md] --> B[Mermaid → SVG]
+  A[slides.md] --> B[Mermaid → PNG]
   B --> C[Marp]
   C --> D[HTML]
   C --> E[PDF]
@@ -151,18 +151,15 @@ flowchart LR
 <!-- {"key":"mixed"} -->
 # 複数要素を含むページ
 
-misereruでは、通常は `slides.md` を編集し、出力設定が必要な場合だけ `misereru.config.json` を変更します。
+通常編集する正本と、生成結果を分けて管理します。
 
 - 通常編集: `slides.md`
 - 出力設定: `misereru.config.json`
-- テーマ: `themes/`
-- 自動化: `.github/workflows/`
 
 | 出力 | 既定 |
 | --- | --- |
 | HTML | 生成する |
-| PDF | 生成しない |
-| Pages | 公開しない |
+| PDF / Pages | 必要な場合だけ有効化 |
 
 ---
 
