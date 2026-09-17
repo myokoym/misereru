@@ -1,6 +1,6 @@
 # Product requirements
 
-最終更新: 2026-09-17
+最終更新: 2026-09-18
 
 この文書には、調査の途中経過ではなく、現時点で比較的安定しているプロダクト要件だけを置きます。
 
@@ -41,6 +41,7 @@ misereru template repository
 presentation repository
   ├─ slides.md
   ├─ misereru.config.json
+  ├─ .agents/skills/misereru-slide-writing/SKILL.md
   ├─ assets/
   ├─ themes/
   └─ GitHub Actions
@@ -73,6 +74,8 @@ Google Slides / PPTX は初期production targetには含めません。renderer 
 - 1ファイル完結を永続的な製品制約にはしない。
 - コンテンツ、設定、テーマ、画像等を分けたプロジェクト構成を許容する。
 - 初期運用では GitHub Template Repository から新規スライドプロジェクトを生成する。
+- AI編集支援の規則は `.agents/skills/` にrepository-scoped Skillとして同梱できる。
+- Skillは編集支援であり、build時の実行依存にはしない。
 - 既存ツールで要件を満たせる場合、独自フォーマットや独自レンダラーを先に作らず、そのツールの wrapper / adapter として成立させてよい。
 - 複数の source format / renderer を将来扱う場合も、利用者が通常触る既定経路は簡単に保つ。
 
@@ -82,6 +85,10 @@ Google Slides / PPTX は初期production targetには含めません。renderer 
 presentation-project/
 ├─ slides.md
 ├─ misereru.config.json
+├─ .agents/
+│  └─ skills/
+│     └─ misereru-slide-writing/
+│        └─ SKILL.md
 ├─ assets/
 ├─ themes/
 └─ .github/workflows/
@@ -96,6 +103,30 @@ presentation-project/
 - ビルドや重い生成処理は GitHub Actions 等のリモート環境へ置く。
 - Git 管理しやすいことを重視する。
 - 生成物は正本と分離し、原則として再生成可能にする。
+
+### AI編集支援
+
+初期templateでは `.agents/skills/misereru-slide-writing/SKILL.md` を同梱します。
+
+このSkillに求める要件:
+
+- `slides.md` の新規作成、再構成、推敲で利用できる。
+- Presented / Reference / Mixed の用途を区別し、ライブ発表用の低密度ルールを調査・共有資料へ機械的に適用しない。
+- 1 slide 1 primary messageを基本とするが、正確さに必要な根拠、条件、留保、比較は削らない。
+- 調査報告や仕様資料へstory、対立、強い断定を人工的に追加しない。
+- 事実、出典に基づく解釈、提案、仮説、未確認事項を区別する。
+- 見出しは空のラベルを避け、対象、問い、観察、結論などslideの役割が分かる形を優先する。
+- 箇条書き、本文、表を内容の構造に応じて使い分け、文章を短くするだけの目的で箇条書きへ変換しない。
+- 日本語の論証の厳密さ、用語の一貫性、冗長性、AI的な空疎表現を点検する。
+- 和文中の英数字前後への半角スペース等、特定の文体規則を一律に強制せず、既存資料と日本語としての自然さを優先する。
+- stable `key` を保持し、新規slideには安定した `key` を付ける。
+- `type: "section"` 等のmisereru metadataを保持する。
+- renderer固有front matterやHTML/CSSを内容編集の都合だけで正本へ持ち込まない。
+- publish/output設定を内容編集のついでに変更しない。
+- 外部情報に依存する主張は、可能な限り後から検証できるリンク・出典を保持する。
+- 既存の高品質なpresentation / Marp / Japanese technical writing Skill・規範を参照した場合、Skill内に参照元を記録する。
+
+Skillを解釈しない環境でもbuild・閲覧できることを維持します。AI編集支援は初期版ではsource編集側の補助であり、rendererの必須工程へは入れません。
 
 ## Build / publish
 
@@ -176,6 +207,8 @@ Google Slidesを将来production targetへ追加する場合は、次のどち�
 - 行間が狭すぎないこと。
 - 見出しページだけでなく、本文・箇条書き・複数段落・リンクを含む通常ページを評価すること。
 
+文章内容の日本語品質はAgent Skill側でも扱いますが、改行・禁則・overflow等の表示品質はrenderer/theme/build側の責務として分離します。
+
 参考:
 
 - W3C JLREQ: <https://www.w3.org/International/jlreq/?lang=ja>
@@ -191,7 +224,7 @@ Google Slidesを将来production targetへ追加する場合は、次のどち�
 - Vivliostyle を内部レンダリングに利用するか。
 - 目次を表紙直後に固定するか、設定可能にするか。
 - Mermaid を標準対応するか。
-- AI をレンダリング工程へ入れるか、source 編集側の ChatGPT に限定するか。
+- AI を将来renderer / 自動レイアウト工程へ入れるか。初期版のAI支援はsource編集側に限定する。
 - template repository更新を既存の各資料repositoryへどう反映するか。
 
 ## 仮称
