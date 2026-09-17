@@ -10,6 +10,8 @@ on:
       - 'themes/**'
       - 'marp.config.mjs'
       - 'scripts/build-project.mjs'
+      - 'scripts/render-mermaid.mjs'
+      - 'scripts/verify-rendered-diagrams.mjs'
       - 'package.json'
       - '.github/workflows/site.yml'
 
@@ -51,6 +53,11 @@ jobs:
         env:
           MISERERU_CONFIG: site/slides/about/misereru.config.json
         run: npm run build:project
+
+      - name: Verify rendered diagrams
+        env:
+          MISERERU_CONFIG: site/slides/about/misereru.config.json
+        run: node scripts/verify-rendered-diagrams.mjs
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v5
