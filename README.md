@@ -18,7 +18,7 @@ slides.md を編集
   ↓ commit / push
 GitHub Actions
   ↓
-Mermaid block → SVG（存在する場合）
+Mermaid block → PNG（存在する場合）
   ↓
 Marp
   ├─ HTML             常時生成
@@ -56,12 +56,12 @@ Marp
 ````markdown
 ```mermaid
 flowchart LR
-  A[slides.md] --> B[SVG]
+  A[slides.md] --> B[PNG]
   B --> C[Marp]
 ```
 ````
 
-現行buildでは、[`scripts/render-mermaid.mjs`](scripts/render-mermaid.mjs) がMermaidをSVGへ変換し、SVGをMarp入力へ埋め込んでからHTML / PDFを生成します。生成済みSVGをrepositoryで管理する必要はありません。
+現行buildでは、[`scripts/render-mermaid.mjs`](scripts/render-mermaid.mjs) がMermaidをPNGへ変換し、PNGをdata URIとしてMarp入力へ埋め込んでからHTML / PDFを生成します。生成済みPNGをrepositoryで管理する必要はありません。
 
 図を使うかどうかは枚数比率では決めません。処理フロー、相互作用、状態、階層、関係、数値推移など、図に向く情報構造がある場合に文章・箇条書きより優先して検討します。
 
@@ -137,7 +137,7 @@ package.json                                            # Marp / Mermaid依存�
 marp.config.mjs                                         # Marp設定
 themes/                                                 # 日本語向けMarp theme
 scripts/build-project.mjs                               # 目次生成、原稿構造検査、build処理
-scripts/render-mermaid.mjs                              # MermaidをSVGへ変換してMarp入力へ埋め込む
+scripts/render-mermaid.mjs                              # MermaidをPNGへ変換してMarp入力へ埋め込む
 .github/workflows/build.yml                             # GitHub Actions build / publish
 ```
 
@@ -165,4 +165,4 @@ Template Repositoryから通常作成した資料repositoryにはdefault branch�
 - [Marp prototype](https://github.com/myokoym/misereru/blob/develop/docs/research/marp-prototype.md)
 - [命名調査](https://github.com/myokoym/misereru/blob/develop/docs/research/naming.md)
 
-正本 `slides.md` はMarp固有front matterを持たせません。Mermaid図もsource記法のまま保持し、build時に一時的なSVGとMarp入力を生成します。初期production buildではMarpだけをrendererとして使用します。
+正本 `slides.md` はMarp固有front matterを持たせません。Mermaid図もsource記法のまま保持し、build時に一時的なPNGとMarp入力を生成します。初期production buildではMarpだけをrendererとして使用します。
