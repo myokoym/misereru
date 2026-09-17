@@ -132,7 +132,7 @@ description: Create, restructure, and revise Japanese slide content in misereru 
 
 Reference modeでは短い段落を使ってかまいません。
 
-- 一段落一トピックを基本とする
+- 一段落一トピックを基本にする
 - 冒頭で何を説明する段落か分かるようにする
 - 同じ結論を言い換えて繰り返さない
 - 前置きや予告だけの文章を置かない
@@ -184,12 +184,12 @@ misereruの正本では、Mermaidを通常のfenced code blockとして書けま
 ````markdown
 ```mermaid
 flowchart LR
-  A[Markdown] --> B[SVG]
+  A[Markdown] --> B[PNG]
   B --> C[Marp]
 ```
 ````
 
-現行buildはMermaidブロックをSVGへ変換してからMarpへ渡します。sourceへ生成済みSVGやrenderer固有HTMLを貼り込む必要はありません。
+現行buildはMermaidブロックをPNGへ変換してからMarpへ渡します。sourceへ生成済みPNGやrenderer固有HTMLを貼り込む必要はありません。
 
 移植性を優先する場合は、Flowchart / Sequence / State / Class / ER / XY chartを優先します。Gantt、Pie、MindmapなどMermaid CLIで扱える追加形式は、内容上必要な場合に使ってかまいませんが、renderer変更時には互換性を再確認します。
 
@@ -250,7 +250,7 @@ flowchart LR
 - 新規slideには、その内容を表す安定した `key` を付ける
 - 目次へ載せるセクション見出しには既存仕様に従って `type: "section"` を使う
 - `marp: true`、theme指定などrenderer固有front matterを正本へ追加しない
-- 図はMermaid等のsource表現を正本へ置き、生成済みSVGを正本化しない
+- 図はMermaid等のsource表現を正本へ置き、生成済みPNGを正本化しない
 - themeやbuild処理で解決すべき見た目の問題を、本文へHTML/CSSを埋め込んで迂回しない
 - publish/output設定を内容編集のついでに勝手に変更しない
 
@@ -320,7 +320,7 @@ slideが重い場合、文字サイズを下げる前に次の順で処理しま
   - 論証の厳密さ、読者負荷、冗長性、LLM的表現の抑制を参照
 - Mermaid CLI
   - https://github.com/mermaid-js/mermaid-cli
-  - Markdown中のMermaidからSVGを生成する現行build経路を参照
+  - Markdown中のMermaidからPNGを生成する現行build経路を参照
 - Marp Core Mermaid documentation
   - https://github.com/marp-team/marp-core/blob/main/docs/markdown.md
   - Mermaid native supportへ移行する場合の互換範囲を参照
