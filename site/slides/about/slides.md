@@ -75,12 +75,14 @@ PowerPointやGoogle Slides上の手編集を、正本管理の必須工程にし
 <!-- {"key":"self-contained"} -->
 # 1資料 = 1 repository、自己完結
 
-資料repositoryにはbuildに必要なものを含めます。
+資料repositoryにはbuildと編集支援に必要なものを含めます。
 
 ```text
 presentation repository
 ├─ slides.md
 ├─ misereru.config.json
+├─ .agents/skills/
+│  └─ misereru-slide-writing/SKILL.md
 ├─ package.json
 ├─ marp.config.mjs
 ├─ themes/
@@ -89,6 +91,23 @@ presentation repository
 ```
 
 実行時に外部の `misereru` repositoryへ依存しない構成です。
+
+---
+
+<!-- {"key":"ai-editing"} -->
+# AI編集の規範もrepositoryに含める
+
+`misereru-slide-writing` Skillは、AIで `slides.md` を作成・再構成・推敲するときの内容設計ルールです。
+
+- Presented / Reference / Mixedで適切な情報密度を分ける
+- 1 slide 1 primary messageを基本にしつつ、必要な根拠・条件・留保を残す
+- 調査・仕様資料へstoryや強い断定を機械的に足さない
+- 日本語の論証、用語、冗長性、AI的な空疎表現を点検する
+- stable `key`、`type: "section"`、renderer非依存の正本sourceを守る
+
+Skillは **source編集側の支援**であり、GitHub Actionsのbuild依存にはしません。
+
+[Skill source](https://github.com/myokoym/misereru/blob/main/.agents/skills/misereru-slide-writing/SKILL.md)
 
 ---
 
@@ -207,6 +226,7 @@ slides.md
 - HTMLは常時生成
 - PDFは必要な場合だけ
 - Pages公開も明示的に有効化
+- AI編集支援はsource編集側で利用し、buildには必須化しない
 - Google Slides / PPTXはまだproduction対象外
 
 未検証のoutputへ黙って分岐せず、対応範囲を限定しています。
@@ -254,7 +274,7 @@ site/
 - 共通presentation model / AST
 - Google Slidesのproduction対応
 - Mermaid
-- AIをbuild工程へ入れるか
+- AIをrenderer / 自動レイアウト工程へ入れるか
 - template更新を既存資料repoへどう反映するか
 
 未決事項を無理に初期版へ押し込まず、必要になった段階で判断します。
@@ -269,6 +289,7 @@ site/
 そのために、
 
 - 通常経路を単純にする
+- AI編集規範も資料repositoryへ持たせる
 - 日本語品質を妥協しない
 - buildをGitHub側へ寄せる
 - 既存ツールを活用する
