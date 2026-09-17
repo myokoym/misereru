@@ -12,6 +12,7 @@ on:
       - 'marp.config.mjs'
       - 'scripts/build-project.mjs'
       - 'scripts/render-mermaid.mjs'
+      - 'scripts/verify-rendered-diagrams.mjs'
       - 'scripts/render-presentation-script.mjs'
       - 'scripts/render-article.mjs'
       - 'package.json'
@@ -67,6 +68,9 @@ jobs:
 
       - name: Build configured outputs
         run: npm run build:project
+
+      - name: Verify rendered diagrams
+        run: node scripts/verify-rendered-diagrams.mjs
 
       - name: Upload generated outputs
         uses: actions/upload-artifact@v7
