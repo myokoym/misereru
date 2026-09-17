@@ -18,6 +18,8 @@ slides.md を編集
   ↓ commit / push
 GitHub Actions
   ↓
+Mermaid block → SVG（存在する場合）
+  ↓
 Marp
   ├─ HTML             常時生成
   ├─ PDF              設定時のみ
@@ -37,6 +39,7 @@ Marp
 - 箇条書き
 - 番号付き手順
 - 表
+- Mermaid図
 - 引用
 - コードブロック
 - 外部リンク
@@ -45,6 +48,22 @@ Marp
 - まとめ
 
 `type: "section"` のページから目次を自動生成します。新しい資料では、`slides.md` の文章を書き換え、不要なページを削除して使います。
+
+### 図はMermaidを正本にできる
+
+手順、依存関係、状態遷移、主体間のやり取りなど、文章より図の方が構造を伝えやすい内容は、`slides.md` にMermaidコードブロックとして書けます。
+
+````markdown
+```mermaid
+flowchart LR
+  A[slides.md] --> B[SVG]
+  B --> C[Marp]
+```
+````
+
+現行production buildでは、[`scripts/render-mermaid.mjs`](scripts/render-mermaid.mjs) がMermaidをSVGへ変換し、SVGをMarp入力へ埋め込んでからHTML / PDFを生成します。生成済みSVGをrepositoryで管理する必要はなく、GitHub Pages側でも別画像ファイルへの参照を必要としません。
+
+図を使うかどうかは枚数比率では決めません。処理フロー、相互作用、状態、階層、関係、数値推移など、図に向く情報構造がある場合に文章・箇条書きより優先して検討します。
 
 ## 発表原稿は任意
 
@@ -126,7 +145,7 @@ https://<owner>.github.io/<repository>/article.html
 
 テンプレートにはmisereru用のAgent Skillを含めます。
 
-- [`misereru-slide-writing`](.agents/skills/misereru-slide-writing/SKILL.md): `slides.md` の構成・文章・根拠・密度を扱う
+- [`misereru-slide-writing`](.agents/skills/misereru-slide-writing/SKILL.md): `slides.md` の構成・文章・根拠・密度・図解判断を扱う
 - [`misereru-presentation-script`](.agents/skills/misereru-presentation-script/SKILL.md): 任意の発表原稿作成とslideとの相互レビューを扱う
 - [`misereru-article-writing`](.agents/skills/misereru-article-writing/SKILL.md): 単体で読める記事の構成・文章と、slides / researchとの整合性を扱う
 
@@ -152,13 +171,14 @@ slides.md                                               # サンプル兼 Markdo
 presentation-script.md                                 # 任意の発表原稿サンプル
 article.md                                             # 任意の単体完結記事サンプル
 misereru.config.json                                    # output / publish 設定
-.agents/skills/misereru-slide-writing/SKILL.md          # AI向けスライド内容設計ルール
+.agents/skills/misereru-slide-writing/SKILL.md          # AI向けスライド内容・図解設計ルール
 .agents/skills/misereru-presentation-script/SKILL.md    # AI向け発表原稿・相互レビュー規則
 .agents/skills/misereru-article-writing/SKILL.md         # AI向け記事作成・整合性確認規則
 package.json                                            # build依存とcommand
 marp.config.mjs                                         # Marp設定
 themes/                                                 # 日本語向けMarp theme
 scripts/build-project.mjs                               # 目次生成、原稿構造検査、build処理
+scripts/render-mermaid.mjs                              # MermaidをSVGへ変換してMarp入力へ埋め込む
 scripts/render-presentation-script.mjs                  # 発表原稿のPages向けHTML生成
 scripts/render-article.mjs                              # 記事のPages向けHTML生成
 .github/workflows/build.yml                             # GitHub Actions build / publish
@@ -188,4 +208,4 @@ Template Repositoryから通常作成した資料repositoryにはdefault branch�
 - [Marp prototype](https://github.com/myokoym/misereru/blob/develop/docs/research/marp-prototype.md)
 - [命名調査](https://github.com/myokoym/misereru/blob/develop/docs/research/naming.md)
 
-正本 `slides.md` はMarp固有front matterを持たせません。build時に一時的なMarp入力を生成し、初期production buildではMarpだけをrendererとして使用します。
+正本 `slides.md` はMarp固有front matterを持たせません。Mermaid図もsource記法のまま保持し、build時に一時的なSVGとMarp入力を生成します。初期production buildではMarpだけをrendererとして使用します。
