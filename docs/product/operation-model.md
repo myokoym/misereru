@@ -1,6 +1,6 @@
 # Initial operation model
 
-最終更新: 2026-09-17
+最終更新: 2026-09-18
 
 misereru の初期運用で利用者が通常触る経路を定義します。
 
@@ -14,6 +14,7 @@ misereru template repository
 presentation repository
   ├─ slides.md
   ├─ misereru.config.json
+  ├─ .agents/skills/misereru-slide-writing/SKILL.md
   ├─ package.json
   ├─ marp.config.mjs
   ├─ themes/
@@ -21,7 +22,7 @@ presentation repository
   └─ .github/workflows/
 ```
 
-新しい資料repositoryには、buildに必要なファイルをテンプレートからすべてコピーします。外部のmisereru repositoryを実行時依存として参照しません。
+新しい資料repositoryには、buildに必要なファイルと、資料編集を支援するrepository-scoped Agent Skillをテンプレートからコピーします。外部のmisereru repositoryを実行時依存として参照しません。
 
 通常の編集では `slides.md` を更新します。必要な場合だけ `misereru.config.json` や theme を変更します。
 
@@ -47,7 +48,7 @@ main      = Template Repositoryとして配布する自己完結セット
 develop   = 開発・統合用。docs / research / prototype等を含む
 ```
 
-`main` には資料repositoryが単独でbuildできるために必要なファイルをすべて置きます。`develop` には設計資料、調査、検証コード等を追加できます。
+`main` には資料repositoryが単独でbuildできるために必要なファイルに加え、資料repository内でAI編集支援を再現するためのSkillを置きます。`develop` には設計資料、調査、検証コード等を追加できます。
 
 Template Repositoryから通常作成する資料repositoryではdefault branchである `main` の内容を使う想定です。開発資料を利用者側へコピーしないため、配布対象と開発専用資料を同じbranchへ混在させません。
 
@@ -72,6 +73,26 @@ Template Repositoryから通常作成する資料repositoryではdefault branch�
 - まとめ
 
 利用者は不要なページを削除し、内容を書き換えて使います。`type: "section"` を付けたセクション見出しから、build時に目次を自動生成します。
+
+## AI編集支援
+
+初期テンプレートには `.agents/skills/misereru-slide-writing/SKILL.md` を含めます。
+
+このSkillはbuild処理ではなく、`slides.md` をAIで作成・編集する際の内容設計ルールです。Codex等がrepository-scoped Skillを利用できる場合に自動検出できる配置とし、Skill発見だけを目的とした `AGENTS.md` は必須にしません。
+
+Skillの主な責務:
+
+- Presented / Reference / Mixed の用途を区別し、用途に応じて情報密度を変える
+- 1 slide 1 primary messageを基本としながら、必要な根拠・条件・比較は保持する
+- 調査・仕様資料にstoryや強い主張を機械的に強制しない
+- 事実、解釈、提案、未確認事項を区別する
+- 日本語の論証、用語の一貫性、冗長性、AI的な空疎表現を点検する
+- stable `key` と `type: "section"` を保持し、renderer固有front matterを正本へ持ち込まない
+- publish/output設定を内容編集のついでに変更しない
+
+Skill自体はGitHub Actionsのbuild依存にしません。Skillを解釈しない編集環境でも、`slides.md` とbuildは通常どおり利用できます。
+
+参照元として、既存の高品質なpresentation / Marp / Japanese technical writing Skill・規範をSkill内に記録します。外部Skillを実行時依存にはせず、misereru用の規則はrepository内で完結させます。
 
 ## 初期 source
 
@@ -172,11 +193,12 @@ GitHubの制約上、各presentation repositoryでPages自体が未有効の場�
 
 ## 日常運用
 
-想定する通常操作は次だけです。
+想定する通常操作は次です。
 
 ```text
 1. template repository から新しい資料 repository を作る
 2. rootの slides.md をサンプルとして内容を書き換える
+   - 対応Agentでは .agents/skills/misereru-slide-writing/ を編集規範として利用できる
 3. 不要なページを削除する
 4. commit / pushする
 5. Actions が HTML を生成する
