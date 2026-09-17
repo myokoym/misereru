@@ -23,13 +23,13 @@ export async function renderMermaidInMarkdown(markdown) {
 
     const baseName = `.misereru-mermaid-${process.pid}-${index + 1}`;
     const inputPath = resolve(root, `${baseName}.mmd`);
-    const outputPath = resolve(root, `${baseName}.svg`);
+    const outputPath = resolve(root, `${baseName}.png`);
 
     try {
       await writeFile(inputPath, `${source}\n`, 'utf8');
       await runMmdc(inputPath, outputPath);
-      const svg = await readFile(outputPath, 'utf8');
-      const dataUri = `data:image/svg+xml;base64,${Buffer.from(svg, 'utf8').toString('base64')}`;
+      const png = await readFile(outputPath);
+      const dataUri = `data:image/png;base64,${png.toString('base64')}`;
       rendered += `![diagram](${dataUri})`;
     } catch (error) {
       throw new Error(`Failed to render Mermaid diagram ${index + 1}: ${error.message}`, { cause: error });
@@ -59,6 +59,8 @@ async function runMmdc(inputPath, outputPath) {
     'transparent',
     '--width',
     '1200',
+    '--scale',
+    '2',
   ];
 
   let puppeteerConfigPath = null;
