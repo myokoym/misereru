@@ -1,0 +1,28 @@
+{
+  "theme": "base",
+  "fontFamily": "Noto Sans CJK JP, Noto Sans JP, sans-serif",
+  "flowchart": {
+    "curve": "linear",
+    "htmlLabels": true,
+    "nodeSpacing": 44,
+    "rankSpacing": 72,
+    "padding": 18
+  },
+  "themeVariables": {
+    "background": "#ffffff",
+    "primaryColor": "#f7f9fc",
+    "primaryTextColor": "#182230",
+    "primaryBorderColor": "#8ba0b5",
+    "secondaryColor": "#eaf2fb",
+    "secondaryTextColor": "#182230",
+    "secondaryBorderColor": "#5d7fa3",
+    "tertiaryColor": "#ffffff",
+    "tertiaryTextColor": "#182230",
+    "tertiaryBorderColor": "#c5ced8",
+    "lineColor": "#5f7185",
+    "textColor": "#182230",
+    "fontSize": "22px",
+    "edgeLabelBackground": "#ffffff"
+  },
+  "themeCSS": ".node rect,.node polygon,.node path{stroke-width:2px;} .node rect{rx:14px;ry:14px;} .nodeLabel{font-weight:600;} .edgePath .path{stroke-width:2.5px;} .arrowheadPath{fill:#5f7185;} .edgeLabel{font-size:18px;}"
+}
