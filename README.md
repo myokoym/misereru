@@ -9,7 +9,7 @@ Markdownを正本として、GitHub Actions上でスライドHTMLを生成する
 
 misereruで生成し、GitHub Pagesへ公開したスライドを実際に確認できます。
 
-- [公開サンプルを見る](https://myokoym.github.io/misereru-slide-chatgpt-mobile-dev/)
+- [公開サンプルを見る](https://myokoym.github.io/misereru/)
 
 ## 使い方
 
