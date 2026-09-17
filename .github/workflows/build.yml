@@ -11,6 +11,7 @@ on:
       - 'themes/**'
       - 'marp.config.mjs'
       - 'scripts/build-project.mjs'
+      - 'scripts/render-mermaid.mjs'
       - 'scripts/render-presentation-script.mjs'
       - 'scripts/render-article.mjs'
       - 'package.json'
