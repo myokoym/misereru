@@ -18,6 +18,9 @@
       "enabled": false,
       "presentationScript": {
         "enabled": false
+      },
+      "article": {
+        "enabled": false
       }
     }
   }
