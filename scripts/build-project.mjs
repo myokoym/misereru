@@ -136,7 +136,6 @@ function injectGeneratedToc(markdown, parsed) {
       throw new Error(`Section slide ${originalIndex + 1} (${slide.key}) is missing an H1 title required for the generated TOC`);
     }
 
-    // Generated TOC becomes slide 2, so every original slide after the title shifts by +1.
     const generatedSlideNumber = originalIndex + 2;
     return [`- [${escapeMarkdownLinkLabel(slide.title)}](#${generatedSlideNumber})`];
   });
@@ -191,7 +190,7 @@ async function validatePresentationScript({ scriptPath, finalSlideKeys, requireC
       };
     }
     if (error?.code === 'ENOENT') {
-      throw new Error('Video-ready validation requires presentation-script.md');
+      throw new Error('Complete presentation-script validation requires presentation-script.md');
     }
     throw error;
   }
@@ -215,7 +214,7 @@ async function validatePresentationScript({ scriptPath, finalSlideKeys, requireC
 
   const missing = finalSlideKeys.filter((key) => !scriptSlideKeys.has(key));
   if (requireComplete && missing.length > 0) {
-    throw new Error(`Video-ready validation is missing presentation script entries for: ${missing.join(', ')}`);
+    throw new Error(`Complete presentation-script validation is missing entries for: ${missing.join(', ')}`);
   }
 
   return {
