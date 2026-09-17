@@ -46,6 +46,20 @@ Marp
 
 `type: "section"` のページから目次を自動生成します。新しい資料では、`slides.md` の文章を書き換え、不要なページを削除して使います。別の「最小テンプレート」と「サンプルデッキ」は持たず、この1ファイルを基準にします。
 
+## AIでの資料編集
+
+テンプレートには、misereru用のAgent Skill [`misereru-slide-writing`](.agents/skills/misereru-slide-writing/SKILL.md) を含めます。
+
+このSkillは `slides.md` の新規作成・再構成・推敲時に、次を扱います。
+
+- Presented / Reference / Mixed の用途別に情報密度を調整する
+- 1 slide 1 primary messageを基本に構成する
+- 根拠、留保、出典を短文化のために削らない
+- 日本語技術文書として論証、用語、冗長性、AI的な空疎表現を点検する
+- stable `key`、`type: "section"`、renderer非依存の正本sourceというmisereru固有ルールを守る
+
+配置はCodexのrepository-scoped Skill discoveryに合わせて `.agents/skills/` とします。Skill発見だけを目的とする `AGENTS.md` は置きません。
+
 ## 既定の出力
 
 - HTML: 有効。`dist/site/index.html` を生成
@@ -57,19 +71,20 @@ GitHub Pagesを使う場合は、各資料repositoryで初回だけ Settings > P
 
 ## Template files
 
-新しい資料repositoryで必要な実行ファイルは、テンプレート側にすべて含めます。外部のmisereru repositoryを実行時に参照しません。
+新しい資料repositoryで必要な実行・編集支援ファイルは、テンプレート側にすべて含めます。外部のmisereru repositoryを実行時に参照しません。
 
 ```text
-slides.md                   # サンプル兼 Markdown source
-misereru.config.json        # output / publish 設定
-package.json                # Marp依存とbuild command
-marp.config.mjs             # Marp設定
-themes/                     # 日本語向けMarp theme
-scripts/build-project.mjs   # 目次生成とbuild処理
-.github/workflows/build.yml # GitHub Actions build / publish
+slides.md                                      # サンプル兼 Markdown source
+misereru.config.json                           # output / publish 設定
+.agents/skills/misereru-slide-writing/SKILL.md # AI向けスライド内容設計ルール
+package.json                                   # Marp依存とbuild command
+marp.config.mjs                                # Marp設定
+themes/                                        # 日本語向けMarp theme
+scripts/build-project.mjs                      # 目次生成とbuild処理
+.github/workflows/build.yml                    # GitHub Actions build / publish
 ```
 
-`slides.md`、設定、theme、build処理を変更してpushすると、GitHub Actionsが設定済みoutputを生成します。
+`slides.md`、設定、theme、build処理を変更してpushすると、GitHub Actionsが設定済みoutputを生成します。`.agents/skills/` は編集支援用で、build時の実行依存にはしません。
 
 ## Repository branch model
 
