@@ -4,6 +4,18 @@
 
 目的はSkill discoveryではなく、**既存repository・正本・公開経路を確認せずに別成果物を作る事故を防ぐこと**です。
 
+## Branch role: `main`
+
+このbranchは **配布・production用のTemplate Repository正本** です。
+
+- Template Repositoryから新規資料repositoryを作るときに配布される内容は、この`main`を基準とする
+- 実験途中・未確定の研究メモを直接`main`へ持ち込まない
+- 開発・統合・調査は原則`develop`で行い、productionへ採用すると決まった内容だけ`main`へ反映する
+- `prototype/*`の実験結果を、検証・採用判断なしに`main`へ直接取り込まない
+- `main`上の`slides.md`、scripts、theme、config、Skill、`AGENTS.md`は、派生repositoryへ配布されるproduction契約として扱う
+
+`main`で作業しているという理由だけで、`develop`や`prototype/*`の未確定内容まで同期しません。branch間の昇格は明示的な採用・統合作業として扱います。
+
 ## 1. Repository-first
 
 既存のmisereru資料を更新する依頼では、最初にその資料のrepositoryを作業対象として確定します。
@@ -91,7 +103,7 @@ PPTX、Google Slides、PDF、別repository等を新たに作るのは、ユー�
 - ベンダーの性能主張と第三者実測を分ける
 - 日付、地域、サンプル数、比較条件を確認する
 - 「できる」と「その条件で実用になる」を分ける
-- 既存手法でも同様のことができる場合、Jev等の対象技術だけの固有能力として書かない
+- 既存手法でも同様のことができる場合、対象技術だけの固有能力として書かない
 - 誤記を見つけた場合、該当する全正本を確認して整合させる
 
 ## 7. Skillの扱い
@@ -120,17 +132,15 @@ Skillは書き方・レビュー規則、`AGENTS.md`はrepository運用と誤操
 
 repositoryを更新した場合、最低限次を明示します。
 
-- 作業したrepository
+- 作業したrepository / branch
 - 更新した正本ファイル
 - 主要な変更内容
 - commitまたはHEAD
 - build / deploy結果
 - 公開している場合は既存の公開URL
 
-別形式の成果物を作っていない場合、そのことを曖昧にする必要はありません。正本repositoryの更新を成果として扱います。
-
 ## 10. 最重要の禁止事項
 
 **既存misereru資料のrepositoryがあるのに、それを確認せず「スライド作成依頼」とだけ解釈して別のPPTXや資料を新規生成しないこと。**
 
-まずrepository、次に正本、その後に必要な調査・編集・buildという順序を固定します。
+まずrepositoryとbranch、次に正本、その後に必要な調査・編集・buildという順序を固定します。
