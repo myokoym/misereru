@@ -74,15 +74,11 @@ PowerPointやGoogle Slides上の手編集を、内容管理の必須工程には
 <!-- {"key":"diagram"} -->
 # 図の構造もテキストの正本に残す
 
-関係・順序・状態遷移など、文章より図が適した情報はMermaid sourceとして管理し、build時に画像へ変換してMarpへ渡します。
+利用者が意識する流れは、正本・build・出力の3段階です。Mermaidは正本に残し、変換処理はbuild側へ隠します。
 
 ```mermaid
 flowchart LR
-  A[slides.md] --> B[misereru adapter]
-  B --> C[Mermaid → PNG]
-  C --> D[Marp]
-  B --> D
-  D --> E[HTML / PDF]
+  A["正本<br/>slides.md + Mermaid"] --> B["misereru build<br/>図とスライドを生成"] --> C["出力<br/>HTML / PDF / Pages"]
 ```
 
 ---
