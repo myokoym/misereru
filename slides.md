@@ -74,11 +74,21 @@
 <!-- {"key":"diagram"} -->
 # 関係や処理は図で示す
 
-処理の流れが主題なら、実装要素を細かく並べるより、利用者が追う3段階にまとめます。
+処理の流れが主題なら、実装要素を細かく並べるより、入力・処理・出力の役割が形から分かるようにします。
 
 ```mermaid
 flowchart LR
-  A["正本<br/>slides.md + Mermaid"] --> B["build<br/>図を画像化・資料を生成"] --> C["出力<br/>HTML / PDF"]
+  A@{ shape: doc, label: "正本<br/>slides.md + Mermaid" }
+  B@{ shape: rounded, label: "misereru build" }
+  C@{ shape: browser, label: "出力<br/>HTML · PDF · Pages" }
+  A --> B --> C
+
+  classDef source fill:#ffffff,stroke:#8ba0b5,color:#182230,stroke-width:2px;
+  classDef focal fill:#315e86,stroke:#315e86,color:#ffffff,stroke-width:3px;
+  classDef output fill:#f7f9fc,stroke:#8ba0b5,color:#182230,stroke-width:2px;
+  class A source;
+  class B focal;
+  class C output;
 ```
 
 ---
