@@ -71,6 +71,22 @@ PowerPointやGoogle Slides上の手編集を、内容管理の必須工程には
 
 ---
 
+<!-- {"key":"diagram"} -->
+# 図の構造もテキストの正本に残す
+
+関係・順序・状態遷移など、文章より図が適した情報はMermaid sourceとして管理し、build時に画像へ変換してMarpへ渡します。
+
+```mermaid
+flowchart LR
+  A[slides.md] --> B[misereru adapter]
+  B --> C[Mermaid → PNG]
+  C --> D[Marp]
+  B --> D
+  D --> E[HTML / PDF]
+```
+
+---
+
 <!-- {"key":"self-contained"} -->
 # 1資料 = 1 repositoryで自己完結させる
 
@@ -222,7 +238,7 @@ slides.md
 
 | 区分 | 現在の対象 |
 | --- | --- |
-| production | Markdown source、HTML、optional PDF、optional Pages |
+| production | Markdown source、Mermaid図、HTML、optional PDF、optional Pages |
 | 編集支援 | repository-scoped Agent Skill |
 | research / prototype | Google Slides、別renderer候補 |
 | 未決 | PPTX、共通AST、自動レイアウト等 |
@@ -271,7 +287,6 @@ site/
 - 複数Markdown構成
 - 共通presentation model / AST
 - Google Slidesのproduction対応
-- Mermaid
 - AIをrenderer / 自動レイアウト工程へ入れるか
 - template更新を既存資料repoへどう反映するか
 
