@@ -1,122 +1,89 @@
 <!-- {"key":"title"} -->
-# misereru
+# 資料タイトル
 
-Markdownを正本に、GitHub上でスライドを生成・公開する。
-
-**スマートフォン + ChatGPT + GitHubだけでも回せる、text-firstなpresentation workflow。**
+サブタイトルや、この資料で伝えたいことを短く書きます。
 
 ---
 
-<!-- {"key":"section-why","type":"section"} -->
-# 1. なぜ作るのか
+<!-- {"key":"section-text","type":"section"} -->
+# 1. 概要と本文
 
-スライドの内容だけでなく、生成・公開までテキスト中心で管理したい。
-
----
-
-<!-- {"key":"origin"} -->
-# 出発点
-
-欲しかったのは「Markdownを書けるスライドツール」だけではありません。
-
-- スマートフォンからChatGPT / GitHubで編集できる
-- ローカルPCやPowerPointを日常運用の必須工程にしない
-- タイトル、構造、出力設定までGitで追える
-- 日本語の改行や禁則を軽視しない
-- buildや重い処理はGitHub Actionsへ任せる
-
-**資料そのものを、コードと同じように再生成可能なsourceとして扱う**ことが出発点です。
+このセクションで扱う内容を短く示します。
 
 ---
 
-<!-- {"key":"problem"} -->
-# 既存ツールをそのまま使うだけでは足りなかった
+<!-- {"key":"body"} -->
+# 通常の本文ページ
 
-MarpはMarkdownからHTML / PDFを生成でき、初期rendererとして有力です。一方で、正本sourceへrenderer固有設定を直接混ぜたくはありませんでした。
+このページは、見出しと1〜2段落の本文を置く基本形です。説明、背景、前提など、箇条書きに分解しすぎない内容に使えます。
 
-Google Slides系の生成も検証しましたが、Marpと併用すると **CSS/theme とSlides layoutの2系統** を維持する問題が出ます。
-
-そこでmisereruでは、まず **source / renderer / publishを分離し、利用者が触る経路を単純に保つ** 方針を採っています。
+必要に応じて文章を書き換え、不要なページは削除してください。
 
 ---
 
-<!-- {"key":"principle"} -->
-# 設計原則
+<!-- {"key":"long-body"} -->
+# 長めの日本語本文
 
-> 編集しやすいsourceと、読みやすい成果物は別の要件。
+日本語の文章を複数行置くページの例です。句読点や括弧を含む文章、英数字が混在する文章でも、読みやすい改行になることを想定しています。1ページに情報を詰め込みすぎず、必要ならページを分けます。
 
-| 要件 | misereruの初期方針 |
-| --- | --- |
-| 正本 | Markdown |
-| 編集 | GitHub / ChatGPT中心 |
-| build | GitHub Actions |
-| renderer | Marp 1系統 |
-| HTML | 常時生成 |
-| PDF | optional |
-| Pages | optional |
-| ローカルPC | 日常運用では不要 |
+段落を追加する場合も、文章のまとまりごとに空行を入れてMarkdownとして読みやすく保ちます。`slides.md` は生成物ではなく資料の正本なので、GitHub上でも内容を追いやすい書き方を優先します。
 
 ---
 
-<!-- {"key":"section-how","type":"section"} -->
-# 2. どう動くのか
+<!-- {"key":"bullets"} -->
+# 箇条書き
 
-sourceは単純に、buildとpublishは自動化する。
-
----
-
-<!-- {"key":"pipeline"} -->
-# 基本パイプライン
-
-```text
-slides.md
-  ↓ misereru adapter
-一時Marp入力
-  ↓ Marp
-  ├─ HTML
-  └─ PDF（optional）
-      ↓
-GitHub Actions artifact / GitHub Pages
-```
-
-正本 `slides.md` には `marp: true` などのMarp固有front matterを要求しません。renderer固有情報はbuild時に注入します。
+- 重要なポイントを短く並べる
+- 1項目に複数の論点を詰め込みすぎない
+- 必要なら項目を追加・削除する
+- 強調したい語句には **太字** を使える
+- ファイル名や設定名は `inline code` で示せる
 
 ---
 
-<!-- {"key":"daily-workflow"} -->
-# 日常操作を短くする
+<!-- {"key":"ordered"} -->
+# 手順を示すページ
 
-1. 資料repositoryを作る
-2. `slides.md` をChatGPT / GitHubで編集する
-3. commit / pushする
-4. GitHub ActionsがHTMLを生成する
-5. 必要な場合だけPDF / Pagesを有効にする
-
-Node.js CLIやローカルのrendererを、通常操作の前提にしません。
+1. `slides.md` を編集する
+2. GitHubへcommit / pushする
+3. GitHub ActionsがHTMLを生成する
+4. 必要ならPDF出力やGitHub Pages公開を有効にする
 
 ---
 
-<!-- {"key":"self-contained"} -->
-# 1資料 = 1 repository、しかも自己完結
+<!-- {"key":"section-structured","type":"section"} -->
+# 2. 表・引用・コード
 
-資料repositoryにはbuildに必要なものをすべて持たせます。
-
-```text
-slides.md
-misereru.config.json
-package.json
-marp.config.mjs
-themes/
-scripts/
-.github/workflows/
-```
-
-生成後のrepositoryが、元の `misereru` repositoryを実行時に参照する構成にはしません。
+構造化された情報を見せるページの例です。
 
 ---
 
-<!-- {"key":"config"} -->
-# 出力もテキストで管理する
+<!-- {"key":"table"} -->
+# 比較表
+
+| 項目 | 案A | 案B |
+| --- | --- | --- |
+| 特徴 | シンプル | 高機能 |
+| 導入 | 容易 | 要設定 |
+| 運用 | 軽い | 柔軟 |
+
+表の列名・行数は内容に合わせて変更します。
+
+---
+
+<!-- {"key":"quote"} -->
+# 引用を含むページ
+
+> 引用文や、資料内で特に分けて示したい発言をここに置きます。
+
+引用の下には、出典や補足説明を通常の本文として追加できます。
+
+---
+
+<!-- {"key":"code"} -->
+# コードブロック
+
+設定値や短いコードを示す場合は、通常のMarkdownコードブロックを使えます。
 
 ```json
 {
@@ -130,121 +97,63 @@ scripts/
 }
 ```
 
-HTMLは既定。PDFとPagesは必要な資料だけ明示的に有効化します。
+---
+
+<!-- {"key":"section-links","type":"section"} -->
+# 3. リンクと強調
+
+参照先や重要語句を示すページの例です。
 
 ---
 
-<!-- {"key":"section-quality","type":"section"} -->
-# 3. 何を重視しているのか
+<!-- {"key":"links"} -->
+# 外部リンク
 
-「Markdownから出た」だけで完成とはしない。
+通常のMarkdownリンクは、生成したHTMLでもクリックできます。
 
----
-
-<!-- {"key":"japanese-typesetting"} -->
-# 日本語組版を重要要件にする
-
-評価対象は、単なるoverflow回避ではありません。
-
-- 行頭・行末禁則
-- 句読点・括弧の扱い
-- 日本語と英数字が混在する場合の折返し
-- 欧文単語の不自然な途中分割
-- 見出しの不自然な分割
-- 行長・行間・本文密度
-- スマートフォンで見たときの可読性
-
-現在のthemeではNoto CJK系fontを使い、Marp側の日本語表示を調整しています。
+- [W3C 日本語組版処理の要件（JLREQ）](https://www.w3.org/International/jlreq/?lang=ja)
+- [Marp](https://marp.app/)
+- [GitHub Pages](https://pages.github.com/)
 
 ---
 
-<!-- {"key":"navigation"} -->
-# 目次もsourceから生成する
+<!-- {"key":"emphasis"} -->
+# 強調表現
 
-各slideにはmetadata commentのstable `key` を持たせ、`type: "section"` のslideだけを目次へ載せます。
+**重要な結論**は太字で示せます。`設定名` やファイル名はインラインコードで示せます。
 
-```markdown
-<!-- {"key":"section-quality","type":"section"} -->
-# 3. 何を重視しているのか
-```
-
-build時に表紙の直後へ目次を生成し、現在のMarp HTMLでは並び順からリンク先slide番号を再計算します。
+*補足的な語句*には斜体も利用できます。必要な表現だけ残し、装飾を増やしすぎないようにします。
 
 ---
 
-<!-- {"key":"renderer-choice"} -->
-# 初期版はrendererを増やしすぎない
+<!-- {"key":"section-composite","type":"section"} -->
+# 4. 複合ページとまとめ
 
-| target | 現在の扱い |
+複数要素を1ページに置く場合と、最後のまとめの例です。
+
+---
+
+<!-- {"key":"mixed"} -->
+# 複数要素を含むページ
+
+misereruでは、通常は `slides.md` を編集し、出力設定が必要な場合だけ `misereru.config.json` を変更します。
+
+- 通常編集: `slides.md`
+- 出力設定: `misereru.config.json`
+- テーマ: `themes/`
+- 自動化: `.github/workflows/`
+
+| 出力 | 既定 |
 | --- | --- |
-| HTML | production |
-| PDF | optional production |
-| GitHub Pages | optional publish |
-| Google Slides | research / prototype |
-| PPTX | production未対応 |
-
-Google Slides生成自体は検証済みですが、同一デザインを保つ仕組みが固まるまでproduction targetには入れません。
-
----
-
-<!-- {"key":"section-repository","type":"section"} -->
-# 4. repository自体の設計
-
-配布物と開発資料を分けながら、1 repositoryで管理する。
-
----
-
-<!-- {"key":"branches"} -->
-# `main` と `develop`
-
-- [`main`](https://github.com/myokoym/misereru/tree/main)
-  - 利用者側へ渡す自己完結セット
-- [`develop`](https://github.com/myokoym/misereru/tree/develop)
-  - requirements / research / ADR / prototypeを含む開発・統合branch
-
-別のtemplate repositoryを同期する構成にはせず、**default branchを配布境界として使う**方針です。
-
----
-
-<!-- {"key":"what-works"} -->
-# 現在できていること
-
-- Markdown sourceからMarp HTMLを自動生成
-- GitHub Actions artifactとして成果物を保存
-- section metadataから目次を自動生成
-- HTML内の外部リンクを保持
-- 日本語fontをActions上へ導入してbuild
-- PDFをconfigで任意生成
-- GitHub Pagesをconfigで任意publish
-- スマートフォン + GitHub / ChatGPT中心の運用
-
-この資料自体もmisereruで生成しています。
-
----
-
-<!-- {"key":"open-work"} -->
-# まだ整備中の部分
-
-実装だけでなく、ツールとしての管理も進行中です。
-
-- [#3 バージョニングとリリース運用](https://github.com/myokoym/misereru/issues/3)
-- [#4 ライセンス方針](https://github.com/myokoym/misereru/issues/4)
-- [#5 利用者向けREADME / docs](https://github.com/myokoym/misereru/issues/5)
-- [#6 OSS repository運用](https://github.com/myokoym/misereru/issues/6)
-
-この紹介deckを、そのまま資料repositoryの開始テンプレートにも使うかは別途判断します。
+| HTML | 生成する |
+| PDF | 生成しない |
+| Pages | 公開しない |
 
 ---
 
 <!-- {"key":"summary"} -->
-# misereru が目指すもの
+# まとめ
 
-**文章を書く場所と、スライドを生成する場所を分ける。**
-
-- sourceはGitで読みやすく、AIからも編集しやすく
-- buildはremoteで再現可能に
-- HTMLはすぐ見られ、必要ならPDFやPagesへ
-- 日本語資料としての読みやすさを落とさない
-- rendererや外部サービスを増やしすぎない
-
-Repository: [github.com/myokoym/misereru](https://github.com/myokoym/misereru)
+- この資料で伝えたかった結論を書く
+- 必要なら補足や次のアクションを書く
+- 不要なサンプルページは削除して使う
