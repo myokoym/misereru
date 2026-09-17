@@ -70,6 +70,38 @@ npm run build:script-complete
 
 将来、音声合成・録画・発表動画・字幕生成等へ流用することはできますが、現時点の主要用途には置きません。timingやcue等を通常の発表原稿へ先回りして必須化しません。
 
+### 発表原稿のGitHub Pages公開
+
+発表原稿をGitHub Pagesから直接参照したい資料だけ、`misereru.config.json` で明示的に有効化できます。
+
+```json
+{
+  "publish": {
+    "githubPages": {
+      "enabled": true,
+      "presentationScript": {
+        "enabled": true
+      }
+    }
+  }
+}
+```
+
+有効時は、HTMLと同じPagesルートへ `presentation-script.md` をそのまま配置します。
+
+```text
+https://<owner>.github.io/<repository>/
+https://<owner>.github.io/<repository>/presentation-script.md
+```
+
+この設定は原稿の作成・検証とは独立しています。
+
+- 既定は `false`。Pagesを公開しても発表原稿は自動公開しない
+- partial script / complete script のどちらも公開できる
+- `presentationScript.enabled: true` なのに `presentation-script.md` がない場合はbuild error
+- `presentationScript.enabled: true` なのにGitHub Pages自体が無効な場合もbuild error
+- `slides.md` や他の正本sourceを追加公開する機能ではない
+
 ## AIでの資料編集
 
 テンプレートにはmisereru用のAgent Skillを含めます。
@@ -99,6 +131,7 @@ npm run build:script-complete
 - HTML: 有効。`dist/site/index.html` を生成
 - PDF: 無効。必要な資料だけ有効化
 - GitHub Pages: 無効。明示的に有効化した場合だけ公開
+- GitHub Pages上の発表原稿: 無効。Pagesとは別に明示的に有効化した場合だけ `presentation-script.md` を公開
 - Google Slides / PPTX: 初期production targetには含めない
 
 GitHub Pagesを使う場合は、各資料repositoryで初回だけ Settings > Pages から GitHub Actions publishing を有効化する想定です。公開を自動化するためだけの高権限PATは標準要求しません。
