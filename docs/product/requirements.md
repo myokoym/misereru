@@ -10,6 +10,7 @@
 - 既存ツール調査: [`../research/slide-tools.md`](../research/slide-tools.md)
 - 日本語組版調査: [`../research/japanese-typesetting.md`](../research/japanese-typesetting.md)
 - source / output 構成調査: [`../research/source-output-architecture.md`](../research/source-output-architecture.md)
+- 発表原稿 / 動画化source調査: [`../research/presentation-script-and-video.md`](../research/presentation-script-and-video.md)
 - 命名調査: [`../research/naming.md`](../research/naming.md)
 - 意思決定記録: [`../adr/`](../adr/)
 
@@ -40,14 +41,16 @@ misereru template repository
   ↓
 presentation repository
   ├─ slides.md
+  ├─ presentation-script.md                    # optional。不要なら削除可
   ├─ misereru.config.json
   ├─ .agents/skills/misereru-slide-writing/SKILL.md
+  ├─ .agents/skills/misereru-presentation-script/SKILL.md
   ├─ assets/
   ├─ themes/
   └─ GitHub Actions
 ```
 
-初期 template の正本 source は Markdown (`slides.md`) とします。
+初期 template の必須の正本 source は Markdown (`slides.md`) とします。`presentation-script.md` は発表原稿を管理したい資料だけで利用する任意sourceです。
 
 通常操作:
 
@@ -62,6 +65,8 @@ Marp
   └─ PDF              設定時のみ
 ```
 
+`presentation-script.md` が存在する場合は同じbuild内で構造整合性を検査しますが、原稿ファイルの作成自体は通常buildの前提にしません。
+
 Google Slides / PPTX は初期production targetには含めません。renderer とデザインの一貫性を維持できる方式が検証できるまで research / prototype 扱いとします。
 
 この初期運用判断は、misereru 全体を将来にわたり Markdown 専用へ固定するものではありません。必要になれば source adapter を追加できる構成を維持します。
@@ -69,7 +74,9 @@ Google Slides / PPTX は初期production targetには含めません。renderer 
 ## Source / project model
 
 - 正本は **ChatGPT と GitHub から安全に編集できるテキスト中心の構成**にする。
-- 初期 template では `slides.md` を正本 source とする。
+- 初期 template では `slides.md` を必須の正本 source とする。
+- `presentation-script.md` は任意とし、slides-only運用を標準で許容する。
+- `presentation-script.md` が存在する場合も、全slide分の原稿を通常運用で強制しない。partial scriptを正当な状態として扱う。
 - 正本 `slides.md` には renderer 固有 front matter を必須にしない。
 - 1ファイル完結を永続的な製品制約にはしない。
 - コンテンツ、設定、テーマ、画像等を分けたプロジェクト構成を許容する。
@@ -84,10 +91,13 @@ Google Slides / PPTX は初期production targetには含めません。renderer 
 ```text
 presentation-project/
 ├─ slides.md
+├─ presentation-script.md                     # optional sample
 ├─ misereru.config.json
 ├─ .agents/
 │  └─ skills/
-│     └─ misereru-slide-writing/
+│     ├─ misereru-slide-writing/
+│     │  └─ SKILL.md
+│     └─ misereru-presentation-script/
 │        └─ SKILL.md
 ├─ assets/
 ├─ themes/
@@ -106,9 +116,12 @@ presentation-project/
 
 ### AI編集支援
 
-初期templateでは `.agents/skills/misereru-slide-writing/SKILL.md` を同梱します。
+初期templateでは次のrepository-scoped Skillを同梱します。
 
-このSkillに求める要件:
+- `.agents/skills/misereru-slide-writing/SKILL.md`
+- `.agents/skills/misereru-presentation-script/SKILL.md`
+
+`misereru-slide-writing` に求める要件:
 
 - `slides.md` の新規作成、再構成、推敲で利用できる。
 - Presented / Reference / Mixed の用途を区別し、ライブ発表用の低密度ルールを調査・共有資料へ機械的に適用しない。
@@ -126,11 +139,49 @@ presentation-project/
 - 外部情報に依存する主張は、可能な限り後から検証できるリンク・出典を保持する。
 - 既存の高品質なpresentation / Marp / Japanese technical writing Skill・規範を参照した場合、Skill内に参照元を記録する。
 
+`misereru-presentation-script` に求める要件:
+
+- 原稿を求められていないslides-only編集で、`presentation-script.md` の新規作成を強制しない。
+- `slides.md` のstable `key`とscript entryをページ番号ではなくkeyで対応付ける。
+- partial scriptを許容し、通常編集で全slide coverageを要求しない。
+- narrationをslide本文の逐語読み上げにせず、自然な口頭説明として整える。
+- narrationだけに重要な事実・条件・結論を追加しない。
+- slides → script / script → slides の両方向から意味的な矛盾・欠落・不自然な順序をレビューする。
+- 問題がslide構成側にある場合は、原稿だけを合わせずslide側も修正候補へ戻す。
+- video-ready時は、全slide coverageと既定のvideo contractで基本進行を決定できる状態を要求する。
+
 Skillを解釈しない環境でもbuild・閲覧できることを維持します。AI編集支援は初期版ではsource編集側の補助であり、rendererの必須工程へは入れません。
+
+## Presentation script validation
+
+`presentation-script.md` は任意です。CI / buildは次の段階で扱います。
+
+### 通常build
+
+`npm run build:project` と通常のGitHub Actionsでは:
+
+- `presentation-script.md` が存在しない場合、検査をスキップし、warningも出さない。
+- 存在する場合、書かれているentryだけを検査する。
+- scriptの`slide`参照重複、存在しないslide key参照、空の`Narration`、未対応format version等の構造破損はbuild errorにする。
+- source slideにscript entryがないことはerror / warningにしない。
+- generated TOCにscript entryがないことも通常buildではerror / warningにしない。
+- script entryの記載順をslide順と一致させることを必須にしない。presentation sequenceはslide source側を正とする。
+
+### video-ready build
+
+動画生成へそのまま投入できる完全な組を要求するときだけ、次を使います。
+
+```bash
+npm run build:video-ready
+```
+
+この場合は通常の構造検査に加え、build後の最終presentationに含まれる全slideへscript entryがあることを要求します。自動生成される `__misereru_toc__` も、存在する場合はcoverage対象です。
+
+意味的な整合性や原稿品質はCIのAI判定へ依存させず、Agent Skillによるsemantic cross reviewで扱います。
 
 ## Build / publish
 
-規定位置の source / config / assets が更新された場合に、GitHub Actions で自動 build できる構成とします。
+規定位置の source / config / assets が更新された場合に、GitHub Actions で自動 build できる構成とします。`presentation-script.md` のみを更新した場合も構造検査が走るよう、workflowのpaths対象に含めます。
 
 初期 output 方針:
 
@@ -224,6 +275,8 @@ Google Slidesを将来production targetへ追加する場合は、次のどち�
 - Vivliostyle を内部レンダリングに利用するか。
 - 目次を表紙直後に固定するか、設定可能にするか。
 - Mermaid を標準対応するか。
+- presentation scriptのcue / pronunciation / pauseの具体的schema。
+- video rendererをproduction targetへ入れる時期。
 - AI を将来renderer / 自動レイアウト工程へ入れるか。初期版のAI支援はsource編集側に限定する。
 - template repository更新を既存の各資料repositoryへどう反映するか。
 
