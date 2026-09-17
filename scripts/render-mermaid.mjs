@@ -48,32 +48,47 @@ export async function renderMermaidInMarkdown(markdown) {
 }
 
 async function runMmdc(inputPath, outputPath) {
-  await new Promise((resolvePromise, rejectPromise) => {
-    const child = spawn(
-      'npx',
-      [
-        '--no-install',
-        'mmdc',
-        '--input',
-        inputPath,
-        '--output',
-        outputPath,
-        '--backgroundColor',
-        'transparent',
-        '--width',
-        '1200',
-      ],
-      {
+  const args = [
+    '--no-install',
+    'mmdc',
+    '--input',
+    inputPath,
+    '--output',
+    outputPath,
+    '--backgroundColor',
+    'transparent',
+    '--width',
+    '1200',
+  ];
+
+  let puppeteerConfigPath = null;
+  if (process.env.CI === 'true') {
+    puppeteerConfigPath = resolve(root, `.misereru-puppeteer-${process.pid}.json`);
+    await writeFile(
+      puppeteerConfigPath,
+      `${JSON.stringify({ args: ['--no-sandbox', '--disable-setuid-sandbox'] })}\n`,
+      'utf8',
+    );
+    args.push('--puppeteerConfigFile', puppeteerConfigPath);
+  }
+
+  try {
+    await new Promise((resolvePromise, rejectPromise) => {
+      const child = spawn('npx', args, {
         cwd: root,
         stdio: 'inherit',
         shell: process.platform === 'win32',
-      },
-    );
+      });
 
-    child.on('error', rejectPromise);
-    child.on('exit', (code) => {
-      if (code === 0) resolvePromise();
-      else rejectPromise(new Error(`mmdc exited with code ${code}`));
+      child.on('error', rejectPromise);
+      child.on('exit', (code) => {
+        if (code === 0) resolvePromise();
+        else rejectPromise(new Error(`mmdc exited with code ${code}`));
+      });
     });
-  });
+  } finally {
+    if (puppeteerConfigPath) {
+      await rm(puppeteerConfigPath, { force: true });
+    }
+  }
 }
