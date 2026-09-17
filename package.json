@@ -7,7 +7,7 @@
   },
   "scripts": {
     "build:project": "node scripts/build-project.mjs",
-    "build:video-ready": "node scripts/build-project.mjs --require-complete-script",
+    "build:script-complete": "node scripts/build-project.mjs --require-complete-script",
     "build:marp-prototype": "node scripts/build-prototype.mjs",
     "build:deck-source": "node scripts/generate-deck-prototype.mjs && node scripts/build-google-slides-navigation.mjs",
     "build:navigation-html": "node scripts/generate-html-prototype.mjs",
