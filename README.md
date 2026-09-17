@@ -24,7 +24,7 @@ Marp
   └─ GitHub Pages     設定時のみ公開
 ```
 
-通常編集するのは [`slides.md`](slides.md) です。出力や公開方法を変える場合だけ [`misereru.config.json`](misereru.config.json) を編集します。
+通常編集するのは [`slides.md`](slides.md) です。必要に応じて [`presentation-script.md`](presentation-script.md) と [`article.md`](article.md) を併用します。出力や公開方法を変える場合だけ [`misereru.config.json`](misereru.config.json) を編集します。
 
 ## `slides.md` はサンプル兼テンプレート
 
@@ -44,7 +44,7 @@ Marp
 - 複数要素を含むページ
 - まとめ
 
-`type: "section"` のページから目次を自動生成します。新しい資料では、`slides.md` の文章を書き換え、不要なページを削除して使います。別の「最小テンプレート」と「サンプルデッキ」は持たず、この1ファイルを基準にします。
+`type: "section"` のページから目次を自動生成します。新しい資料では、`slides.md` の文章を書き換え、不要なページを削除して使います。
 
 ## 発表原稿は任意
 
@@ -52,11 +52,7 @@ Marp
 
 **原稿を使わない資料では、このファイルは不要です。** `slides.md` だけで資料を作る運用を標準で許容します。また、必要なslideだけ原稿を書くpartial scriptも正常な状態として扱います。
 
-通常の `npm run build:project` / GitHub Actionsでは次のように扱います。
-
-- `presentation-script.md` がない: 検査をスキップ。warningも出さない
-- 存在する: 書かれているentryだけ、stable key参照・重複・Narration欠落等を検査
-- 一部のslideに原稿がない: 正常。coverage不足として失敗させない
+通常buildでは、`presentation-script.md` がなければ検査をスキップし、存在する場合だけstable key参照・重複・Narration欠落等を検査します。一部のslideに原稿がないことはerrorにしません。
 
 全slide分の原稿が揃っていることを明示的に確認したい場合だけ、次を使えます。
 
@@ -64,11 +60,7 @@ Marp
 npm run build:script-complete
 ```
 
-このcomplete checkは通常資料の必須工程ではありません。
-
-発表原稿を持つ主目的は、口頭説明を別sourceとして管理できることと、**slides → script / script → slides の両方向から構成・内容を確認できること**です。原稿側で説明しないと成立しない重要論点や、slide順と話す順番の矛盾が見つかった場合は、原稿だけでなくslide構成も修正対象へ戻します。
-
-将来、音声合成・録画・発表動画・字幕生成等へ流用することはできますが、現時点の主要用途には置きません。timingやcue等を通常の発表原稿へ先回りして必須化しません。
+発表原稿を持つ主目的は、口頭説明を別sourceとして管理できることと、**slides → script / script → slides の両方向から構成・内容を確認できること**です。
 
 ### 発表原稿のGitHub Pages公開
 
@@ -87,22 +79,48 @@ npm run build:script-complete
 }
 ```
 
-有効時は、正本の `presentation-script.md` を検証した後、閲覧用HTMLを生成します。
+有効時は、正本の `presentation-script.md` を検証した後、閲覧用の `presentation-script.html` を生成します。raw Markdown自体はPagesへ公開しません。
 
-```text
-https://<owner>.github.io/<repository>/
-https://<owner>.github.io/<repository>/presentation-script.html
+## 記事形式も任意
+
+[`article.md`](article.md) は、スライドや発表原稿を見なくても単体で読めるブログ記事・解説記事形式の正本です。
+
+発表原稿とは役割が異なります。`presentation-script.md` はスライドを見ながら話す前提ですが、`article.md` は文章だけで前提・根拠・留保・結論まで理解できる状態を目指します。
+
+そのため記事では、次を基本とします。
+
+- スライドとの1対1対応は要求しない
+- スライド順をそのまま見出し順へ変換しない
+- 記事として自然な章立て・接続へ再構成する
+- 「このスライド」「次の表」のような画面依存表現を使わない
+- H1は記事タイトル1つだけ
+- raw HTMLは使わず、Markdownだけで記述する
+- 主要な事実・数値・条件・留保はslides / research等と矛盾させない
+
+### 記事のGitHub Pages公開
+
+記事を公開したい資料だけ、次を明示的に有効化します。
+
+```json
+{
+  "publish": {
+    "githubPages": {
+      "enabled": true,
+      "article": {
+        "enabled": true
+      }
+    }
+  }
+}
 ```
 
-公開発表原稿は実際のpresentation順で並び、各entryにslide番号・見出し・Narrationを表示します。各entryから対応するスライドへ移動できます。raw `presentation-script.md` 自体はPagesには公開しません。
+有効時は `article.md` を読み物向けに整形した `article.html` をPagesルートへ生成します。
 
-この設定は原稿の作成・検証とは独立しています。
+```text
+https://<owner>.github.io/<repository>/article.html
+```
 
-- 既定は `false`。Pagesを公開しても発表原稿は自動公開しない
-- partial script / complete script のどちらも公開できる
-- `presentationScript.enabled: true` なのに `presentation-script.md` がない場合はbuild error
-- `presentationScript.enabled: true` なのにGitHub Pages自体が無効な場合もbuild error
-- `slides.md` や他の正本sourceを追加公開する機能ではない
+記事公開はスライドや発表原稿の公開設定とは独立しています。`article.enabled: true` なのに `article.md` が存在しない場合、GitHub Pages自体が無効な場合、H1が1つでない場合、raw HTMLまたは危険なURL schemeを含む場合はbuild errorにします。
 
 ## AIでの資料編集
 
@@ -110,21 +128,7 @@ https://<owner>.github.io/<repository>/presentation-script.html
 
 - [`misereru-slide-writing`](.agents/skills/misereru-slide-writing/SKILL.md): `slides.md` の構成・文章・根拠・密度を扱う
 - [`misereru-presentation-script`](.agents/skills/misereru-presentation-script/SKILL.md): 任意の発表原稿作成とslideとの相互レビューを扱う
-
-`misereru-slide-writing` は次を扱います。
-
-- Presented / Reference / Mixed の用途別に情報密度を調整する
-- 1 slide 1 primary messageを基本に構成する
-- 根拠、留保、出典を短文化のために削らない
-- 日本語技術文書として論証、用語、冗長性、AI的な空疎表現を点検する
-- stable `key`、`type: "section"`、renderer非依存の正本sourceというmisereru固有ルールを守る
-
-`misereru-presentation-script` は、原稿を使う場合に次を扱います。
-
-- stable `key`によるslideと原稿の対応
-- slide本文の逐語読み上げではない自然な口頭説明
-- slides → script / script → slides の意味的な相互チェック
-- slides-only / partial script / complete script の区別
+- [`misereru-article-writing`](.agents/skills/misereru-article-writing/SKILL.md): 単体で読める記事の構成・文章と、slides / researchとの整合性を扱う
 
 配置はCodexのrepository-scoped Skill discoveryに合わせて `.agents/skills/` とします。Skill発見だけを目的とする `AGENTS.md` は置きません。
 
@@ -133,30 +137,34 @@ https://<owner>.github.io/<repository>/presentation-script.html
 - HTML: 有効。`dist/site/index.html` を生成
 - PDF: 無効。必要な資料だけ有効化
 - GitHub Pages: 無効。明示的に有効化した場合だけ公開
-- GitHub Pages上の発表原稿: 無効。Pagesとは別に明示的に有効化した場合だけ `presentation-script.html` を生成・公開
+- GitHub Pages上の発表原稿: 無効。明示時のみ `presentation-script.html` を生成・公開
+- GitHub Pages上の記事: 無効。明示時のみ `article.html` を生成・公開
 - Google Slides / PPTX: 初期production targetには含めない
 
-GitHub Pagesを使う場合は、各資料repositoryで初回だけ Settings > Pages から GitHub Actions publishing を有効化する想定です。公開を自動化するためだけの高権限PATは標準要求しません。
+GitHub Pagesを使う場合は、各資料repositoryで初回だけ Settings > Pages から GitHub Actions publishing を有効化する想定です。
 
 ## Template files
 
-新しい資料repositoryで必要な実行・編集支援ファイルは、テンプレート側にすべて含めます。外部のmisereru repositoryを実行時に参照しません。
+新しい資料repositoryで必要な実行・編集支援ファイルは、テンプレート側にすべて含めます。
 
 ```text
 slides.md                                               # サンプル兼 Markdown source
-presentation-script.md                                 # 任意の発表原稿サンプル。不要なら削除可
+presentation-script.md                                 # 任意の発表原稿サンプル
+article.md                                             # 任意の単体完結記事サンプル
 misereru.config.json                                    # output / publish 設定
 .agents/skills/misereru-slide-writing/SKILL.md          # AI向けスライド内容設計ルール
 .agents/skills/misereru-presentation-script/SKILL.md    # AI向け発表原稿・相互レビュー規則
-package.json                                            # Marp依存とbuild command
+.agents/skills/misereru-article-writing/SKILL.md         # AI向け記事作成・整合性確認規則
+package.json                                            # build依存とcommand
 marp.config.mjs                                         # Marp設定
 themes/                                                 # 日本語向けMarp theme
 scripts/build-project.mjs                               # 目次生成、原稿構造検査、build処理
 scripts/render-presentation-script.mjs                  # 発表原稿のPages向けHTML生成
+scripts/render-article.mjs                              # 記事のPages向けHTML生成
 .github/workflows/build.yml                             # GitHub Actions build / publish
 ```
 
-`slides.md`、`presentation-script.md`、設定、theme、build処理を変更してpushすると、GitHub Actionsが設定済みoutputを生成します。`.agents/skills/` は編集支援用で、build時の実行依存にはしません。
+`slides.md`、`presentation-script.md`、`article.md`、設定、theme、build処理を変更してpushすると、GitHub Actionsが設定済みoutputを生成します。`.agents/skills/` は編集支援用で、build時の実行依存にはしません。
 
 ## Repository branch model
 
@@ -165,11 +173,11 @@ scripts/render-presentation-script.mjs                  # 発表原稿のPages�
 - [`main`](https://github.com/myokoym/misereru/tree/main): Template Repositoryとして配布する自己完結セット
 - [`develop`](https://github.com/myokoym/misereru/tree/develop): 開発・統合用。docs / research / prototype等を含む
 
-Template Repositoryから通常作成した資料repositoryにはdefault branchである `main` の内容を使う想定です。開発資料を利用者の資料repositoryへ持ち込まないため、`main` には配布に必要なものだけを置きます。
+Template Repositoryから通常作成した資料repositoryにはdefault branchである `main` の内容を使う想定です。
 
 ## 開発・設計資料
 
-開発者向け資料は [`develop` branch](https://github.com/myokoym/misereru/tree/develop) を参照します。Template Repositoryから作成した別repositoryでもリンクが切れないよう、ここでは元repositoryへのリンクを使います。
+開発者向け資料は [`develop` branch](https://github.com/myokoym/misereru/tree/develop) を参照します。
 
 - [運用モデル](https://github.com/myokoym/misereru/blob/develop/docs/product/operation-model.md)
 - [要件](https://github.com/myokoym/misereru/blob/develop/docs/product/requirements.md)
