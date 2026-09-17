@@ -19,10 +19,10 @@
     "tertiaryColor": "#ffffff",
     "tertiaryTextColor": "#182230",
     "tertiaryBorderColor": "#c5ced8",
-    "lineColor": "#5f7185",
+    "lineColor": "#4f657a",
     "textColor": "#182230",
     "fontSize": "22px",
     "edgeLabelBackground": "#ffffff"
   },
-  "themeCSS": ".node rect,.node polygon,.node path{stroke-width:2px;} .node rect{rx:14px;ry:14px;} .nodeLabel{font-weight:600;} .edgePath .path{stroke-width:2.5px;} .arrowheadPath{fill:#5f7185;} .edgeLabel{font-size:18px;}"
+  "themeCSS": ".node rect,.node polygon,.node path{stroke-width:2px;} .node rect{rx:14px;ry:14px;} .nodeLabel{font-weight:600;} .edgePath .path{stroke-width:3.25px;} .arrowheadPath{fill:#4f657a;} .edgeLabel{font-size:18px;}"
 }
