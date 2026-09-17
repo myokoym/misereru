@@ -6,6 +6,7 @@
 - [`japanese-typesetting.md`](japanese-typesetting.md) — 日本語禁則・改行・CSS組版・検証方針
 - [`source-output-architecture.md`](source-output-architecture.md) — source format / project template / renderer / publish target の分離と Google Slides / Pages 経路
 - [`navigation-links.md`](navigation-links.md) — 外部ハイパーリンク、自動目次、内部スライドリンク、stable slide identity の検証
+- [`presentation-script.md`](presentation-script.md) — 任意の発表原稿、stable key対応、slidesとの相互レビュー方針
 - [`marp-prototype.md`](marp-prototype.md) — Marp baseline / 日本語調整版の実レンダリング比較設計
 - [`naming.md`](naming.md) — 仮称 `misereru` を含む命名調査・候補・落選理由
 
