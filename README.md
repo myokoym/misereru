@@ -50,7 +50,7 @@ Marp
 
 [`presentation-script.md`](presentation-script.md) は、`slides.md` とstable `key`で対応する発表原稿のサンプルです。
 
-**原稿を使わない資料では、このファイルは不要です。** `slides.md` だけで資料を作る運用を標準で許容します。また、必要なslideだけ原稿を書く部分運用も可能です。
+**原稿を使わない資料では、このファイルは不要です。** `slides.md` だけで資料を作る運用を標準で許容します。また、必要なslideだけ原稿を書くpartial scriptも正常な状態として扱います。
 
 通常の `npm run build:project` / GitHub Actionsでは次のように扱います。
 
@@ -58,20 +58,24 @@ Marp
 - 存在する: 書かれているentryだけ、stable key参照・重複・Narration欠落等を検査
 - 一部のslideに原稿がない: 正常。coverage不足として失敗させない
 
-発表動画へそのまま投入できる完全な組として確認する場合だけ、次を使います。
+全slide分の原稿が揃っていることを明示的に確認したい場合だけ、次を使えます。
 
 ```bash
-npm run build:video-ready
+npm run build:script-complete
 ```
 
-このモードでは、build後の最終presentationに含まれる全slideへ原稿があることを要求します。自動生成される目次が存在する場合は、その `__misereru_toc__` も対象です。
+このcomplete checkは通常資料の必須工程ではありません。
+
+発表原稿を持つ主目的は、口頭説明を別sourceとして管理できることと、**slides → script / script → slides の両方向から構成・内容を確認できること**です。原稿側で説明しないと成立しない重要論点や、slide順と話す順番の矛盾が見つかった場合は、原稿だけでなくslide構成も修正対象へ戻します。
+
+将来、音声合成・録画・発表動画・字幕生成等へ流用することはできますが、現時点の主要用途には置きません。timingやcue等を通常の発表原稿へ先回りして必須化しません。
 
 ## AIでの資料編集
 
 テンプレートにはmisereru用のAgent Skillを含めます。
 
 - [`misereru-slide-writing`](.agents/skills/misereru-slide-writing/SKILL.md): `slides.md` の構成・文章・根拠・密度を扱う
-- [`misereru-presentation-script`](.agents/skills/misereru-presentation-script/SKILL.md): 任意の発表原稿作成、slideとの相互レビュー、video-ready確認を扱う
+- [`misereru-presentation-script`](.agents/skills/misereru-presentation-script/SKILL.md): 任意の発表原稿作成とslideとの相互レビューを扱う
 
 `misereru-slide-writing` は次を扱います。
 
@@ -86,8 +90,7 @@ npm run build:video-ready
 - stable `key`によるslideと原稿の対応
 - slide本文の逐語読み上げではない自然な口頭説明
 - slides → script / script → slides の意味的な相互チェック
-- slides-only / partial script / video-ready の区別
-- AI動画化時の基本進行を一意にするvideo contract
+- slides-only / partial script / complete script の区別
 
 配置はCodexのrepository-scoped Skill discoveryに合わせて `.agents/skills/` とします。Skill発見だけを目的とする `AGENTS.md` は置きません。
 
@@ -137,7 +140,7 @@ Template Repositoryから通常作成した資料repositoryにはdefault branch�
 - [スライドツール調査](https://github.com/myokoym/misereru/blob/develop/docs/research/slide-tools.md)
 - [日本語組版調査](https://github.com/myokoym/misereru/blob/develop/docs/research/japanese-typesetting.md)
 - [source / output architecture](https://github.com/myokoym/misereru/blob/develop/docs/research/source-output-architecture.md)
-- [発表原稿 / 動画化source調査](https://github.com/myokoym/misereru/blob/develop/docs/research/presentation-script-and-video.md)
+- [発表原稿と相互レビュー調査](https://github.com/myokoym/misereru/blob/develop/docs/research/presentation-script.md)
 - [Marp prototype](https://github.com/myokoym/misereru/blob/develop/docs/research/marp-prototype.md)
 - [命名調査](https://github.com/myokoym/misereru/blob/develop/docs/research/naming.md)
 
