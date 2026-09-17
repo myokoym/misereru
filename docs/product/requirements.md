@@ -10,7 +10,7 @@
 - 既存ツール調査: [`../research/slide-tools.md`](../research/slide-tools.md)
 - 日本語組版調査: [`../research/japanese-typesetting.md`](../research/japanese-typesetting.md)
 - source / output 構成調査: [`../research/source-output-architecture.md`](../research/source-output-architecture.md)
-- 発表原稿 / 動画化source調査: [`../research/presentation-script-and-video.md`](../research/presentation-script-and-video.md)
+- 発表原稿 / 相互レビュー調査: [`../research/presentation-script.md`](../research/presentation-script.md)
 - 命名調査: [`../research/naming.md`](../research/naming.md)
 - 意思決定記録: [`../adr/`](../adr/)
 
@@ -148,7 +148,8 @@ presentation-project/
 - narrationだけに重要な事実・条件・結論を追加しない。
 - slides → script / script → slides の両方向から意味的な矛盾・欠落・不自然な順序をレビューする。
 - 問題がslide構成側にある場合は、原稿だけを合わせずslide側も修正候補へ戻す。
-- video-ready時は、全slide coverageと既定のvideo contractで基本進行を決定できる状態を要求する。
+- complete scriptを明示的に求める場合だけ、全slide coverageを要求する。
+- 音声合成・録画・動画等の派生用途を理由に、timingやcueを通常の発表原稿へ必須化しない。
 
 Skillを解釈しない環境でもbuild・閲覧できることを維持します。AI編集支援は初期版ではsource編集側の補助であり、rendererの必須工程へは入れません。
 
@@ -167,15 +168,17 @@ Skillを解釈しない環境でもbuild・閲覧できることを維持しま�
 - generated TOCにscript entryがないことも通常buildではerror / warningにしない。
 - script entryの記載順をslide順と一致させることを必須にしない。presentation sequenceはslide source側を正とする。
 
-### video-ready build
+### complete script build
 
-動画生成へそのまま投入できる完全な組を要求するときだけ、次を使います。
+全slide分の原稿が揃っていることを明示的に確認したい場合だけ、次を使います。
 
 ```bash
-npm run build:video-ready
+npm run build:script-complete
 ```
 
 この場合は通常の構造検査に加え、build後の最終presentationに含まれる全slideへscript entryがあることを要求します。自動生成される `__misereru_toc__` も、存在する場合はcoverage対象です。
+
+complete scriptは通常資料の完成条件ではありません。
 
 意味的な整合性や原稿品質はCIのAI判定へ依存させず、Agent Skillによるsemantic cross reviewで扱います。
 
@@ -275,8 +278,8 @@ Google Slidesを将来production targetへ追加する場合は、次のどち�
 - Vivliostyle を内部レンダリングに利用するか。
 - 目次を表紙直後に固定するか、設定可能にするか。
 - Mermaid を標準対応するか。
-- presentation scriptのcue / pronunciation / pauseの具体的schema。
-- video rendererをproduction targetへ入れる時期。
+- presentation scriptに将来、pronunciation / pause / cue等の追加仕様が必要になるか。
+- 音声合成・録画・動画等の派生出力をmisereru側で扱うか。
 - AI を将来renderer / 自動レイアウト工程へ入れるか。初期版のAI支援はsource編集側に限定する。
 - template repository更新を既存の各資料repositoryへどう反映するか。
 
