@@ -1,44 +1,44 @@
 <!-- {"key":"title"} -->
 # misereru
 
-Markdownを正本に、GitHubだけで作って公開できるスライド環境。
+テキストを正本に、GitHubでスライドを管理・生成・公開する。
 
-スマートフォン + ChatGPT + GitHubを通常経路にするための試みです。
+スマートフォン + ChatGPT + GitHubを通常経路にするためのスライド環境です。
 
 ---
 
 <!-- {"key":"why","type":"section"} -->
-# 1. なぜ作るのか
+# 1. GUIを正本にしない
 
-スライド作成を、特定のGUIアプリやローカルPCに閉じ込めない。
+資料の内容と履歴を、特定の編集アプリから切り離す。
 
 ---
 
 <!-- {"key":"problem"} -->
-# 欲しかったのは「Markdown変換ツール」だけではない
+# 解決したいのは「MarkdownをHTMLにすること」ではない
 
-目標は、テキスト中心の正本から資料を**再生成・管理・公開**できることです。
+目標は、**Gitで管理できる正本から、資料を再生成・更新・公開できること**です。
 
 ```text
 text / project source
   ↓
-情報構造を解釈
+情報構造を保持したまま編集
   ↓
 slide / presentation
   ↓
-日本語として自然に組版
+rendererで生成
   ↓
-publish / render
+publish / export
 ```
 
-PowerPointやGoogle Slides上の手編集を、正本管理の必須工程にしないことを重視しています。
+PowerPointやGoogle Slides上の手編集を、内容管理の必須工程にはしません。
 
 ---
 
 <!-- {"key":"workflow"} -->
-# スマートフォンから完結させたい
+# 通常操作は `slides.md` の編集とpushに絞る
 
-日常操作はできるだけ単純にします。
+日常的な作業は次の経路で完結させます。
 
 1. `slides.md` を編集する
 2. GitHubへcommit / pushする
@@ -46,36 +46,35 @@ PowerPointやGoogle Slides上の手編集を、正本管理の必須工程にし
 4. HTMLを確認する
 5. 必要な資料だけPDFやPagesを有効化する
 
-ローカルPC、Node.js CLI、PowerPointは通常操作の必須条件にしません。
+ローカルPC、Node.js CLI、PowerPointを通常操作の必須条件にはしません。
 
 ---
 
 <!-- {"key":"design","type":"section"} -->
-# 2. 設計で重視したこと
+# 2. 通常経路を単純に保つ
 
-「できること」を増やすより、通常経路を崩さない。
+機能を増やす前に、正本・build・公開の責務を分ける。
 
 ---
 
 <!-- {"key":"source-of-truth"} -->
-# 正本はGitで扱いやすいテキスト
+# Markdownは初期の正本、Marpはrenderer
 
-初期版ではMarkdownの `slides.md` を正本にします。
+初期版では `slides.md` を正本にしますが、Marp固有の記述は正本へ持ち込みません。
 
-- GitHub上で差分を追える
-- ChatGPTから安全に編集しやすい
-- renderer固有のfront matterを正本へ持ち込まない
+- `slides.md` はGitHub上で差分を追える
+- renderer固有front matterはbuild時に一時入力へ注入する
 - 生成物は正本から再生成できる
-- 将来ほかのsource adapterを追加できる余地は残す
+- 将来ほかのsource adapterを追加できる余地を残す
 
-**Markdown専用ツールに永久固定するためではなく、最初の通常経路を単純にするための選択です。**
+**Markdown専用に固定するためではなく、最初の通常経路を単純にするための選択です。**
 
 ---
 
 <!-- {"key":"self-contained"} -->
-# 1資料 = 1 repository、自己完結
+# 1資料 = 1 repositoryで自己完結させる
 
-資料repositoryにはbuildと編集支援に必要なものを含めます。
+資料repositoryだけで、buildとAI編集支援まで再現できる構成にします。
 
 ```text
 presentation repository
@@ -90,33 +89,16 @@ presentation repository
 └─ .github/workflows/
 ```
 
-実行時に外部の `misereru` repositoryへ依存しない構成です。
-
----
-
-<!-- {"key":"ai-editing"} -->
-# AI編集の規範もrepositoryに含める
-
-`misereru-slide-writing` Skillは、AIで `slides.md` を作成・再構成・推敲するときの内容設計ルールです。
-
-- Presented / Reference / Mixedで適切な情報密度を分ける
-- 1 slide 1 primary messageを基本にしつつ、必要な根拠・条件・留保を残す
-- 調査・仕様資料へstoryや強い断定を機械的に足さない
-- 日本語の論証、用語、冗長性、AI的な空疎表現を点検する
-- stable `key`、`type: "section"`、renderer非依存の正本sourceを守る
-
-Skillは **source編集側の支援**であり、GitHub Actionsのbuild依存にはしません。
-
-[Skill source](https://github.com/myokoym/misereru/blob/main/.agents/skills/misereru-slide-writing/SKILL.md)
+実行時に外部の `misereru` repositoryへ依存しません。
 
 ---
 
 <!-- {"key":"renderer"} -->
-# 初期rendererはMarp 1系統
+# production rendererはMarp 1系統に限定する
 
-初期production buildでは、HTMLとPDFを同じMarp renderer / themeから生成します。
+初期production buildでは、HTMLとPDFを同じrenderer / themeから生成します。
 
-| 出力 | 初期方針 |
+| 出力 | 現在の扱い |
 | --- | --- |
 | HTML | 必須・常時生成 |
 | PDF | optional |
@@ -124,73 +106,88 @@ Skillは **source編集側の支援**であり、GitHub Actionsのbuild依存に
 | Google Slides | research / prototype |
 | PPTX | production未対応 |
 
-複数rendererを早期に混ぜて、デザインを二重管理することは避けています。
+複数rendererを同時にproductionへ入れ、デザインや仕様を二重管理することは避けています。
 
 ---
 
 <!-- {"key":"japanese","type":"section"} -->
-# 3. 日本語スライドとして成立させる
+# 3. AI編集と日本語表示を別の責務として扱う
 
-文字が枠内に入るだけでは十分ではない。
+文章内容と組版品質を、同じ仕組みに押し込まない。
+
+---
+
+<!-- {"key":"ai-editing"} -->
+# AI編集の規範も資料repositoryに同梱する
+
+`misereru-slide-writing` Skillは、AIで `slides.md` を作成・再構成・推敲するときの内容設計ルールです。
+
+- Presented / Reference / Mixedで情報密度を分ける
+- 1 slide 1 primary messageを基本にする
+- 根拠・条件・留保を短文化のために削らない
+- 調査・仕様資料へstoryや強い断定を機械的に足さない
+- 事実、解釈、提案、未確認事項を区別する
+- stable `key`、`type: "section"`、renderer非依存の正本sourceを守る
+
+Skillは **source編集側の支援**であり、buildの必須依存ではありません。
+
+[Skill source](https://github.com/myokoym/misereru/blob/main/.agents/skills/misereru-slide-writing/SKILL.md)
 
 ---
 
 <!-- {"key":"typesetting"} -->
-# 日本語組版を重要要件にする
+# 日本語の表示品質はtheme / renderer / buildで担保する
 
-検証対象には、少なくとも次を含めています。
+文章内容の品質と、画面上の組版品質を分離します。
 
-- 行頭・行末禁則
-- 句読点・括弧
-- 和欧混植
-- 欧文単語の途中分割
-- 見出しの不自然な折返し
-- 約物の間隔
-- 行長・行間
-- overflow時の扱い
-- スマートフォンで見たときの本文サイズ
+| 責務 | 主に扱うもの |
+| --- | --- |
+| Agent Skill | 論証、用語、冗長性、情報密度、出典 |
+| theme / renderer / build | 禁則、折返し、行間、overflow、文字サイズ |
+
+表示側では、行頭・行末禁則、句読点・括弧、和欧混植、欧文単語の途中分割、見出し折返し、約物間隔などを検証対象にしています。
 
 参考: [W3C 日本語組版処理の要件（JLREQ）](https://www.w3.org/International/jlreq/?lang=ja)
 
 ---
 
 <!-- {"key":"navigation"} -->
-# スライドを「移動できる文書」として扱う
+# HTMLは「移動できる文書」として生成する
 
-HTMLではリンク情報を保持し、資料内の移動も自動生成します。
+閲覧中に参照・移動できることを、HTML outputの要件に含めます。
 
-- 外部URLへのMarkdown linkを保持
-- `type: "section"` のslideから目次を生成
-- 目次から対象slideへ移動
-- slide追加・削除・並べ替え後も再生成で追随
-- 各slideにstable `key` を持たせる
+- Markdownの外部linkを保持する
+- `type: "section"` のslideから目次を自動生成する
+- 目次から対象slideへ移動できる
+- slide追加・削除・並べ替え後も再生成で追随する
+- source上では各slideにstable `key` を持たせる
 
-単なる画像列ではなく、閲覧中に参照・移動できる成果物を目指しています。
+単なる画像列ではなく、リンクを持つ閲覧可能な資料として生成します。
 
 ---
 
 <!-- {"key":"history","type":"section"} -->
-# 4. ここまでの経緯
+# 4. 検証したものを全部productionには入れない
 
-最初から現在の形を決め打ちしたわけではありません。
+調査・prototypeと、通常利用者が使う経路を分ける。
 
 ---
 
 <!-- {"key":"research"} -->
-# 既存ツールを調べ、作る範囲を絞った
+# 既存ツールを調べ、独自実装する範囲を絞った
 
-検討では、Markdown系スライドツール、日本語組版、Google Slides生成、source / renderer / outputの分離などを調査しました。
+Markdown系スライドツール、日本語組版、Google Slides生成、source / renderer / outputの分離を調査しました。
 
-その結果、初期版では独自rendererや大きな独自ASTを先に作らず、**既存rendererを使いながら、必要な管理・変換・公開部分をmisereru側で補う**方針に寄せています。
+その結果、初期版では独自rendererや大きな独自ASTを先に作らず、**既存rendererを使いながら、正本管理・変換・公開で不足する部分をmisereru側で補う**方針にしています。
 
 開発資料は [`develop` branch](https://github.com/myokoym/misereru/tree/develop) に残しています。
 
 ---
 
 <!-- {"key":"prototype"} -->
-# prototypeで確認してからproductionへ寄せる
+# prototypeは採用判断のために使う
 
-これまでに検証したものの例です。
+これまでに確認した対象には次があります。
 
 - Marpの日本語改行・禁則・見出し折返し
 - HTML / PDF build
@@ -200,19 +197,19 @@ HTMLではリンク情報を保持し、資料内の移動も自動生成しま�
 - `k1LoW/deck` を使ったGoogle Slides生成
 - GitHub Actions / GitHub Pages
 
-検証結果をそのまま全部productionへ入れず、通常経路に必要なものだけを残しています。
+検証できたことと、productionへ採用したことは同一視しません。
 
 ---
 
 <!-- {"key":"current","type":"section"} -->
-# 5. 現在地
+# 5. 現在の対応範囲を限定して公開する
 
-まず、GitHub上のテキストからHTMLスライドを安定して作る。
+対応済み・prototype・未決を分けて扱う。
 
 ---
 
 <!-- {"key":"current-scope"} -->
-# 現在のproduction範囲
+# productionはMarkdown → Marp → HTML / PDFに限定する
 
 ```text
 slides.md
@@ -223,32 +220,33 @@ slides.md
   └─ PDF (optional)
 ```
 
-- HTMLは常時生成
-- PDFは必要な場合だけ
-- Pages公開も明示的に有効化
-- AI編集支援はsource編集側で利用し、buildには必須化しない
-- Google Slides / PPTXはまだproduction対象外
+| 区分 | 現在の対象 |
+| --- | --- |
+| production | Markdown source、HTML、optional PDF、optional Pages |
+| 編集支援 | repository-scoped Agent Skill |
+| research / prototype | Google Slides、別renderer候補 |
+| 未決 | PPTX、共通AST、自動レイアウト等 |
 
-未検証のoutputへ黙って分岐せず、対応範囲を限定しています。
+未検証のoutputへ黙って分岐しません。
 
 ---
 
 <!-- {"key":"branches"} -->
-# 配布物と開発資料をbranchで分ける
+# `main` と `develop` で配布物と開発資料を分ける
 
 | branch | 役割 |
 | --- | --- |
 | [`main`](https://github.com/myokoym/misereru/tree/main) | 配布用の自己完結セット |
 | [`develop`](https://github.com/myokoym/misereru/tree/develop) | 開発・統合・docs / research / prototype |
 
-`main` に開発用資料を混ぜず、通常利用者が取得する内容を小さく保つ方針です。
+Template Repositoryから資料repoを作る通常経路では `main` の内容だけを使い、開発資料を持ち込みません。
 
 ---
 
 <!-- {"key":"site"} -->
-# この資料自体もmisereruで生成する
+# この紹介資料自体がmisereruの実例になっている
 
-この紹介資料のsourceは、Pages上の分類と揃えて配置します。
+sourceの分類とPages上のURL構造を揃えています。
 
 ```text
 site/
@@ -256,16 +254,16 @@ site/
 │  └─ about/
 │     ├─ slides.md
 │     └─ misereru.config.json
-├─ docs/        # 将来追加可能
-└─ examples/    # 将来追加可能
+├─ docs/
+└─ examples/
 ```
 
-公開先も同じ構造で `/slides/about/` とします。
+このsourceをmisereruでbuildし、Pagesでは `/slides/about/` として公開します。今後ほかの資料・docs・examplesを追加しても同じ構造を拡張できます。
 
 ---
 
 <!-- {"key":"next"} -->
-# まだ決めていないことも残す
+# 未決事項は未決のまま管理する
 
 今後の検討対象には、次があります。
 
@@ -277,24 +275,15 @@ site/
 - AIをrenderer / 自動レイアウト工程へ入れるか
 - template更新を既存資料repoへどう反映するか
 
-未決事項を無理に初期版へ押し込まず、必要になった段階で判断します。
+必要になる前に初期版へ押し込まず、判断材料が揃った段階で決めます。
 
 ---
 
 <!-- {"key":"summary"} -->
-# misereruが目指しているもの
+# misereruは「資料の正本と生成経路」をGit側へ戻す
 
-**Gitで管理できるテキストを正本にし、スマートフォンからでも、資料の編集・生成・公開まで辿れること。**
+目指しているのは、**Gitで管理できるテキストを正本にし、スマートフォンからでも編集・生成・公開まで辿れること**です。
 
-そのために、
-
-- 通常経路を単純にする
-- AI編集規範も資料repositoryへ持たせる
-- 日本語品質を妥協しない
-- buildをGitHub側へ寄せる
-- 既存ツールを活用する
-- 未検証機能を安易にproductionへ入れない
-
-という方針で進めています。
+そのために、通常経路を小さく保ち、AI編集・日本語組版・renderer・publishの責務を分離し、検証済みでも未採用の機能はproductionから外しています。
 
 [GitHub repository](https://github.com/myokoym/misereru)
