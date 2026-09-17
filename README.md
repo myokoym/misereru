@@ -149,13 +149,17 @@ https://<owner>.github.io/<repository>/article.html
 
 ## AIでの資料編集
 
-テンプレートにはmisereru用のAgent Skillを含めます。
+テンプレートには、repository運用を固定する [`AGENTS.md`](AGENTS.md) と、misereru用のAgent Skillを含めます。
+
+`AGENTS.md` は、既存repositoryを確認せず別PPTXや別資料を生成しないこと、正本と生成物を区別すること、更新時の同期順序、build / publish確認などの**運用ガードレール**を定義します。
+
+Agent Skillは各成果物の内容設計を担当します。
 
 - [`misereru-slide-writing`](.agents/skills/misereru-slide-writing/SKILL.md): `slides.md` の構成・文章・根拠・密度・図解判断を扱う
 - [`misereru-presentation-script`](.agents/skills/misereru-presentation-script/SKILL.md): 任意の発表原稿作成とslideとの相互レビューを扱う
 - [`misereru-article-writing`](.agents/skills/misereru-article-writing/SKILL.md): 単体で読める記事の構成・文章と、slides / researchとの整合性を扱う
 
-配置はCodexのrepository-scoped Skill discoveryに合わせて `.agents/skills/` とします。Skill発見だけを目的とする `AGENTS.md` は置きません。
+配置はCodexのrepository-scoped Skill discoveryに合わせて `.agents/skills/` とします。`AGENTS.md` はSkill発見のためではなく、repository全体の運用・誤操作防止のために置きます。
 
 ## 既定の出力
 
@@ -173,13 +177,14 @@ GitHub Pagesを使う場合は、各資料repositoryで初回だけ Settings > P
 新しい資料repositoryで必要な実行・編集支援ファイルは、テンプレート側にすべて含めます。
 
 ```text
+AGENTS.md                                               # AI向けrepository運用・誤操作防止ルール
 slides.md                                               # サンプル兼 Markdown source
 presentation-script.md                                 # 任意の発表原稿サンプル
 article.md                                             # 任意の単体完結記事サンプル
 misereru.config.json                                    # output / publish 設定
 .agents/skills/misereru-slide-writing/SKILL.md          # AI向けスライド内容・図解設計ルール
 .agents/skills/misereru-presentation-script/SKILL.md    # AI向け発表原稿・相互レビュー規則
-.agents/skills/misereru-article-writing/SKILL.md         # AI向け記事作成・整合性確認規則
+.agents/skills/misereru-article-writing/SKILL.md        # AI向け記事作成・整合性確認規則
 package.json                                            # build依存とcommand
 marp.config.mjs                                         # Marp設定
 themes/                                                 # 日本語向けMarp theme
@@ -190,7 +195,7 @@ scripts/render-article.mjs                              # 記事のPages向けHT
 .github/workflows/build.yml                             # GitHub Actions build / publish
 ```
 
-`slides.md`、`presentation-script.md`、`article.md`、設定、theme、build処理を変更してpushすると、GitHub Actionsが設定済みoutputを生成します。`.agents/skills/` は編集支援用で、build時の実行依存にはしません。
+`slides.md`、`presentation-script.md`、`article.md`、設定、theme、build処理を変更してpushすると、GitHub Actionsが設定済みoutputを生成します。`AGENTS.md`と`.agents/skills/`は編集支援用で、build時の実行依存にはしません。
 
 ## Repository branch model
 
