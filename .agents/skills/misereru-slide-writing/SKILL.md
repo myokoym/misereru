@@ -1,13 +1,13 @@
 ---
 name: misereru-slide-writing
-description: Create, restructure, and revise Japanese slide content in misereru repositories. Use when editing slides.md, turning research or documents into slides, improving slide structure or wording, or reviewing a misereru deck for clarity, evidence, density, and Japanese writing quality.
+description: Create, restructure, and revise Japanese slide content in misereru repositories. Use when editing slides.md, turning research or documents into slides, improving slide structure or wording, or reviewing a misereru deck for clarity, evidence, density, visual structure, and Japanese writing quality.
 ---
 
 # misereru slide writing
 
 `misereru` の `slides.md` を生成・再構成・推敲するときの内容設計ルールです。
 
-このSkillは、スライドを単に短い文章へ変換するためのものではありません。資料の用途、根拠、ページごとの役割、日本語としての自然さ、画面上の可読性を同時に扱います。
+このSkillは、スライドを単に短い文章へ変換するためのものではありません。資料の用途、根拠、ページごとの役割、日本語としての自然さ、画面上の可読性、情報構造に合った視覚表現を同時に扱います。
 
 ## 適用範囲
 
@@ -17,6 +17,7 @@ description: Create, restructure, and revise Japanese slide content in misereru 
 - 調査結果、仕様、文書、メモをスライド化する
 - 既存スライドの構成や文章を直す
 - 情報過多、冗長、AI的な空疎表現、根拠不足を点検する
+- 文章・箇条書き・表・図の表現形式を見直す
 - ページ追加・削除・並べ替えを伴う編集を行う
 
 ビルド、theme、publish設定そのものを変更するSkillではありません。必要な場合も、内容編集と設定変更を混同しません。
@@ -29,6 +30,7 @@ description: Create, restructure, and revise Japanese slide content in misereru 
 4. **見出しはページの役割を伝える。** 空のラベルではなく、対象、問い、観察、結論のいずれかが分かる見出しを優先する。
 5. **事実と解釈を区別する。** 出典が必要な主張、資料から導ける解釈、提案・仮説を混同しない。
 6. **既存の合意事項を勝手に格下げ・削除しない。** 意味が変わる編集は、短文化より内容保持を優先する。
+7. **図にできる情報構造を箇条書きへ退化させない。** 関係、順序、状態遷移、階層、相互作用、数値推移が主題なら、文章を書く前に図・表・チャートを検討する。
 
 ## 1. 先に資料モードを決める
 
@@ -51,7 +53,7 @@ description: Create, restructure, and revise Japanese slide content in misereru 
 - スライド単体でも意味が通る情報量を許容する
 - 必要な根拠、条件、出典、比較軸を残す
 - 文章を無理にキャッチコピー化しない
-- 長い段落をそのまま押し込まず、論点分割・表・複数slide化で解決する
+- 長い段落をそのまま押し込まず、論点分割・表・図・複数slide化で解決する
 - 「3秒で読める」ことより、短時間で構造を把握でき、必要なら読み込めることを重視する
 
 ### Mixed mode
@@ -150,6 +152,47 @@ Reference modeでは短い段落を使ってかまいません。
 - 実行に不要な長いコードを載せない
 - 差分を示す場合は、何が変わるかを本文または見出しで明示する
 
+### 図・視覚化
+
+図は装飾ではなく、情報構造を直接表現するために使います。スライドを文章で埋めてから図を追加するのではなく、内容を整理する時点で表現形式を選びます。
+
+次の対応を基本にします。
+
+| 情報構造 | 第一候補 |
+| --- | --- |
+| 手順、処理、因果、分岐 | Flowchart |
+| 複数主体の呼び出し・応答 | Sequence diagram |
+| 状態と遷移 | State diagram |
+| コンポーネント、依存、階層 | Flowchart / architecture diagram |
+| エンティティ間関係 | ER diagram / Class diagram |
+| 時系列の数値、量の比較 | XY chart / 適切なグラフ |
+| 同じ軸で候補を比較 | 表 |
+| 構造より留保・論証が主 | 本文 |
+
+特に、次に該当する場合は箇条書きを第一候補にしません。
+
+- 3つ以上の要素が矢印や依存関係で結ばれる
+- 3段階以上の順序が理解の中心になる
+- 同じ主体間で複数回のやり取りがある
+- 状態が条件によって移る
+- 数値系列の差や変化量を見ることが目的になる
+
+逆に、図にすると条件や留保が消える場合、単なる飾りになる場合、関係が実際には存在しない場合は図解を強制しません。
+
+misereruの正本では、Mermaidを通常のfenced code blockとして書けます。
+
+````markdown
+```mermaid
+flowchart LR
+  A[Markdown] --> B[SVG]
+  B --> C[Marp]
+```
+````
+
+現行buildはMermaidブロックをSVGへ変換してからMarpへ渡します。sourceへ生成済みSVGやrenderer固有HTMLを貼り込む必要はありません。
+
+移植性を優先する場合は、Flowchart / Sequence / State / Class / ER / XY chartを優先します。Gantt、Pie、MindmapなどMermaid CLIで扱える追加形式は、内容上必要な場合に使ってかまいませんが、renderer変更時には互換性を再確認します。
+
 ## 5. 日本語の技術文書として整える
 
 ### 論証と厳密さ
@@ -207,6 +250,7 @@ Reference modeでは短い段落を使ってかまいません。
 - 新規slideには、その内容を表す安定した `key` を付ける
 - 目次へ載せるセクション見出しには既存仕様に従って `type: "section"` を使う
 - `marp: true`、theme指定などrenderer固有front matterを正本へ追加しない
+- 図はMermaid等のsource表現を正本へ置き、生成済みSVGを正本化しない
 - themeやbuild処理で解決すべき見た目の問題を、本文へHTML/CSSを埋め込んで迂回しない
 - publish/output設定を内容編集のついでに勝手に変更しない
 
@@ -216,9 +260,10 @@ slideが重い場合、文字サイズを下げる前に次の順で処理しま
 
 1. 重複表現を削る
 2. 本筋でない説明を別slideまたはリンクへ分ける
-3. 並列情報を表・箇条書きへ構造化する
-4. 一つのslideに複数のprimary messageがあれば分割する
-5. それでも必要な情報量なら、Reference modeとして密度を許容する
+3. 関係・順序・状態・数値が主なら図・チャートへ変換する
+4. 並列情報を表・箇条書きへ構造化する
+5. 一つのslideに複数のprimary messageがあれば分割する
+6. それでも必要な情報量なら、Reference modeとして密度を許容する
 
 必要な根拠を削って見た目だけ軽くするのは不可です。
 
@@ -233,6 +278,8 @@ slideが重い場合、文字サイズを下げる前に次の順で処理しま
 - [ ] 本文が見出しの単純な言い換えになっていない
 - [ ] 不要な予告・総括・AI的表現がない
 - [ ] 必要な条件・留保・出典を削っていない
+- [ ] 関係・順序・状態・数値を、箇条書きだけで代替していない
+- [ ] 図を使う場合、図が主張していない関係を作っていない
 - [ ] 情報量が多い場合、分割可能性を検討した
 
 ### 資料全体
@@ -242,6 +289,8 @@ slideが重い場合、文字サイズを下げる前に次の順で処理しま
 - [ ] 用語と比較軸が一貫している
 - [ ] 確定事項、未確認事項、提案を混同していない
 - [ ] 各slideが資料全体で役割を持っている
+- [ ] 本文・箇条書き・表・図が内容に応じて使い分けられている
+- [ ] 本文・箇条書き中心のslideが連続する場合、図解可能性を再評価した
 - [ ] metadata keyとsection指定を壊していない
 
 ### Presented mode追加確認
@@ -269,6 +318,12 @@ slideが重い場合、文字サイズを下げる前に次の順で処理しま
 - hikimay/japanese-tech-writing
   - https://github.com/hikimay/japanese-tech-writing
   - 論証の厳密さ、読者負荷、冗長性、LLM的表現の抑制を参照
+- Mermaid CLI
+  - https://github.com/mermaid-js/mermaid-cli
+  - Markdown中のMermaidからSVGを生成する現行build経路を参照
+- Marp Core Mermaid documentation
+  - https://github.com/marp-team/marp-core/blob/main/docs/markdown.md
+  - Mermaid native supportへ移行する場合の互換範囲を参照
 - k16shikano「日本語技術文書の文章規範」
   - https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d
 - W3C 日本語組版処理の要件（JLREQ）
