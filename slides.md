@@ -74,14 +74,11 @@
 <!-- {"key":"diagram"} -->
 # 関係や処理は図で示す
 
-手順や依存関係を文章だけで並べるより、構造そのものを見せた方が理解しやすい場合はMermaidを使えます。
+処理の流れが主題なら、実装要素を細かく並べるより、利用者が追う3段階にまとめます。
 
 ```mermaid
 flowchart LR
-  A[slides.md] --> B[Mermaid → PNG]
-  B --> C[Marp]
-  C --> D[HTML]
-  C --> E[PDF]
+  A["正本<br/>slides.md + Mermaid"] --> B["build<br/>図を画像化・資料を生成"] --> C["出力<br/>HTML / PDF"]
 ```
 
 ---
