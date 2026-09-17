@@ -1,0 +1,21 @@
+{
+  "source": {
+    "format": "markdown",
+    "path": "site/slides/about/slides.md"
+  },
+  "outputs": {
+    "html": {
+      "enabled": true,
+      "path": "dist/site/slides/about/index.html"
+    },
+    "pdf": {
+      "enabled": false,
+      "path": "dist/site/slides/about/slides.pdf"
+    }
+  },
+  "publish": {
+    "githubPages": {
+      "enabled": true
+    }
+  }
+}
