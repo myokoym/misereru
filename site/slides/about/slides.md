@@ -74,11 +74,21 @@ PowerPointやGoogle Slides上の手編集を、内容管理の必須工程には
 <!-- {"key":"diagram"} -->
 # 図の構造もテキストの正本に残す
 
-利用者が意識する流れは、正本・build・出力の3段階です。Mermaidは正本に残し、変換処理はbuild側へ隠します。
+利用者が意識する流れは、正本・build・出力の3段階です。入力・処理・成果物を異なる形にして、役割を視覚的に分けます。
 
 ```mermaid
 flowchart LR
-  A["正本<br/>slides.md + Mermaid"] --> B["misereru build<br/>図とスライドを生成"] --> C["出力<br/>HTML / PDF / Pages"]
+  A@{ shape: doc, label: "正本<br/>slides.md + Mermaid" }
+  B@{ shape: rounded, label: "misereru build" }
+  C@{ shape: browser, label: "出力<br/>HTML · PDF · Pages" }
+  A --> B --> C
+
+  classDef source fill:#ffffff,stroke:#8ba0b5,color:#182230,stroke-width:2px;
+  classDef focal fill:#315e86,stroke:#315e86,color:#ffffff,stroke-width:3px;
+  classDef output fill:#f7f9fc,stroke:#8ba0b5,color:#182230,stroke-width:2px;
+  class A source;
+  class B focal;
+  class C output;
 ```
 
 ---
