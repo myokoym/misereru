@@ -112,7 +112,7 @@ presentation repository
 <!-- {"key":"renderer"} -->
 # production rendererはMarp 1系統に限定する
 
-初期production buildでは、HTMLとPDFを同じrenderer / themeから生成します。
+初期production buildではHTMLとPDFを同じrenderer / themeから生成し、複数rendererの同時production運用は避けます。
 
 | 出力 | 現在の扱い |
 | --- | --- |
@@ -121,8 +121,6 @@ presentation repository
 | GitHub Pages | optional publish |
 | Google Slides | research / prototype |
 | PPTX | production未対応 |
-
-複数rendererを同時にproductionへ入れ、デザインや仕様を二重管理することは避けています。
 
 ---
 
@@ -142,8 +140,7 @@ presentation repository
 - 1 slide 1 primary messageを基本にする
 - 根拠・条件・留保を短文化のために削らない
 - 調査・仕様資料へstoryや強い断定を機械的に足さない
-- 事実、解釈、提案、未確認事項を区別する
-- stable `key`、`type: "section"`、renderer非依存の正本sourceを守る
+- 事実・解釈・提案・未確認事項を区別し、stable `key` 等のsource規則を守る
 
 Skillは **source編集側の支援**であり、buildの必須依存ではありません。
 
@@ -225,16 +222,23 @@ Markdown系スライドツール、日本語組版、Google Slides生成、sourc
 ---
 
 <!-- {"key":"current-scope"} -->
-# productionはMarkdown → Marp → HTML / PDFに限定する
+# production経路はMarkdown → Marp → HTML / PDF
+
+Mermaidを含む場合は、正本の図sourceをbuild時にPNGへ変換してからMarpへ渡します。
 
 ```text
 slides.md
   ↓ misereru adapter
-一時Marp入力
+Mermaid → PNG / 一時Marp入力
   ↓ Marp
   ├─ HTML
   └─ PDF (optional)
 ```
+
+---
+
+<!-- {"key":"current-status"} -->
+# production・prototype・未決を混同しない
 
 | 区分 | 現在の対象 |
 | --- | --- |
