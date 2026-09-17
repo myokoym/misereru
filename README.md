@@ -72,7 +72,7 @@ npm run build:script-complete
 
 ### 発表原稿のGitHub Pages公開
 
-発表原稿をGitHub Pagesから直接参照したい資料だけ、`misereru.config.json` で明示的に有効化できます。
+発表原稿をGitHub Pagesから直接閲覧したい資料だけ、`misereru.config.json` で明示的に有効化できます。
 
 ```json
 {
@@ -87,12 +87,14 @@ npm run build:script-complete
 }
 ```
 
-有効時は、HTMLと同じPagesルートへ `presentation-script.md` をそのまま配置します。
+有効時は、正本の `presentation-script.md` を検証した後、閲覧用HTMLを生成します。
 
 ```text
 https://<owner>.github.io/<repository>/
-https://<owner>.github.io/<repository>/presentation-script.md
+https://<owner>.github.io/<repository>/presentation-script.html
 ```
+
+公開発表原稿は実際のpresentation順で並び、各entryにslide番号・見出し・Narrationを表示します。各entryから対応するスライドへ移動できます。raw `presentation-script.md` 自体はPagesには公開しません。
 
 この設定は原稿の作成・検証とは独立しています。
 
@@ -131,7 +133,7 @@ https://<owner>.github.io/<repository>/presentation-script.md
 - HTML: 有効。`dist/site/index.html` を生成
 - PDF: 無効。必要な資料だけ有効化
 - GitHub Pages: 無効。明示的に有効化した場合だけ公開
-- GitHub Pages上の発表原稿: 無効。Pagesとは別に明示的に有効化した場合だけ `presentation-script.md` を公開
+- GitHub Pages上の発表原稿: 無効。Pagesとは別に明示的に有効化した場合だけ `presentation-script.html` を生成・公開
 - Google Slides / PPTX: 初期production targetには含めない
 
 GitHub Pagesを使う場合は、各資料repositoryで初回だけ Settings > Pages から GitHub Actions publishing を有効化する想定です。公開を自動化するためだけの高権限PATは標準要求しません。
@@ -150,6 +152,7 @@ package.json                                            # Marp依存とbuild com
 marp.config.mjs                                         # Marp設定
 themes/                                                 # 日本語向けMarp theme
 scripts/build-project.mjs                               # 目次生成、原稿構造検査、build処理
+scripts/render-presentation-script.mjs                  # 発表原稿のPages向けHTML生成
 .github/workflows/build.yml                             # GitHub Actions build / publish
 ```
 
