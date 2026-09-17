@@ -1,6 +1,7 @@
 import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { basename, dirname, resolve } from 'node:path';
 import { spawn } from 'node:child_process';
+import { renderMermaidInMarkdown } from './render-mermaid.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const configPath = resolve(root, process.env.MISERERU_CONFIG ?? 'misereru.config.json');
@@ -34,7 +35,7 @@ if (pagesPresentationScriptEnabled && presentationScript.status === 'not-present
 }
 
 const buildPlan = {
-  version: 7,
+  version: 8,
   source: config.source,
   renderer: 'marp',
   navigation: {
@@ -44,6 +45,7 @@ const buildPlan = {
     targetIdentity: 'generated-slide-number'
   },
   presentationScript,
+  visuals: {},
   outputs: {},
   publish: {
     githubPages: {
@@ -69,9 +71,15 @@ if (unsupportedOutputs.length > 0) {
   );
 }
 
-const marpSourcePath = await createMarpInput(sourcePath, sourceMarkdown, parsedSource);
+const marpSource = await createMarpInput(sourcePath, sourceMarkdown, parsedSource);
+buildPlan.visuals.mermaid = {
+  status: marpSource.mermaidCount > 0 ? 'rendered' : 'not-used',
+  count: marpSource.mermaidCount,
+  renderer: '@mermaid-js/mermaid-cli'
+};
+
 try {
-  await renderMarp(marpSourcePath, resolve(root, htmlOutputPath), []);
+  await renderMarp(marpSource.path, resolve(root, htmlOutputPath), []);
   buildPlan.outputs.html = {
     status: 'generated',
     path: htmlOutputPath
@@ -84,13 +92,13 @@ try {
 
   if (outputs.pdf?.enabled === true) {
     const pdfPath = outputs.pdf.path ?? 'dist/slides.pdf';
-    await renderMarp(marpSourcePath, resolve(root, pdfPath), ['--pdf']);
+    await renderMarp(marpSource.path, resolve(root, pdfPath), ['--pdf']);
     buildPlan.outputs.pdf = { status: 'generated', path: pdfPath };
   } else {
     buildPlan.outputs.pdf = { status: 'disabled' };
   }
 } finally {
-  await rm(marpSourcePath, { force: true });
+  await rm(marpSource.path, { force: true });
 }
 
 const planPath = resolve(root, 'dist/build-plan.json');
@@ -101,6 +109,7 @@ console.log(`Wrote ${planPath}`);
 async function createMarpInput(source, original, parsed) {
   const generatedPath = resolve(dirname(source), `.misereru-${basename(source)}.marp.md`);
   const withToc = injectGeneratedToc(original, parsed);
+  const withDiagrams = await renderMermaidInMarkdown(withToc);
   const frontmatter = [
     '---',
     'marp: true',
@@ -109,8 +118,8 @@ async function createMarpInput(source, original, parsed) {
     '---',
     ''
   ].join('\n');
-  await writeFile(generatedPath, `${frontmatter}${withToc}`, 'utf8');
-  return generatedPath;
+  await writeFile(generatedPath, `${frontmatter}${withDiagrams.markdown}`, 'utf8');
+  return { path: generatedPath, mermaidCount: withDiagrams.count };
 }
 
 function parseSlideSource(markdown) {
