@@ -2,9 +2,9 @@
 
 `slides.md` と対になる、口頭説明用のサンプル原稿です。各entryはページ番号ではなくstable `key`で対応付けます。
 
-読み上げる本文は各entryの `### Narration` だけです。動画化するときは、対応slideを表示してからnarrationを読み上げ、音声が終わったら次のslideへ進みます。明示的なcueがない限り、zoom・highlight・pointer・段階表示などは追加しません。
+このファイルは任意です。原稿を使わない資料では削除してかまいません。原稿を使う場合は、各 `### Narration` を自然な口頭説明として書き、`slides.md` と両方向から内容・構成を確認します。
 
-<!-- {"misereru":"presentation-script","version":1,"defaultAdvance":"after-narration"} -->
+<!-- {"misereru":"presentation-script","version":1} -->
 
 <!-- {"slide":"title"} -->
 ## 資料タイトル
