@@ -59,6 +59,8 @@ slides.md を編集
   ↓ push / merge
 GitHub Actions
   ↓
+Mermaid block → PNG（存在する場合）
+  ↓
 Marp
   ├─ HTML             常時生成
   │   └─ GitHub Pages 設定時のみ公開
@@ -93,6 +95,7 @@ presentation-project/
 ├─ slides.md
 ├─ presentation-script.md                     # optional sample
 ├─ misereru.config.json
+├─ mermaid.config.json                         # 図の可読性・既定theme
 ├─ .agents/
 │  └─ skills/
 │     ├─ misereru-slide-writing/
@@ -137,6 +140,9 @@ presentation-project/
 - renderer固有front matterやHTML/CSSを内容編集の都合だけで正本へ持ち込まない。
 - publish/output設定を内容編集のついでに変更しない。
 - 外部情報に依存する主張は、可能な限り後から検証できるリンク・出典を保持する。
+- 図をslide内へ収めるためだけに文字を縮小しない。文言削減、構造簡略化、図またはslideの分割を先に行う。
+- 図のノード形状、強調、線、余白、方向は情報上の役割を持たせ、同格でない要素を同じ見た目へ潰さない。
+- 図はsourceだけで判断せず、実際のrender結果で文字サイズ・コントラスト・overflow・スマートフォンでの可読性を確認する。
 - 既存の高品質なpresentation / Marp / Japanese technical writing Skill・規範を参照した場合、Skill内に参照元を記録する。
 
 `misereru-presentation-script` に求める要件:
@@ -199,12 +205,12 @@ complete scriptは通常資料の完成条件ではありません。
 
 ## Renderer consistency
 
-初期production buildでは renderer を Marp 1系統に限定します。
+初期production buildでは renderer を Marp 1系統に限定します。Mermaid図は正本sourceのfenced blockとして保持し、build時にPNGへ変換して一時Marp入力へ埋め込みます。
 
 ```text
 slides.md
   ↓ misereru adapter
-一時Marp入力
+Mermaid → PNG / 一時Marp入力
   ↓ Marp
   ├─ HTML
   └─ PDF
@@ -236,6 +242,22 @@ Google Slidesを将来production targetへ追加する場合は、次のどち�
 - スライドの追加・削除・並べ替え後も、再生成時に目次と内部リンクが追随すること。
 - 内部リンクをページ番号の文字列だけに依存させず、可能な限り安定した slide identity / key を利用すること。
 - 目次へ載せるタイトル・除外指定・目次自体の配置位置などは、source または project config から制御できる方向とする。
+
+## 図解・視覚的可読性
+
+Mermaidは初期productionで標準対応します。正本は `slides.md` 内のMermaid sourceであり、生成済みPNGは正本として管理しません。
+
+図解は「描画できる」「overflowしない」だけでは合格としません。本文と同様に、スライドとして短時間で構造を把握できる可読性を要求します。
+
+- 図を枠内へ収める目的で、rendererが文字サイズを自動的・機械的に縮小しない。
+- 図が重い場合は **文言を削る → 構造を簡略化する → 図またはslideを分割する** の順で対処し、文字縮小を解決策にしない。
+- ノード本文とedge labelは、投影・通常画面・スマートフォン表示で読める大きさを維持する。
+- ノードの形状、強調、線、方向、余白は情報構造を補助するために使い、意味の異なる要素を理由なく同じ見た目へ揃えない。
+- 配色は装飾目的ではなく、主工程・補助要素・入力・出力などの区別とコントラスト確保に使う。
+- source上のMermaidが正しいだけで完了とせず、HTML等の実render結果で文字サイズ、コントラスト、線の視認性、余白、overflowを確認する。
+- 図を簡略化すると条件・留保・意味が失われる場合は、無理に図へ押し込まず本文・表・複数slideへ分ける。
+
+実装上の共通既定値は `mermaid.config.json` で管理します。現行既定のノード文字サイズは28pxとし、個別図を収めるための自動縮小は行いません。既定値を変更する場合は、実renderで可読性を再検証します。
 
 ## 日本語組版
 
@@ -277,7 +299,6 @@ Google Slidesを将来production targetへ追加する場合は、次のどち�
 - Google Slides対応時に `k1LoW/deck` を採用するか。
 - Vivliostyle を内部レンダリングに利用するか。
 - 目次を表紙直後に固定するか、設定可能にするか。
-- Mermaid を標準対応するか。
 - presentation scriptに将来、pronunciation / pause / cue等の追加仕様が必要になるか。
 - 音声合成・録画・動画等の派生出力をmisereru側で扱うか。
 - AI を将来renderer / 自動レイアウト工程へ入れるか。初期版のAI支援はsource編集側に限定する。
