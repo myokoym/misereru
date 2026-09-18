@@ -91,7 +91,11 @@ npm run build:script-complete
 
 ## AIでの資料編集
 
-テンプレートにはmisereru用のAgent Skillを含めます。
+`develop` branchには、repository / branch運用を固定する [`AGENTS.md`](AGENTS.md) と、misereru用のAgent Skillを含めます。
+
+`AGENTS.md` は `main` と `develop` の役割を混同しないこと、既存repositoryを確認してから作業すること、未確定の調査・実装をproductionへ勝手に昇格させないことを定義します。
+
+Agent Skillは各成果物の内容設計を担当します。
 
 - [`misereru-slide-writing`](.agents/skills/misereru-slide-writing/SKILL.md): `slides.md` の構成・文章・根拠・密度・図解判断を扱う
 - [`misereru-presentation-script`](.agents/skills/misereru-presentation-script/SKILL.md): 任意の発表原稿作成とslideとの相互レビューを扱う
@@ -112,7 +116,7 @@ npm run build:script-complete
 - slides → script / script → slides の意味的な相互チェック
 - slides-only / partial script / complete script の区別
 
-配置はCodexのrepository-scoped Skill discoveryに合わせて `.agents/skills/` とします。Skill発見だけを目的とする `AGENTS.md` は置きません。
+配置はCodexのrepository-scoped Skill discoveryに合わせて `.agents/skills/` とします。`AGENTS.md` はSkill発見用ではなく、repository / branch全体の運用・誤操作防止のために置きます。
 
 ## 既定の出力
 
@@ -128,6 +132,7 @@ GitHub Pagesを使う場合は、各資料repositoryで初回だけ Settings > P
 新しい資料repositoryで必要な実行・編集支援ファイルは、テンプレート側にすべて含めます。外部のmisereru repositoryを実行時に参照しません。
 
 ```text
+AGENTS.md                                               # AI向けrepository / branch運用・誤操作防止ルール
 slides.md                                               # サンプル兼 Markdown source
 presentation-script.md                                 # 任意の発表原稿サンプル。不要なら削除可
 misereru.config.json                                    # output / publish 設定
