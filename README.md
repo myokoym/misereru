@@ -71,6 +71,8 @@ flowchart LR
 
 図を使うかどうかは枚数比率では決めません。処理フロー、相互作用、状態、階層、関係、数値推移など、図に向く情報構造がある場合に文章・箇条書きより優先して検討します。
 
+図の共通themeは [`mermaid.config.json`](mermaid.config.json) で管理します。現行既定はノード文字28pxで、**図を収めるための文字縮小は行いません**。重い図は、文言削減 → 構造簡略化 → 図またはslide分割の順で処理し、実renderで可読性を確認します。
+
 ## 発表原稿は任意
 
 [`presentation-script.md`](presentation-script.md) は、`slides.md` とstable `key`で対応する発表原稿のサンプルです。
@@ -182,6 +184,7 @@ slides.md                                               # サンプル兼 Markdo
 presentation-script.md                                 # 任意の発表原稿サンプル
 article.md                                             # 任意の単体完結記事サンプル
 misereru.config.json                                    # output / publish 設定
+mermaid.config.json                                     # Mermaid共通theme / 可読性既定値
 .agents/skills/misereru-slide-writing/SKILL.md          # AI向けスライド内容・図解設計ルール
 .agents/skills/misereru-presentation-script/SKILL.md    # AI向け発表原稿・相互レビュー規則
 .agents/skills/misereru-article-writing/SKILL.md        # AI向け記事作成・整合性確認規則
