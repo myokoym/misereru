@@ -4,6 +4,7 @@ import { spawn } from 'node:child_process';
 
 const root = resolve(import.meta.dirname, '..');
 const mermaidFence = /^```mermaid(?:[ \t]+[^\n]*)?[ \t]*\r?\n([\s\S]*?)^```[ \t]*$/gm;
+const mermaidConfigPath = resolve(root, 'mermaid.config.json');
 
 export async function renderMermaidInMarkdown(markdown) {
   const matches = [...markdown.matchAll(mermaidFence)];
@@ -55,6 +56,8 @@ async function runMmdc(inputPath, outputPath) {
     inputPath,
     '--output',
     outputPath,
+    '--configFile',
+    mermaidConfigPath,
     '--backgroundColor',
     'transparent',
     '--width',
