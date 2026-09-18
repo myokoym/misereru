@@ -32,7 +32,7 @@
 1. repository名と現在のbranch
 2. `README.md`
 3. `misereru.config.json`
-4. 存在する正本ファイル（`slides.md`、`presentation-script.md`、`article.md`、`research.md`、`docs/` 等）
+4. 存在する正本ファイル（現在は `slides.md`、`presentation-script.md`、`docs/` 等）
 5. `.agents/skills/` にある関連Skill
 6. GitHub Pages等の既存publish設定と公開先
 
@@ -44,8 +44,6 @@
 
 - `slides.md`: スライド内容の正本
 - `presentation-script.md`: 任意の発表原稿の正本
-- `article.md`: 任意の単体完結記事の正本
-- `research.md`: 存在する場合、出典・第三者検証・留保・更新履歴を持つ調査台帳
 - `docs/`: misereru本体の設計・要件・research・ADR
 - `misereru.config.json`: output / publish設定の正本
 - `dist/`: build生成物。直接編集しない
@@ -82,7 +80,7 @@ PPTX、Google Slides、PDF、別repository等を新たに作るのは、ユー�
 
 - researchで新しい事実が確認された場合、必要な設計・要件・ADRへの影響を確認する
 - production候補を変更した場合、対応するdocsと実装の整合を確認する
-- slide / script / articleを変更する場合はstable `key`や主要事実の整合を保つ
+- slide / scriptを変更する場合はstable `key`や主要事実の整合を保つ
 - `main`へ昇格する変更は、派生repositoryへ配布すべきproduction内容だけに絞る
 
 ## 6. repository固有ルールを優先して読む
