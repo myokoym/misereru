@@ -132,7 +132,7 @@ description: Create, restructure, and revise Japanese slide content in misereru 
 
 Reference modeでは短い段落を使ってかまいません。
 
-- 一段落一トピックを基本にする
+- 一段落一トピックを基本とする
 - 冒頭で何を説明する段落か分かるようにする
 - 同じ結論を言い換えて繰り返さない
 - 前置きや予告だけの文章を置かない
@@ -184,14 +184,29 @@ misereruの正本では、Mermaidを通常のfenced code blockとして書けま
 ````markdown
 ```mermaid
 flowchart LR
-  A[Markdown] --> B[PNG]
+  A[Markdown] --> B[SVG]
   B --> C[Marp]
 ```
 ````
 
-現行buildはMermaidブロックをPNGへ変換してからMarpへ渡します。sourceへ生成済みPNGやrenderer固有HTMLを貼り込む必要はありません。
+現行buildはMermaidブロックをSVGへ変換してからMarpへ渡します。sourceへ生成済みSVGやrenderer固有HTMLを貼り込む必要はありません。
 
 移植性を優先する場合は、Flowchart / Sequence / State / Class / ER / XY chartを優先します。Gantt、Pie、MindmapなどMermaid CLIで扱える追加形式は、内容上必要な場合に使ってかまいませんが、renderer変更時には互換性を再確認します。
+
+#### 図解の可読性とレイアウト
+
+図は「描画できる」「overflowしない」だけでは完成としません。実際のスライド上で、文字・形・線・余白から構造を追えることを確認します。
+
+- **図を収めるために文字を小さくしない。** 現行の共通Mermaid themeはノード文字28pxを既定とし、個別図の都合で自動縮小しない。
+- 図が重い場合は **文言を削る → 構造を簡略化する → 図を分割する → slideを分割する** の順で対処する。
+- ノード内に本文の説明を重複させず、図で必要なラベルだけを残す。
+- 入力、処理、出力、判断、外部主体など役割が異なる要素は、内容上有効なら形状や強調を使い分ける。同格でない要素を全部同じ箱へしない。
+- 主工程や焦点は、色・線幅・配置等で視線の優先順位を作る。装飾のためだけの色分けはしない。
+- edge labelを小さな注釈置き場として使わない。読めない補助文字が必要になるなら、構造か説明方法を見直す。
+- sourceだけを見て完成判定せず、HTML等の実renderでフォントサイズ、コントラスト、線、余白、overflowを確認する。
+- スマートフォン表示で図全体を縮小したときにも、主要ラベルが判読不能にならないか確認する。
+
+`mermaid.config.json` は共通の可読性下限を担い、個別slideのsourceは情報設計を担います。共通themeを上書きして小さい文字へ逃げる編集は避けます。
 
 ## 5. 日本語の技術文書として整える
 
@@ -250,22 +265,24 @@ flowchart LR
 - 新規slideには、その内容を表す安定した `key` を付ける
 - 目次へ載せるセクション見出しには既存仕様に従って `type: "section"` を使う
 - `marp: true`、theme指定などrenderer固有front matterを正本へ追加しない
-- 図はMermaid等のsource表現を正本へ置き、生成済みPNGを正本化しない
+- 図はMermaid等のsource表現を正本へ置き、生成済みSVGを正本化しない
 - themeやbuild処理で解決すべき見た目の問題を、本文へHTML/CSSを埋め込んで迂回しない
 - publish/output設定を内容編集のついでに勝手に変更しない
 
 ## 8. 情報過多を処理する順序
 
-slideが重い場合、文字サイズを下げる前に次の順で処理します。
+slideが重い場合、文字サイズを下げて解決しません。本文・図のどちらでも、次の順で処理します。
 
 1. 重複表現を削る
 2. 本筋でない説明を別slideまたはリンクへ分ける
 3. 関係・順序・状態・数値が主なら図・チャートへ変換する
 4. 並列情報を表・箇条書きへ構造化する
 5. 一つのslideに複数のprimary messageがあれば分割する
-6. それでも必要な情報量なら、Reference modeとして密度を許容する
+6. 図の場合は図を分割する
+7. 一つのslideに収まらなければslideを分割する
+8. それでも必要な情報量なら、Reference modeとして密度を許容する
 
-必要な根拠を削って見た目だけ軽くするのは不可です。
+必要な根拠を削って見た目だけ軽くすること、文字サイズを下げて帳尻を合わせることは不可です。
 
 ## 9. 自己レビュー
 
@@ -280,7 +297,10 @@ slideが重い場合、文字サイズを下げる前に次の順で処理しま
 - [ ] 必要な条件・留保・出典を削っていない
 - [ ] 関係・順序・状態・数値を、箇条書きだけで代替していない
 - [ ] 図を使う場合、図が主張していない関係を作っていない
-- [ ] 情報量が多い場合、分割可能性を検討した
+- [ ] 図を収めるために文字を小さくしていない
+- [ ] 図の形状・強調・線・余白に情報上の役割がある
+- [ ] 実renderで主要ラベルが十分読め、overflowしていない
+- [ ] 情報量が多い場合、文言削減・構造簡略化・図/slide分割を検討した
 
 ### 資料全体
 
@@ -320,7 +340,7 @@ slideが重い場合、文字サイズを下げる前に次の順で処理しま
   - 論証の厳密さ、読者負荷、冗長性、LLM的表現の抑制を参照
 - Mermaid CLI
   - https://github.com/mermaid-js/mermaid-cli
-  - Markdown中のMermaidからPNGを生成する現行build経路を参照
+  - Markdown中のMermaidからSVGを生成する現行build経路を参照
 - Marp Core Mermaid documentation
   - https://github.com/marp-team/marp-core/blob/main/docs/markdown.md
   - Mermaid native supportへ移行する場合の互換範囲を参照
