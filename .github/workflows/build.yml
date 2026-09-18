@@ -8,6 +8,7 @@ on:
       - 'presentation-script.md'
       - 'article.md'
       - 'misereru.config.json'
+      - 'mermaid.config.json'
       - 'themes/**'
       - 'marp.config.mjs'
       - 'scripts/build-project.mjs'
