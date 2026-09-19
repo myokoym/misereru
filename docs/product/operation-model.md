@@ -114,7 +114,7 @@ Skill自体はGitHub Actionsのbuild依存にしません。Skillを解釈しな
 
 調査・記事・スライドから、ChatGPT等へそのままアップロードして再利用するMarkdown参照資料を任意で持てる。
 
-AI向けsourceはroot直下ではなく `ai-sources/` に置く。固定の `ai-reference.md` ではなく、ダウンロード後も主題が分かるファイル名を使う。
+AI向けsourceはroot直下ではなく `ai-sources/` に置く。固定の `ai-reference.md` ではなく、ダウンロード後も主題が分かるファイル名を使う。Pages公開時はMarkdownを改変せず同名で `dist/site/ai-sources/` へコピーし、download一覧を生成する。
 
 ```text
 ai-sources/level-design.md
@@ -182,7 +182,7 @@ Google Slides生成はresearch / prototypeで継続し、共通レイアウト�
 - `slides.md` / config / theme / build処理の変更でGitHub Actionsが自動buildする。
 - 公開用HTMLは `dist/site/` に分離する。
 - 生成物はActions artifactとして取得可能にする。
-- GitHub Pagesはテンプレート作成直後はOFFとする。ただしOFFを恒久的な非公開判断とはみなさず、slides / article のどちらか一つでも初版成立したら他形式の完成を待たず公開へ進む。
+- GitHub Pagesはテンプレート作成直後はOFFとする。ただしOFFを恒久的な非公開判断とはみなさず、slides / article / AI向けtopic source のいずれか一つでも初版成立したら他形式の完成を待たず公開へ進む。
 
 ### 初回公開の優先順位
 
@@ -190,6 +190,7 @@ Google Slides生成はresearch / prototypeで継続し、共通レイアウト�
 
 - slidesが先に成立したらslidesを公開する
 - articleが先に成立したらarticleを公開する
+- AI向けtopic sourceが先に成立したら、そのMarkdownを直接取得できるPages経路を公開する
 - presentation scriptはslides依存のため、それ単独では初回公開トリガーにしない
 - 他形式がサンプル／未完成でも、それだけを理由に完成済み成果物のブラウザ閲覧を遅らせない
 - 未完成サンプルの同時露出は後で解消する表示上の問題として扱い、完成済み成果物を閲覧不能にする問題より優先度を下げる
@@ -215,7 +216,7 @@ actions/deploy-pages
 GitHub Pages
 ```
 
-テンプレート作成直後の既定値は `false` とします。これは安全な開始状態であり、公開しない意思決定ではありません。slides / article のどちらか一つでも初版が成立したら `true` へ切り替えます。
+テンプレート作成直後の既定値は `false` とします。これは安全な開始状態であり、公開しない意思決定ではありません。slides / article / AI向けtopic source のいずれか一つでも初版が成立したら `true` へ切り替えます。
 
 GitHubの制約上、各presentation repositoryでPages自体が未有効の場合、標準の `GITHUB_TOKEN` だけでは `configure-pages` が自動有効化できません。初回だけrepositoryの Settings > Pages でGitHub Actions publishingを有効にする運用を基本とし、自動有効化のためだけに高権限PATを標準要求しません。
 
@@ -233,7 +234,7 @@ GitHubの制約上、各presentation repositoryでPages自体が未有効の場�
 初期方針:
 
 - HTML: 必須・常時生成
-- GitHub Pages: optional publish。作成直後はOFF、最初のpublishable artifactが初版成立したらON
+- GitHub Pages: optional publish。作成直後はOFF、slides / article / AI向けtopic source の最初のpublishable artifactが初版成立したらON
 - PDF: optional output、既定OFF
 - Google Slides: production未対応
 - PPTX: production未対応
