@@ -164,7 +164,7 @@ https://<owner>.github.io/<repository>/article.html
 
 調査や記事から、ChatGPT等へそのままアップロードして再利用するMarkdown参照資料を作れます。
 
-AI向けsourceはroot直下ではなく `ai-sources/` にまとめます。固定名の `ai-reference.md` は使わず、**ダウンロード後にrepository文脈を失っても主題が分かるファイル名**にします。
+AI向けsourceはroot直下ではなく `ai-sources/` にまとめます。固定名の `ai-reference.md` は使わず、**ダウンロード後にrepository文脈を失っても主題が分かるファイル名**にします。Pages公開を有効にした場合は、Markdownをそのファイル名のまま `ai-sources/` 配下へ公開し、一覧ページから直接取得できます。
 
 例:
 
@@ -175,6 +175,14 @@ ai-sources/openjev.md
 ```
 
 原則は **1つのまとまった主題 = 1ファイル** です。flow / pacing / wayfindingのような小概念ごとに機械的に細分化せず、1主題として一体なら多少長くても1ファイルを維持します。複数ファイルにするのは、別主題として単独利用する意味がある場合だけです。
+
+Pagesへ公開する場合は `misereru.config.json` で `publish.githubPages.aiSources.enabled: true` にします。公開後は次のようなURLになります。
+
+```text
+https://<owner>.github.io/<repository>/ai-sources/
+https://<owner>.github.io/<repository>/ai-sources/<subject>.md
+```
+
 
 AI向けsourceは `.agents/skills/misereru-ai-source-writing/SKILL.md` の規則で作成・レビューします。これはAgent Skillそのものではなく、AIへ主題知識・判断基準を渡す成果物です。
 
@@ -200,6 +208,7 @@ Agent Skillは各成果物の内容設計を担当します。
 - GitHub Pages: テンプレート作成直後は無効。**slides または article のどちらか一つでも初版が成立したら有効化**
 - GitHub Pages上の発表原稿: 無効。明示時のみ `presentation-script.html` を生成・公開
 - GitHub Pages上の記事: 無効。明示時のみ `article.html` を生成・公開
+- GitHub Pages上のAI向けsource: 無効。明示時のみ `ai-sources/*.md` とdownload一覧を公開
 - Google Slides / PPTX: 初期production targetには含めない
 
 Template Repositoryでは、空の企画・サンプル状態を即公開しないため `publish.githubPages.enabled` は既定OFFです。ただし、このOFFを「この資料は公開しないという意思決定」と解釈しません。`slides.md` または `article.md` のどちらか一つでも、単体で一通り読める／見られる初版になった時点でPagesをONにします。他形式が未完成でも待ちません。特に、完成した記事をブラウザで確認できないことを避けるため、未完成のサンプルslideが一時的に同時公開されることだけを理由にPages公開を遅らせません。
@@ -226,6 +235,7 @@ scripts/build-project.mjs                               # 目次生成、原稿�
 scripts/render-mermaid.mjs                              # MermaidをPNGへ変換してMarp入力へ埋め込む
 scripts/render-presentation-script.mjs                  # 発表原稿のPages向けHTML生成
 scripts/render-article.mjs                              # 記事のPages向けHTML生成
+scripts/publish-ai-sources.mjs                          # AI向けMarkdownの検証・Pages配布
 .github/workflows/build.yml                             # GitHub Actions build / publish
 ```
 
