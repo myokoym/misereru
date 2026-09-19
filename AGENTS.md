@@ -111,7 +111,7 @@ PPTX、Google Slides、PDF、別repository等を新たに作るのは、ユー�
 - Reference / Presented / Mixedのどの資料モードか
 - 独自Skillや追加検査があるか
 
-テンプレート側でGitHub Pagesが既定OFFでも、派生repositoryでONなら、その派生repositoryの設定が現在の正しい状態です。
+テンプレート側ではGitHub Pagesを既定ONとしますが、派生repositoryでOFFにしている場合は、その派生repositoryの設定が現在の正しい状態です。
 
 ## 6. 調査と根拠
 
