@@ -160,6 +160,8 @@ scripts/render-mermaid.mjs                              # MermaidをPNGへ変換
 
 Template Repositoryから通常作成した資料repositoryにはdefault branchである `main` の内容を使う想定です。開発資料を利用者の資料repositoryへ持ち込まないため、`main` には配布に必要なものだけを置きます。
 
+**この `main` / `develop` 2branch modelはmisereru本体専用です。** Templateから作成した資料・調査repositoryへ同じbranch構成を自動継承しません。派生repositoryは、そのrepository自身のREADME / AGENTSに別規定がなければdefault branchを正本として運用します。調査型repositoryでは、未完成の調査・中間仮説・source ledgerを含む全履歴をdefault branchへ蓄積して構いません。「調査中だから」という理由だけで `develop` branchを追加しません。
+
 ## 開発・設計資料
 
 開発者向け資料は [`develop` branch](https://github.com/myokoym/misereru/tree/develop) を参照します。Template Repositoryから作成した別repositoryでもリンクが切れないよう、ここでは元repositoryへのリンクを使います。
