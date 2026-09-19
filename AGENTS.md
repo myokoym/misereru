@@ -4,23 +4,35 @@
 
 目的はSkill discoveryではなく、**既存repository・正本・公開経路を確認せずに別成果物を作る事故を防ぐこと**です。
 
-## Branch role: `main`
+## 0. Repository context と branch scope
 
-このbranchは **配布・production用のTemplate Repository正本** です。
+branch方針を決める前に、**現在作業しているrepositoryがmisereru本体か、Template Repositoryから作成した派生repositoryかを判定**します。
 
-現行運用で使うbranchは **`main` と `develop` の2本だけ**です。
+### A. misereru本体で作業する場合
+
+`myokoym/misereru` 本体は、配布物と本体開発を分けるために次の2branchを使います。
 
 - `main`: 配布・production用Template Repository正本
-- `develop`: 開発・統合・調査用
+- `develop`: misereru本体の開発・統合・調査用
 
-過去のprototype branchや実験branchを、現役の運用単位として扱いません。新たな長期branchを作る場合も、明示的な運用上の必要性がある場合だけにします。
+この2branch modelは **misereru本体の内部運用**です。Template Repositoryから新規資料repositoryを作るときに配布される内容は `main` を基準とし、misereru本体の未確定な設計・調査・実装は `develop` で扱います。
 
-- Template Repositoryから新規資料repositoryを作るときに配布される内容は、この`main`を基準とする
-- 実験途中・未確定の研究メモを直接`main`へ持ち込まない
-- 開発・統合・調査は原則`develop`で行い、productionへ採用すると決まった内容だけ`main`へ反映する
-- `main`上の`slides.md`、scripts、theme、config、Skill、`AGENTS.md`は、派生repositoryへ配布されるproduction契約として扱う
+### B. 派生した資料・調査repositoryで作業する場合
 
-`main`で作業しているという理由だけで、`develop`の未確定内容まで同期しません。branch間の昇格は明示的な採用・統合作業として扱います。
+**misereru本体の `main` / `develop` branch modelを継承しません。**
+
+派生repositoryでは、そのrepository自身の `README.md` / `AGENTS.md` / default branch を確認します。別のbranch方針が明示されていない場合は、default branchを現在の正本として扱います。
+
+特に次を守ります。
+
+- 「調査中」「草稿」「未公開」「まだ完成していない」という理由だけで `develop` branchを作らない
+- 調査履歴そのものを成果物として保持するrepositoryでは、`research.md`、source ledger、中間仮説、留保、更新履歴をdefault branchへ継続的に蓄積してよい
+- 時系列の履歴はGit commit historyと調査正本で保持し、branch分離を履歴保存の代替にしない
+- branchを新設するのは、並行作業、破壊的な大規模再構成、独立実験、PRレビュー、公開版freeze等、**default branchから隔離する具体的対象**がある場合だけにする
+- branchを作る前に「何を隔離するのか」「なぜdefault branchでは安全に扱えないのか」を説明できない場合は作らない
+- draft / final 等の成熟度は、READMEや正本内のstatusで表現し、branch名を状態ラベルとして使わない
+
+つまり、**misereru本体のbranch policyと、派生repositoryのbranch policyは別物**です。repository固有ルールを確認せず、テンプレート側のbranch構成を派生repositoryへ持ち込みません。
 
 ## 1. Repository-first
 
@@ -28,7 +40,7 @@
 
 作業開始前に最低限、次を確認します。
 
-1. repository名とdefault branch
+1. repository名、misereru本体か派生repositoryか、default branchとrepository固有のbranch方針
 2. `README.md`
 3. `misereru.config.json`
 4. 存在する正本ファイル（`slides.md`、`presentation-script.md`、`article.md`、`research.md` 等）
