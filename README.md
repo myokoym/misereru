@@ -130,6 +130,7 @@ Pagesは「全形式完成」を待ちません。次のいずれかが成立し
 
 - `slides.md` が、テンプレート残骸ではなく一つの資料として最初から最後まで閲覧できる
 - `article.md` が、スライドや口頭補足なしで一つの記事として最初から最後まで読める
+- `ai-sources/<subject>.md` が、ChatGPT等へ単独アップロードしてその主題の主要判断に使える
 
 「初版成立」は最終版を意味しません。以後の修正・追加を前提として構いません。重要なのは、公開対象そのものに致命的な欠落やテンプレート残骸がなく、buildが通り、既知の重大な事実誤認が残っていないことです。
 
@@ -211,7 +212,7 @@ Agent Skillは各成果物の内容設計を担当します。
 - GitHub Pages上のAI向けsource: 無効。明示時のみ `ai-sources/*.md` とdownload一覧を公開
 - Google Slides / PPTX: 初期production targetには含めない
 
-Template Repositoryでは、空の企画・サンプル状態を即公開しないため `publish.githubPages.enabled` は既定OFFです。ただし、このOFFを「この資料は公開しないという意思決定」と解釈しません。`slides.md` または `article.md` のどちらか一つでも、単体で一通り読める／見られる初版になった時点でPagesをONにします。他形式が未完成でも待ちません。特に、完成した記事をブラウザで確認できないことを避けるため、未完成のサンプルslideが一時的に同時公開されることだけを理由にPages公開を遅らせません。
+Template Repositoryでは、空の企画・サンプル状態を即公開しないため `publish.githubPages.enabled` は既定OFFです。ただし、このOFFを「この資料は公開しないという意思決定」と解釈しません。`slides.md`、`article.md`、AI向けtopic source のいずれか一つでも、単体で一通り使える初版になった時点でPagesをONにします。他形式が未完成でも待ちません。特に、完成した記事をブラウザで確認できないことを避けるため、未完成のサンプルslideが一時的に同時公開されることだけを理由にPages公開を遅らせません。
 
 ## Template files
 
