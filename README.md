@@ -209,6 +209,8 @@ scripts/render-article.mjs                              # 記事のPages向けHT
 
 Template Repositoryから通常作成した資料repositoryにはdefault branchである `main` の内容を使う想定です。
 
+**この `main` / `develop` 2branch modelはmisereru本体の内部運用であり、派生repositoryへ自動継承しません。** 派生した資料・調査repositoryは、そのrepository自身のREADME / AGENTSに別規定がなければdefault branchを正本として使います。調査型repositoryでは、調査途中の記録・source・中間仮説を含む履歴をdefault branchへ蓄積して構いません。「未完成」「調査中」であることだけを理由に `develop` branchを作りません。
+
 ## 開発・設計資料
 
 開発者向け資料は [`develop` branch](https://github.com/myokoym/misereru/tree/develop) を参照します。
