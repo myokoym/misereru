@@ -63,7 +63,7 @@ Mermaid block → PNG（存在する場合）
   ↓
 Marp
   ├─ HTML             常時生成
-  │   └─ GitHub Pages 既定で公開
+  │   └─ GitHub Pages 初版成立後に公開
   └─ PDF              設定時のみ
 ```
 
@@ -202,8 +202,11 @@ complete scriptは通常資料の完成条件ではありません。
 
 - **HTML: 必須・既定。Marpで常時生成。**
 - PDF: optional。同じMarp renderer / themeで生成。
-- GitHub Pages: HTML生成とは分離したpublish targetだが、**templateでは既定ON**。公開しない資料だけexplicit opt-outする。
+- GitHub Pages: HTML生成とは分離したpublish target。template作成直後はOFFだが、slides / article のどちらか一つでも初版成立したら、他形式の完成を待たずONへ移行する。
 - Actions artifact: HTML等の生成物を常に取得可能にする。
+- 初回Pages公開の成立条件は「全形式完成」ではなく「単体で成立するpublishable artifactが1つ以上あること」とする。
+- articleが最初の成立成果物である場合、未完成のsample slidesが一時的に同時公開されることだけを理由にarticle公開を遅らせない。
+- confidential / private-only指定、credentials、個人情報、社外秘情報等がある場合は上記自動判断より非公開条件を優先する。
 - Google Slides: production未対応。
 - PPTX: production未対応。
 
