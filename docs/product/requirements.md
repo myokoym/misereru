@@ -1,6 +1,6 @@
 # Product requirements
 
-最終更新: 2026-09-18
+最終更新: 2026-09-19
 
 この文書には、調査の途中経過ではなく、現時点で比較的安定しているプロダクト要件だけを置きます。
 
@@ -87,6 +87,12 @@ Google Slides / PPTX は初期production targetには含めません。renderer 
 - Skillは編集支援であり、build時の実行依存にはしない。
 - 既存ツールで要件を満たせる場合、独自フォーマットや独自レンダラーを先に作らず、そのツールの wrapper / adapter として成立させてよい。
 - 複数の source format / renderer を将来扱う場合も、利用者が通常触る既定経路は簡単に保つ。
+- misereru本体の `main` / `develop` branch modelを、派生資料repositoryへ自動継承しない。
+- 派生repositoryに固有のbranch方針がない場合、default branchを正本として扱う。
+- 「調査中」「草稿」「未公開」という状態だけを理由に追加branchを作らない。
+- 調査型repositoryでは、調査履歴をrepositoryの成果物として扱い、`research.md`、source ledger、中間仮説、更新履歴をdefault branchへ蓄積できる。
+- 履歴保持はGit commit historyと調査正本で行い、branch分離を履歴保存の代替にしない。
+- branchを新設する場合は、default branchから隔離すべき具体的な並行作業・実験・再構成等の理由を要求する。
 
 初期 template の構成:
 
