@@ -111,7 +111,7 @@ PPTX、Google Slides、PDF、別repository等を新たに作るのは、ユー�
 - Reference / Presented / Mixedのどの資料モードか
 - 独自Skillや追加検査があるか
 
-テンプレート側ではGitHub Pagesを既定ONとしますが、派生repositoryでOFFにしている場合は、その派生repositoryの設定が現在の正しい状態です。
+テンプレート側のGitHub Pages既定値はOFFですが、これは未公開という恒久判断ではありません。派生repositoryで一度公開方針が決まっている場合は、そのrepository固有設定を優先します。
 
 ## 6. 調査と根拠
 
@@ -133,6 +133,25 @@ PPTX、Google Slides、PDF、別repository等を新たに作るのは、ユー�
 - 記事: `misereru-article-writing`
 
 Skillは書き方・レビュー規則、`AGENTS.md`はrepository運用と誤操作防止を担います。両方を適用します。
+
+## 7.5 初回Pages公開の判断
+
+派生repositoryでPagesがまだOFFの場合、**「全成果物が完成するまで待つ」ことを既定にしません。**
+
+次のどちらか一つでも初版として成立したら、機密性・公開禁止条件がない限り、Pages公開を具体的に進めます。
+
+- `slides.md`: テンプレート残骸ではなく、一つの資料として通して閲覧できる
+- `article.md`: 単体で前提・根拠・留保・結論まで読める
+
+このとき、もう一方の成果物が未完成であることだけを理由に公開を遅らせません。特に、完成した記事をPagesで確認できないことの方が、未完成のサンプルslideが一時的に公開されることより運用上の問題が大きい場合は、記事の閲覧経路を優先します。
+
+ただし次は別です。
+
+- confidential / private-only と明示された資料
+- credentials、個人情報、社外秘情報等を含む資料
+- 重大な事実誤認や欠落が分かっており、単体成果物として成立していない状態
+
+PagesをONにしたら、対象成果物の個別publish設定も確認します。記事が最初の完成成果物なら `article.enabled` もONにします。
 
 ## 8. build / publish確認
 
