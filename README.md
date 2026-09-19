@@ -23,7 +23,7 @@ Mermaid block → PNG（存在する場合）
 Marp
   ├─ HTML             常時生成
   ├─ PDF              設定時のみ
-  └─ GitHub Pages     既定で公開
+  └─ GitHub Pages     初版成立後に公開
 ```
 
 通常編集するのは [`slides.md`](slides.md) です。出力や公開方法を変える場合だけ [`misereru.config.json`](misereru.config.json) を編集します。
@@ -124,10 +124,10 @@ Agent Skillは各成果物の内容設計を担当します。
 
 - HTML: 有効。`dist/site/index.html` を生成
 - PDF: 無効。必要な資料だけ有効化
-- GitHub Pages: **有効が既定**。公開したくない資料だけ明示的に無効化
+- GitHub Pages: テンプレート作成直後は無効。slides / article のどちらか一つでも初版成立後に有効化
 - Google Slides / PPTX: 初期production targetには含めない
 
-GitHub Pagesはテンプレート上では既定ONです。各資料repositoryでは初回だけ Settings > Pages から GitHub Actions publishing を有効化する必要があります。公開したくない資料は `misereru.config.json` で無効化します。公開自動化のためだけの高権限PATは標準要求しません。
+GitHub Pagesはテンプレート作成直後は既定OFFですが、slides / article のどちらか一つでも初版として成立したら、他形式の完成を待たずにONへ切り替える運用とします。初回だけ Settings > Pages から GitHub Actions publishing を有効化する必要があります。公開自動化のためだけの高権限PATは標準要求しません。
 
 ## Template files
 
