@@ -68,14 +68,12 @@ const siteDir = resolve(root, dirname(htmlOutputPath));
 const publishedArticlePath = resolve(siteDir, 'article.html');
 const slideDocument = htmlOutputPath.split('/').pop() || 'index.html';
 const scriptPublished = featureEnabled(config.publish?.githubPages?.presentationScript);
-const aiSourcesPublished = featureEnabled(config.publish?.githubPages?.aiSources);
 
 const html = renderArticleHtml({
   articleTitle,
   articleBody,
   slideDocument,
   scriptPublished,
-  aiSourcesPublished,
 });
 
 await mkdir(siteDir, { recursive: true });
@@ -93,12 +91,9 @@ await writeFile(planPath, `${JSON.stringify(buildPlan, null, 2)}\n`, 'utf8');
 
 console.log(`Wrote ${publishedArticlePath}`);
 
-function renderArticleHtml({ articleTitle, articleBody, slideDocument, scriptPublished, aiSourcesPublished }) {
+function renderArticleHtml({ articleTitle, articleBody, slideDocument, scriptPublished }) {
   const scriptLink = scriptPublished
     ? '<a href="./presentation-script.html">発表原稿</a>'
-    : '';
-  const aiSourcesLink = aiSourcesPublished
-    ? '<a href="./ai-sources/">AI向けsource</a>'
     : '';
 
   return `<!doctype html>
@@ -205,7 +200,6 @@ function renderArticleHtml({ articleTitle, articleBody, slideDocument, scriptPub
     <nav aria-label="関連資料">
       <a href="./${escapeHtml(slideDocument)}">スライド</a>
       ${scriptLink}
-      ${aiSourcesLink}
     </nav>
     <article>
 ${articleBody}
