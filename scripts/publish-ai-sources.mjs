@@ -64,16 +64,7 @@ for (const fileName of markdownFiles) {
     throw new Error(`ai-sources/${fileName} must contain exactly one H1 title; found ${h1Tokens.length}`);
   }
 
-  marked.use({
-    walkTokens(token) {
-      if (token.type === 'html') {
-        throw new Error(`ai-sources/${fileName} must be Markdown only; raw HTML is not allowed`);
-      }
-      if ((token.type === 'link' || token.type === 'image') && !safeHref(token.href)) {
-        throw new Error(`ai-sources/${fileName} contains an unsafe URL scheme: ${token.href}`);
-      }
-    },
-  });
+  validateTokens(tokens, fileName);
 
   sources.push({
     fileName,
@@ -152,6 +143,30 @@ ${items}
 </body>
 </html>
 `;
+}
+
+function validateTokens(tokens, fileName) {
+  const seen = new Set();
+
+  function visit(value) {
+    if (!value || typeof value !== 'object' || seen.has(value)) return;
+    seen.add(value);
+
+    if (value.type === 'html') {
+      throw new Error(`ai-sources/${fileName} must be Markdown only; raw HTML is not allowed`);
+    }
+    if ((value.type === 'link' || value.type === 'image') && !safeHref(value.href)) {
+      throw new Error(`ai-sources/${fileName} contains an unsafe URL scheme: ${value.href}`);
+    }
+
+    if (Array.isArray(value)) {
+      for (const item of value) visit(item);
+      return;
+    }
+    for (const child of Object.values(value)) visit(child);
+  }
+
+  visit(tokens);
 }
 
 function safeHref(value) {
