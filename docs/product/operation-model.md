@@ -33,7 +33,7 @@ GitHub Actions
   ↓
 Marp
   ├─ HTML             常時生成
-  │   └─ GitHub Pages 設定時のみ公開
+  │   └─ GitHub Pages 既定で公開
   └─ PDF              設定時のみ
 ```
 
@@ -161,7 +161,7 @@ Google Slides生成はresearch / prototypeで継続し、共通レイアウト�
 - `slides.md` / config / theme / build処理の変更でGitHub Actionsが自動buildする。
 - 公開用HTMLは `dist/site/` に分離する。
 - 生成物はActions artifactとして取得可能にする。
-- GitHub Pages公開は明示的に有効化するまで行わない。
+- GitHub Pages公開はテンプレート既定で有効にする。公開したくない資料だけ明示的に無効化する。
 
 ### GitHub Pages
 
@@ -181,7 +181,7 @@ actions/deploy-pages
 GitHub Pages
 ```
 
-テンプレート既定値は `false` とします。
+テンプレート既定値は `true` とします。公開を望まない資料では `false` に変更します。
 
 GitHubの制約上、各presentation repositoryでPages自体が未有効の場合、標準の `GITHUB_TOKEN` だけでは `configure-pages` が自動有効化できません。初回だけrepositoryの Settings > Pages でGitHub Actions publishingを有効にする運用を基本とし、自動有効化のためだけに高権限PATを標準要求しません。
 
@@ -199,7 +199,7 @@ GitHubの制約上、各presentation repositoryでPages自体が未有効の場�
 初期方針:
 
 - HTML: 必須・常時生成
-- GitHub Pages: optional publish、既定OFF
+- GitHub Pages: optional publish、**既定ON**。不要な資料だけOFF
 - PDF: optional output、既定OFF
 - Google Slides: production未対応
 - PPTX: production未対応
@@ -217,5 +217,5 @@ GitHubの制約上、各presentation repositoryでPages自体が未有効の場�
 3. 不要なページを削除する
 4. commit / pushする
 5. Actions が HTML を生成する
-6. 必要なら PDF / Pages を config で有効化する
+6. 必要なら PDF を有効化する。Pagesを公開しない資料では明示的にOFFへ変更する
 ```
