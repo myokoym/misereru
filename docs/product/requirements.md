@@ -45,6 +45,7 @@ presentation repository
   ├─ misereru.config.json
   ├─ .agents/skills/misereru-slide-writing/SKILL.md
   ├─ .agents/skills/misereru-presentation-script/SKILL.md
+  ├─ .agents/skills/misereru-ai-source-writing/SKILL.md
   ├─ assets/
   ├─ themes/
   └─ GitHub Actions
@@ -78,6 +79,11 @@ Google Slides / PPTX は初期production targetには含めません。renderer 
 - 正本は **ChatGPT と GitHub から安全に編集できるテキスト中心の構成**にする。
 - 初期 template では `slides.md` を必須の正本 source とする。
 - `presentation-script.md` は任意とし、slides-only運用を標準で許容する。
+- ChatGPT等へ直接アップロードするAI向け参照資料を任意sourceとして持てる。
+- AI向け参照資料のファイル名は用途名ではなく主題名にする。例: `level-design.md`。
+- AI向け参照資料は原則「1つのまとまった主題 = 1ファイル」とし、小概念単位へ機械的に細分化しない。
+- 複数ファイル化は、別主題として独立利用する意味がある場合だけ許容する。文字数だけを分割理由にしない。
+- AI向け参照資料はAgent Skillと区別する。Skillは作業手順、topic-named MarkdownはAIへ渡す知識・判断基準である。
 - `presentation-script.md` が存在する場合も、全slide分の原稿を通常運用で強制しない。partial scriptを正当な状態として扱う。
 - 正本 `slides.md` には renderer 固有 front matter を必須にしない。
 - 1ファイル完結を永続的な製品制約にはしない。
@@ -129,6 +135,7 @@ presentation-project/
 
 - `.agents/skills/misereru-slide-writing/SKILL.md`
 - `.agents/skills/misereru-presentation-script/SKILL.md`
+- `.agents/skills/misereru-ai-source-writing/SKILL.md`
 
 `misereru-slide-writing` に求める要件:
 
