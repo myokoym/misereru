@@ -63,7 +63,7 @@ Mermaid block → PNG（存在する場合）
   ↓
 Marp
   ├─ HTML             常時生成
-  │   └─ GitHub Pages 設定時のみ公開
+  │   └─ GitHub Pages 既定で公開
   └─ PDF              設定時のみ
 ```
 
@@ -202,7 +202,7 @@ complete scriptは通常資料の完成条件ではありません。
 
 - **HTML: 必須・既定。Marpで常時生成。**
 - PDF: optional。同じMarp renderer / themeで生成。
-- GitHub Pages: explicit opt-in。HTML生成とは分離し、明示的に有効化するまで公開しない。
+- GitHub Pages: HTML生成とは分離したpublish targetだが、**templateでは既定ON**。公開しない資料だけexplicit opt-outする。
 - Actions artifact: HTML等の生成物を常に取得可能にする。
 - Google Slides: production未対応。
 - PPTX: production未対応。
