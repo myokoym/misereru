@@ -114,12 +114,12 @@ Skill自体はGitHub Actionsのbuild依存にしません。Skillを解釈しな
 
 調査・記事・スライドから、ChatGPT等へそのままアップロードして再利用するMarkdown参照資料を任意で持てる。
 
-固定の `ai-reference.md` ではなく、ダウンロード後も主題が分かるファイル名を使う。
+AI向けsourceはroot直下ではなく `ai-sources/` に置く。固定の `ai-reference.md` ではなく、ダウンロード後も主題が分かるファイル名を使う。
 
 ```text
-level-design.md
-urban-planning.md
-openjev.md
+ai-sources/level-design.md
+ai-sources/urban-planning.md
+ai-sources/openjev.md
 ```
 
 原則は **1つのまとまった主題 = 1ファイル** とする。主題として一体なら、多少長くても1ファイルを維持する。小概念ごとの機械的分割はしない。
