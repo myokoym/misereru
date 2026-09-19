@@ -2,6 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-09-17
+- Amendment: GitHub Pages の既定値は [ADR-0005](0005-enable-pages-by-default.md) でONへ変更
 
 ## Context and Problem Statement
 
