@@ -1,6 +1,6 @@
 # Enable GitHub Pages by default for derived presentation repositories
 
-- Status: Accepted
+- Status: Superseded by ADR-0006
 - Date: 2026-09-19
 - Amends: ADR-0002 の GitHub Pages explicit opt-in 部分
 
