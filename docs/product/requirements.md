@@ -80,7 +80,7 @@ Google Slides / PPTX は初期production targetには含めません。renderer 
 - 初期 template では `slides.md` を必須の正本 source とする。
 - `presentation-script.md` は任意とし、slides-only運用を標準で許容する。
 - ChatGPT等へ直接アップロードするAI向け参照資料を任意sourceとして持てる。
-- AI向け参照資料のファイル名は用途名ではなく主題名にする。例: `level-design.md`。
+- AI向け参照資料は `ai-sources/` 配下へ置き、rootの正本群と役割を混同させない。ファイル名は用途名ではなく主題名にする。例: `ai-sources/level-design.md`。
 - AI向け参照資料は原則「1つのまとまった主題 = 1ファイル」とし、小概念単位へ機械的に細分化しない。
 - 複数ファイル化は、別主題として独立利用する意味がある場合だけ許容する。文字数だけを分割理由にしない。
 - AI向け参照資料はAgent Skillと区別する。Skillは作業手順、topic-named MarkdownはAIへ渡す知識・判断基準である。
