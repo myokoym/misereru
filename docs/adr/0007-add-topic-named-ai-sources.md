@@ -50,18 +50,6 @@ ai-sources/openjev.md
 
 topic-named AI sourceはresearchの事実関係に従い、articleの単純要約として作らない。
 
-## Pages distribution
-
-AI向けtopic sourceをPages公開する場合、Markdown本体をHTMLへ変換せず、主題名のまま配布する。
-
-```text
-/ai-sources/
-/ai-sources/<subject>.md
-```
-
-`/ai-sources/` にはdownload一覧を生成する。これによりrepository内ではfolderで用途を識別でき、利用時には `level-design.md` 等をそのまま取得してChatGPTへアップロードできる。
-
-公開は `publish.githubPages.aiSources.enabled` で個別に制御する。
 
 ## Consequences
 
