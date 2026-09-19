@@ -33,7 +33,7 @@ GitHub Actions
   ↓
 Marp
   ├─ HTML             常時生成
-  │   └─ GitHub Pages 既定で公開
+  │   └─ GitHub Pages 初版成立後に公開
   └─ PDF              設定時のみ
 ```
 
@@ -161,7 +161,20 @@ Google Slides生成はresearch / prototypeで継続し、共通レイアウト�
 - `slides.md` / config / theme / build処理の変更でGitHub Actionsが自動buildする。
 - 公開用HTMLは `dist/site/` に分離する。
 - 生成物はActions artifactとして取得可能にする。
-- GitHub Pages公開はテンプレート既定で有効にする。公開したくない資料だけ明示的に無効化する。
+- GitHub Pagesはテンプレート作成直後はOFFとする。ただしOFFを恒久的な非公開判断とはみなさず、slides / article のどちらか一つでも初版成立したら他形式の完成を待たず公開へ進む。
+
+### 初回公開の優先順位
+
+初回Pages公開は「全形式が揃ったか」ではなく、**単体で成立する成果物が一つできたか**で判断します。
+
+- slidesが先に成立したらslidesを公開する
+- articleが先に成立したらarticleを公開する
+- presentation scriptはslides依存のため、それ単独では初回公開トリガーにしない
+- 他形式がサンプル／未完成でも、それだけを理由に完成済み成果物のブラウザ閲覧を遅らせない
+- 未完成サンプルの同時露出は後で解消する表示上の問題として扱い、完成済み成果物を閲覧不能にする問題より優先度を下げる
+- confidential / private-only資料はこの自動的な公開判断の対象外
+
+「初版成立」は最終版ではなく、単体で通読・閲覧でき、テンプレート残骸や既知の重大な誤りがなく、buildが成功する状態を指します。
 
 ### GitHub Pages
 
@@ -181,7 +194,7 @@ actions/deploy-pages
 GitHub Pages
 ```
 
-テンプレート既定値は `true` とします。公開を望まない資料では `false` に変更します。
+テンプレート作成直後の既定値は `false` とします。これは安全な開始状態であり、公開しない意思決定ではありません。slides / article のどちらか一つでも初版が成立したら `true` へ切り替えます。
 
 GitHubの制約上、各presentation repositoryでPages自体が未有効の場合、標準の `GITHUB_TOKEN` だけでは `configure-pages` が自動有効化できません。初回だけrepositoryの Settings > Pages でGitHub Actions publishingを有効にする運用を基本とし、自動有効化のためだけに高権限PATを標準要求しません。
 
@@ -199,7 +212,7 @@ GitHubの制約上、各presentation repositoryでPages自体が未有効の場�
 初期方針:
 
 - HTML: 必須・常時生成
-- GitHub Pages: optional publish、**既定ON**。不要な資料だけOFF
+- GitHub Pages: optional publish。作成直後はOFF、最初のpublishable artifactが初版成立したらON
 - PDF: optional output、既定OFF
 - Google Slides: production未対応
 - PPTX: production未対応
@@ -217,5 +230,5 @@ GitHubの制約上、各presentation repositoryでPages自体が未有効の場�
 3. 不要なページを削除する
 4. commit / pushする
 5. Actions が HTML を生成する
-6. 必要なら PDF を有効化する。Pagesを公開しない資料では明示的にOFFへ変更する
+6. slides / article のどちらかが初版成立したらPagesを有効化する。PDFは必要な場合だけ有効化する
 ```
