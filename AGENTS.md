@@ -56,7 +56,7 @@ branch方針を決める前に、**現在作業しているrepositoryがmisereru
 - `slides.md`: スライド内容の正本
 - `presentation-script.md`: 任意の発表原稿の正本
 - `article.md`: 任意の単体完結記事の正本
-- `<subject>.md`: 任意のAI向けsource。例: `level-design.md`。ChatGPT等へ直接アップロードする主題別参照資料
+- `ai-sources/<subject>.md`: 任意のAI向けsource。例: `ai-sources/level-design.md`。ChatGPT等へ直接アップロードする主題別参照資料
 - `research.md`: 存在する場合、出典・第三者検証・留保・更新履歴を持つ調査台帳
 - `misereru.config.json`: output / publish設定の正本
 - `dist/`: build生成物。直接編集しない
@@ -137,7 +137,7 @@ PPTX、Google Slides、PDF、別repository等を新たに作るのは、ユー�
 
 Skillは書き方・レビュー規則、`AGENTS.md`はrepository運用と誤操作防止を担います。両方を適用します。
 
-AI向けsourceは固定ファイル名にしません。主題が `level design` なら `level-design.md` のように、ダウンロード後も内容が識別できる名前を使います。原則は1つのまとまった主題を1ファイルに保ち、小概念ごとの細切れ化を避けます。
+AI向けsourceはroot直下へ置かず `ai-sources/` にまとめます。固定ファイル名にはせず、主題が `level design` なら `ai-sources/level-design.md` のように配置します。ダウンロード後のファイル名は `level-design.md` のままなので、用途folderの文脈を失っても主題を識別できます。原則は1つのまとまった主題を1ファイルに保ち、小概念ごとの細切れ化を避けます。
 
 ## 7.5 初回Pages公開の判断
 
