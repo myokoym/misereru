@@ -164,14 +164,14 @@ https://<owner>.github.io/<repository>/article.html
 
 調査や記事から、ChatGPT等へそのままアップロードして再利用するMarkdown参照資料を作れます。
 
-固定名の `ai-reference.md` は使いません。**ダウンロード後にrepository文脈を失っても主題が分かるファイル名**にします。
+AI向けsourceはroot直下ではなく `ai-sources/` にまとめます。固定名の `ai-reference.md` は使わず、**ダウンロード後にrepository文脈を失っても主題が分かるファイル名**にします。
 
 例:
 
 ```text
-level-design.md
-urban-planning.md
-openjev.md
+ai-sources/level-design.md
+ai-sources/urban-planning.md
+ai-sources/openjev.md
 ```
 
 原則は **1つのまとまった主題 = 1ファイル** です。flow / pacing / wayfindingのような小概念ごとに機械的に細分化せず、1主題として一体なら多少長くても1ファイルを維持します。複数ファイルにするのは、別主題として単独利用する意味がある場合だけです。
