@@ -21,9 +21,6 @@
       },
       "article": {
         "enabled": false
-      },
-      "aiSources": {
-        "enabled": false
       }
     }
   }
