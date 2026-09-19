@@ -84,8 +84,6 @@ Google Slides / PPTX は初期production targetには含めません。renderer 
 - AI向け参照資料は原則「1つのまとまった主題 = 1ファイル」とし、小概念単位へ機械的に細分化しない。
 - 複数ファイル化は、別主題として独立利用する意味がある場合だけ許容する。文字数だけを分割理由にしない。
 - AI向け参照資料はAgent Skillと区別する。Skillは作業手順、topic-named MarkdownはAIへ渡す知識・判断基準である。
-- AI向け参照資料をPages公開する場合、Markdown本体を主題名のまま直接取得できるURLを提供する。
-- 複数のAI向け参照資料がある場合、Pages上にdownload一覧を生成できる。
 - `presentation-script.md` が存在する場合も、全slide分の原稿を通常運用で強制しない。partial scriptを正当な状態として扱う。
 - 正本 `slides.md` には renderer 固有 front matter を必須にしない。
 - 1ファイル完結を永続的な製品制約にはしない。
@@ -211,9 +209,9 @@ complete scriptは通常資料の完成条件ではありません。
 
 - **HTML: 必須・既定。Marpで常時生成。**
 - PDF: optional。同じMarp renderer / themeで生成。
-- GitHub Pages: HTML生成とは分離したpublish target。template作成直後はOFFだが、slides / article / AI向けtopic source のいずれか一つでも初版成立したら、他形式の完成を待たずONへ移行する。
+- GitHub Pages: HTML生成とは分離したpublish target。template作成直後はOFFだが、slides / article のどちらか一つでも初版成立したら、他形式の完成を待たずONへ移行する。
 - Actions artifact: HTML等の生成物を常に取得可能にする。
-- 初回Pages公開の成立条件は「全形式完成」ではなく「単体で成立するpublishable artifactが1つ以上あること」とする。AI向けtopic sourceもpublishable artifactに含める。
+- 初回Pages公開の成立条件は「全形式完成」ではなく「単体で成立するpublishable artifactが1つ以上あること」とする。
 - articleが最初の成立成果物である場合、未完成のsample slidesが一時的に同時公開されることだけを理由にarticle公開を遅らせない。
 - confidential / private-only指定、credentials、個人情報、社外秘情報等がある場合は上記自動判断より非公開条件を優先する。
 - Google Slides: production未対応。
