@@ -160,6 +160,24 @@ https://<owner>.github.io/<repository>/article.html
 
 記事公開はスライドや発表原稿の公開設定とは独立しています。`article.enabled: true` なのに `article.md` が存在しない場合、GitHub Pages自体が無効な場合、H1が1つでない場合、raw HTMLまたは危険なURL schemeを含む場合はbuild errorにします。
 
+## AI向けsourceも任意
+
+調査や記事から、ChatGPT等へそのままアップロードして再利用するMarkdown参照資料を作れます。
+
+固定名の `ai-reference.md` は使いません。**ダウンロード後にrepository文脈を失っても主題が分かるファイル名**にします。
+
+例:
+
+```text
+level-design.md
+urban-planning.md
+openjev.md
+```
+
+原則は **1つのまとまった主題 = 1ファイル** です。flow / pacing / wayfindingのような小概念ごとに機械的に細分化せず、1主題として一体なら多少長くても1ファイルを維持します。複数ファイルにするのは、別主題として単独利用する意味がある場合だけです。
+
+AI向けsourceは `.agents/skills/misereru-ai-source-writing/SKILL.md` の規則で作成・レビューします。これはAgent Skillそのものではなく、AIへ主題知識・判断基準を渡す成果物です。
+
 ## AIでの資料編集
 
 テンプレートには、repository運用を固定する [`AGENTS.md`](AGENTS.md) と、misereru用のAgent Skillを含めます。
@@ -171,6 +189,7 @@ Agent Skillは各成果物の内容設計を担当します。
 - [`misereru-slide-writing`](.agents/skills/misereru-slide-writing/SKILL.md): `slides.md` の構成・文章・根拠・密度・図解判断を扱う
 - [`misereru-presentation-script`](.agents/skills/misereru-presentation-script/SKILL.md): 任意の発表原稿作成とslideとの相互レビューを扱う
 - [`misereru-article-writing`](.agents/skills/misereru-article-writing/SKILL.md): 単体で読める記事の構成・文章と、slides / researchとの整合性を扱う
+- [`misereru-ai-source-writing`](.agents/skills/misereru-ai-source-writing/SKILL.md): ChatGPT等へ直接アップロードする主題名Markdownの構成、分割判断、research等との整合性を扱う
 
 配置はCodexのrepository-scoped Skill discoveryに合わせて `.agents/skills/` とします。`AGENTS.md` はSkill発見のためではなく、repository全体の運用・誤操作防止のために置きます。
 
@@ -199,6 +218,7 @@ mermaid.config.json                                     # Mermaid共通theme / �
 .agents/skills/misereru-slide-writing/SKILL.md          # AI向けスライド内容・図解設計ルール
 .agents/skills/misereru-presentation-script/SKILL.md    # AI向け発表原稿・相互レビュー規則
 .agents/skills/misereru-article-writing/SKILL.md        # AI向け記事作成・整合性確認規則
+.agents/skills/misereru-ai-source-writing/SKILL.md      # AIへアップロードする主題別Markdown作成規則
 package.json                                            # build依存とcommand
 marp.config.mjs                                         # Marp設定
 themes/                                                 # 日本語向けMarp theme
