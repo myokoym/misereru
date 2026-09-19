@@ -21,7 +21,6 @@ Pagesはtemplate作成直後にはOFFとするが、これは恒久的な非公�
 
 - `slides.md`: テンプレート残骸ではなく、一つの資料として最初から最後まで閲覧できる
 - `article.md`: スライドや口頭補足なしで、一つの記事として最初から最後まで読める
-- `ai-sources/<subject>.md`: ChatGPT等へ単独アップロードして、その主題の主要判断に利用できる
 
 presentation script はslides依存のため、単独では初回公開トリガーにしない。
 
