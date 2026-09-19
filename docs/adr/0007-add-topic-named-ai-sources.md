@@ -13,14 +13,14 @@ articleは人間向けの読み物であり、Agent SkillはAIへ作業手順を
 
 ## Decision Outcome
 
-AI向け参照資料は、固定名ではなく**主題名をそのままファイル名にしたMarkdown**として扱う。
+AI向け参照資料は、root直下ではなく `ai-sources/` にまとめ、固定名ではなく**主題名をそのままファイル名にしたMarkdown**として扱う。
 
 例:
 
 ```text
-level-design.md
-urban-planning.md
-openjev.md
+ai-sources/level-design.md
+ai-sources/urban-planning.md
+ai-sources/openjev.md
 ```
 
 原則は **1つのまとまった主題 = 1ファイル**。
@@ -33,7 +33,7 @@ openjev.md
 
 `.agents/skills/misereru-ai-source-writing/SKILL.md` は、topic-named Markdownの**作成・レビュー方法**を定める。
 
-一方、`level-design.md` 等はChatGPT等へアップロードする**成果物そのもの**である。
+一方、`ai-sources/level-design.md` 等はChatGPT等へアップロードする**成果物そのもの**である。repository内ではfolderで用途を明示し、download後は `level-design.md` のように主題名だけが残る。
 
 両者を同じ「Skill」として扱わない。
 
@@ -57,3 +57,4 @@ topic-named AI sourceはresearchの事実関係に従い、articleの単純要�
 - 一主題を一ファイルへまとめるため、参照漏れ・重複・定義ずれを抑えやすい。
 - 必要なら1projectで複数主題ファイルを持てる。
 - templateには主題不明のplaceholder Markdownを置かない。
+- root直下の `research.md` / `article.md` / `slides.md` とAI向けsourceの役割を、`ai-sources/` で視覚的に分離できる。
