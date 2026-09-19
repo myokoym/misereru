@@ -2,7 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-09-17
-- Amendment: GitHub Pages の既定値は [ADR-0005](0005-enable-pages-by-default.md) でONへ変更
+- Amendment: GitHub Pages運用は [ADR-0006](0006-publish-first-complete-artifact.md) で「作成直後OFF／最初の成立成果物でON」へ変更
 
 ## Context and Problem Statement
 
