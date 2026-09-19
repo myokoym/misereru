@@ -1,6 +1,6 @@
 # Initial operation model
 
-最終更新: 2026-09-18
+最終更新: 2026-09-19
 
 misereru の初期運用で利用者が通常触る経路を定義します。
 
@@ -51,6 +51,21 @@ develop   = 開発・統合用。docs / research / prototype等を含む
 `main` には資料repositoryが単独でbuildできるために必要なファイルに加え、資料repository内でAI編集支援を再現するためのSkillを置きます。`develop` には設計資料、調査、検証コード等を追加できます。
 
 Template Repositoryから通常作成する資料repositoryではdefault branchである `main` の内容を使う想定です。開発資料を利用者側へコピーしないため、配布対象と開発専用資料を同じbranchへ混在させません。
+
+### 派生repositoryのbranch方針
+
+misereru本体の `main` / `develop` は、templateの配布物とmisereru自身の開発資料を分けるための内部構成です。**このbranch modelを、Template Repositoryから作成した資料repositoryへ自動継承しません。**
+
+派生repositoryでは次を既定とします。
+
+- repository固有のREADME / AGENTSに別規定がなければ、default branchを正本とする
+- 「調査中」「草稿」「未公開」をbranch分離の理由にしない
+- 調査履歴を保存するrepositoryでは、`research.md`、source、仮説、修正履歴をdefault branchへ積み上げる
+- 履歴の時間軸はGit commit historyと調査正本で保持する
+- branch新設は、並行作業、破壊的再構成、独立実験、PR review、公開版freezeなど、隔離する具体的対象がある場合だけにする
+- branchを作る前に「何を隔離するか」「default branchではなぜ不十分か」を確認する
+
+したがって、misereru本体のbranch名やbranch役割は、派生repositoryの「完成／未完成」「公開／未公開」の状態表現として使いません。
 
 ## `slides.md` はサンプル兼テンプレート
 
