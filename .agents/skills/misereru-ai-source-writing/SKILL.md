@@ -17,17 +17,17 @@ AI向けsourceは、人間向け記事の要約でも、Agent Skillそのもの�
 
 AI向けsourceはChatGPTプロジェクト等へ単独でアップロードして使える状態を目指す。
 
-## 2. ファイル名
+## 2. 配置とファイル名
 
-ファイル名は役割名ではなく**主題名**にする。
+AI向けsourceはroot直下へ散らさず、原則として `ai-sources/` 配下へ置く。folder名で用途を明示し、ファイル名は役割名ではなく**主題名**にする。
 
 推奨:
 
 ```text
-level-design.md
-urban-planning.md
-openjev.md
-museum-management.md
+ai-sources/level-design.md
+ai-sources/urban-planning.md
+ai-sources/openjev.md
+ai-sources/museum-management.md
 ```
 
 避ける:
@@ -40,7 +40,7 @@ skill.md
 guide.md
 ```
 
-ダウンロード後にrepositoryやfolderの文脈を失っても、ファイル名だけで主題が分かることを優先する。
+repository内では `ai-sources/` で用途を識別し、ダウンロード後は `level-design.md` のようにファイル名だけで主題が分かることを優先する。root直下に置いて `research.md` / `article.md` / `slides.md` と役割を混同させない。
 
 ## 3. 分割原則
 
