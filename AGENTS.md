@@ -23,13 +23,28 @@
 
 `develop`で資料repositoryの運用ルール自体を変更する場合、将来`main`へ昇格させるべきproduction契約か、開発branchだけの補助情報かを区別します。
 
+
+### 派生repositoryへbranch modelを継承しない
+
+上記の `main` / `develop` 2branch modelは、**misereru本体の内部開発運用だけ**に適用します。Template Repositoryから作成した資料・調査repositoryへ、自動的に同じbranch modelを持ち込みません。
+
+派生repositoryでは、作業開始時にそのrepository自身の `README.md` / `AGENTS.md` / default branch を確認します。別のbranch方針が明示されていない場合は、default branchを現在の正本として扱います。
+
+特に次を守ります。
+
+- 「調査中」「未完成」「まだ公開しない」という理由だけで `develop` branchを作らない
+- 調査履歴の保持を目的とするrepositoryでは、`research.md`、source ledger、中間仮説、更新履歴をdefault branchへ継続的に蓄積してよい
+- 調査履歴はGit commit historyと調査正本で保持し、branch分離を履歴保存の代替にしない
+- branchを新設するのは、並行作業、破壊的な大規模再構成、独立した実験、PRレビュー、公開版freeze等、**default branchから隔離する具体的理由**がある場合だけにする
+- branchを作る前に「何を隔離するのか」「なぜdefault branchでは安全に扱えないのか」を説明できない場合は作らない
+
 ## 1. Repository-first
 
 既存のmisereru資料を更新する依頼では、最初にその資料のrepositoryを作業対象として確定します。
 
 作業開始前に最低限、次を確認します。
 
-1. repository名と現在のbranch
+1. repository名、misereru本体か派生repositoryか、現在のbranchとrepository固有のbranch方針
 2. `README.md`
 3. `misereru.config.json`
 4. 存在する正本ファイル（現在は `slides.md`、`presentation-script.md`、`docs/` 等）
