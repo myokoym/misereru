@@ -147,6 +147,7 @@ AI向けsourceはroot直下へ置かず `ai-sources/` にまとめます。固�
 
 - `slides.md`: テンプレート残骸ではなく、一つの資料として通して閲覧できる
 - `article.md`: 単体で前提・根拠・留保・結論まで読める
+- `ai-sources/<subject>.md`: ChatGPT等へ単独アップロードして主要判断に使える
 
 このとき、もう一方の成果物が未完成であることだけを理由に公開を遅らせません。特に、完成した記事をPagesで確認できないことの方が、未完成のサンプルslideが一時的に公開されることより運用上の問題が大きい場合は、記事の閲覧経路を優先します。
 
@@ -156,7 +157,7 @@ AI向けsourceはroot直下へ置かず `ai-sources/` にまとめます。固�
 - credentials、個人情報、社外秘情報等を含む資料
 - 重大な事実誤認や欠落が分かっており、単体成果物として成立していない状態
 
-PagesをONにしたら、対象成果物の個別publish設定も確認します。記事が最初の完成成果物なら `article.enabled` もONにします。
+PagesをONにしたら、対象成果物の個別publish設定も確認します。記事が最初の完成成果物なら `article.enabled`、AI向けsourceが最初なら `aiSources.enabled` もONにします。
 
 ## 8. build / publish確認
 
