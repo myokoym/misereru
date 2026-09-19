@@ -15,6 +15,7 @@ presentation repository
   ├─ slides.md
   ├─ misereru.config.json
   ├─ .agents/skills/misereru-slide-writing/SKILL.md
+  ├─ .agents/skills/misereru-ai-source-writing/SKILL.md
   ├─ package.json
   ├─ marp.config.mjs
   ├─ themes/
@@ -108,6 +109,26 @@ Skillの主な責務:
 Skill自体はGitHub Actionsのbuild依存にしません。Skillを解釈しない編集環境でも、`slides.md` とbuildは通常どおり利用できます。
 
 参照元として、既存の高品質なpresentation / Marp / Japanese technical writing Skill・規範をSkill内に記録します。外部Skillを実行時依存にはせず、misereru用の規則はrepository内で完結させます。
+
+## AI向けtopic source
+
+調査・記事・スライドから、ChatGPT等へそのままアップロードして再利用するMarkdown参照資料を任意で持てる。
+
+固定の `ai-reference.md` ではなく、ダウンロード後も主題が分かるファイル名を使う。
+
+```text
+level-design.md
+urban-planning.md
+openjev.md
+```
+
+原則は **1つのまとまった主題 = 1ファイル** とする。主題として一体なら、多少長くても1ファイルを維持する。小概念ごとの機械的分割はしない。
+
+複数ファイル化は、別主題として単独利用する意味があり、前提・対象・判断基準が明確に異なる場合だけ行う。文字数だけを理由に分割しない。
+
+AI向けtopic sourceはAgent Skillではない。`.agents/skills/misereru-ai-source-writing/SKILL.md` が**作成・レビュー手順**を定め、`level-design.md` 等が**AIへ渡す成果物**になる。
+
+調査型repositoryでは、researchを根拠の正本とし、topic sourceは定義、判断手順、適用条件、反例、hard gate、anti-pattern等へ再構成する。articleの単純要約にはしない。
 
 ## 初期 source
 
