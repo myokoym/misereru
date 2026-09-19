@@ -7,7 +7,6 @@ on:
       - 'slides.md'
       - 'presentation-script.md'
       - 'article.md'
-      - 'ai-sources/**'
       - 'misereru.config.json'
       - 'mermaid.config.json'
       - 'themes/**'
@@ -17,7 +16,6 @@ on:
       - 'scripts/verify-rendered-diagrams.mjs'
       - 'scripts/render-presentation-script.mjs'
       - 'scripts/render-article.mjs'
-      - 'scripts/publish-ai-sources.mjs'
       - 'package.json'
       - '.github/workflows/build.yml'
 
