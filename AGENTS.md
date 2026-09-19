@@ -56,6 +56,7 @@ branch方針を決める前に、**現在作業しているrepositoryがmisereru
 - `slides.md`: スライド内容の正本
 - `presentation-script.md`: 任意の発表原稿の正本
 - `article.md`: 任意の単体完結記事の正本
+- `<subject>.md`: 任意のAI向けsource。例: `level-design.md`。ChatGPT等へ直接アップロードする主題別参照資料
 - `research.md`: 存在する場合、出典・第三者検証・留保・更新履歴を持つ調査台帳
 - `misereru.config.json`: output / publish設定の正本
 - `dist/`: build生成物。直接編集しない
@@ -87,7 +88,8 @@ PPTX、Google Slides、PDF、別repository等を新たに作るのは、ユー�
 3. 人に見せる価値がある内容を`slides.md`へ反映する
 4. `presentation-script.md`が存在し、該当slideを説明するなら同期する
 5. `article.md`が存在し、記事の理解に必要なら同期する
-6. 追跡方針やファイル役割が変わる場合だけ`README.md`も更新する
+6. AI向けの主題名Markdownが存在し、判断基準に影響する変更なら同期する
+7. 追跡方針やファイル役割が変わる場合だけ`README.md`も更新する
 
 すべての調査メモをスライドへ入れる必要はありません。`research.md`は詳細、`slides.md`は要約、`article.md`は単体で読める再構成、`presentation-script.md`は口頭説明です。
 
@@ -131,8 +133,11 @@ PPTX、Google Slides、PDF、別repository等を新たに作るのは、ユー�
 - slide編集: `misereru-slide-writing`
 - 発表原稿: `misereru-presentation-script`
 - 記事: `misereru-article-writing`
+- ChatGPT等へ直接アップロードする主題名Markdown: `misereru-ai-source-writing`
 
 Skillは書き方・レビュー規則、`AGENTS.md`はrepository運用と誤操作防止を担います。両方を適用します。
+
+AI向けsourceは固定ファイル名にしません。主題が `level design` なら `level-design.md` のように、ダウンロード後も内容が識別できる名前を使います。原則は1つのまとまった主題を1ファイルに保ち、小概念ごとの細切れ化を避けます。
 
 ## 7.5 初回Pages公開の判断
 
