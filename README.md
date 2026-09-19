@@ -29,7 +29,7 @@ Mermaid block → PNG（存在する場合）
 Marp
   ├─ HTML             常時生成
   ├─ PDF              設定時のみ
-  └─ GitHub Pages     既定で公開
+  └─ GitHub Pages     初版成立後に公開
 ```
 
 通常編集するのは [`slides.md`](slides.md) です。必要に応じて [`presentation-script.md`](presentation-script.md) と [`article.md`](article.md) を併用します。出力や公開方法を変える場合だけ [`misereru.config.json`](misereru.config.json) を編集します。
@@ -124,6 +124,17 @@ npm run build:script-complete
 - raw HTMLは使わず、Markdownだけで記述する
 - 主要な事実・数値・条件・留保はslides / research等と矛盾させない
 
+### 初回Pages公開のタイミング
+
+Pagesは「全形式完成」を待ちません。次のいずれかが成立した時点を初回公開の目安とします。
+
+- `slides.md` が、テンプレート残骸ではなく一つの資料として最初から最後まで閲覧できる
+- `article.md` が、スライドや口頭補足なしで一つの記事として最初から最後まで読める
+
+「初版成立」は最終版を意味しません。以後の修正・追加を前提として構いません。重要なのは、公開対象そのものに致命的な欠落やテンプレート残骸がなく、buildが通り、既知の重大な事実誤認が残っていないことです。
+
+一方、他形式が未完成であることは公開阻害条件にしません。たとえば記事が初版成立していれば、`slides.md` がまだサンプル状態でも、記事をPagesで確認できることを優先します。サンプルの同時公開は後で解消すべき表示上の問題ですが、完成済み成果物を閲覧不能にするより優先度を下げます。
+
 ### 記事のGitHub Pages公開
 
 記事を公開したい資料だけ、次を明示的に有効化します。
@@ -167,12 +178,12 @@ Agent Skillは各成果物の内容設計を担当します。
 
 - HTML: 有効。`dist/site/index.html` を生成
 - PDF: 無効。必要な資料だけ有効化
-- GitHub Pages: **有効が既定**。公開したくない資料だけ明示的に無効化
+- GitHub Pages: テンプレート作成直後は無効。**slides または article のどちらか一つでも初版が成立したら有効化**
 - GitHub Pages上の発表原稿: 無効。明示時のみ `presentation-script.html` を生成・公開
 - GitHub Pages上の記事: 無効。明示時のみ `article.html` を生成・公開
 - Google Slides / PPTX: 初期production targetには含めない
 
-GitHub Pagesはテンプレート上では既定ONです。各資料repositoryでは初回だけ Settings > Pages から GitHub Actions publishing を有効化する必要があります。公開したくない資料は `misereru.config.json` の `publish.githubPages.enabled` を `false` にします。
+Template Repositoryでは、空の企画・サンプル状態を即公開しないため `publish.githubPages.enabled` は既定OFFです。ただし、このOFFを「この資料は公開しないという意思決定」と解釈しません。`slides.md` または `article.md` のどちらか一つでも、単体で一通り読める／見られる初版になった時点でPagesをONにします。他形式が未完成でも待ちません。特に、完成した記事をブラウザで確認できないことを避けるため、未完成のサンプルslideが一時的に同時公開されることだけを理由にPages公開を遅らせません。
 
 ## Template files
 
